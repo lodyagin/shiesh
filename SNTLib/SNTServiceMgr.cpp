@@ -5,11 +5,7 @@
 
 using namespace std;
 
-/*
-#define MGR  SNTServiceMgr::mgr()
-#define TRY    try {
-#define CATCH  } catch ( exception & x ) { MGR.handleError(x); }
-*/
+Logging SNTServiceMgr::m_Logging("SNTServiceMgr");
 
 SNTServiceMgr::SNTServiceMgr( const string & name ) :
   service(0),
@@ -284,6 +280,9 @@ bool SNTServiceMgr::consoleControl( DWORD ctrl )
     case CTRL_CLOSE_EVENT:
     case CTRL_LOGOFF_EVENT:
     {
+      LOG4CXX_INFO 
+        (m_Logging.GetLogger (),
+         "Interrupt");
       service->stop();
       return true;
     }

@@ -8,6 +8,7 @@
 #include "SThread.h"
 #include "SException.h"
 #include "SSingleton.h"
+#include "Logging.h"
 
 
 #define SNTSRV_DEFWAITHINT 5000
@@ -87,6 +88,8 @@ protected:
 private:
 
   enum { srvNameSize = 1024 }; //TODO check
+
+  static Logging m_Logging;
 
   void startConsole();
   void startService();
