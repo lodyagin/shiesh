@@ -8,7 +8,7 @@ void MainThread::run ()
   WSADATA wsaData;
   SOCKET listen_socket = 0;
 
-  sSocketCheck
+  sSocketCheckWithMsg
     (::WSAStartup (MAKEWORD (2, 2), &wsaData) == 0,
       "WSAStartup failed");
   {

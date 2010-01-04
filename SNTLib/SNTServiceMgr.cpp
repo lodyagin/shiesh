@@ -199,7 +199,7 @@ void SNTServiceMgr::initStatus()
 
 void SNTServiceMgr::srvControl( DWORD ctrl )
 {
-  SThread thread(SThread::external);
+  SThread::create (SThread::external);
 
   switch ( ctrl )
   {
@@ -224,7 +224,7 @@ void SNTServiceMgr::srvControl( DWORD ctrl )
 void SNTServiceMgr::srvmain( DWORD /* argc */, LPTSTR * /* argv */ )
 {
 
-  SThread thread(SThread::main);
+  SThread::create (SThread::main);
   
   statusHandle = RegisterServiceCtrlHandler(serviceName, _srvControl);
   check(statusHandle != 0);
@@ -271,7 +271,7 @@ void SNTServiceMgr::srvmain( DWORD /* argc */, LPTSTR * /* argv */ )
 
 bool SNTServiceMgr::consoleControl( DWORD ctrl )
 {
-  SThread thread(SThread::external);
+  SThread::create (SThread::external);
 
   switch ( ctrl )
   {
@@ -347,7 +347,7 @@ SERVICE_TABLE_ENTRY SNTServiceMgr::dispatchTable [] =
 
 int SNTServiceMgr::main( int argc, char ** argv )
 {
-  SThread thread(SThread::external);
+  SThread::create (SThread::external);
  
   try
   {

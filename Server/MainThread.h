@@ -4,9 +4,10 @@
 class MainThread : public SThread
 {
 public:
-  MainThread ()
-    : SThread (main) 
-  {};
+  static MainThread* create ()
+  {
+    return new MainThread ();
+  }
 
 protected:
   // overrides

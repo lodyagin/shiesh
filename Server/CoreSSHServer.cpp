@@ -13,14 +13,13 @@ CServer::CServer () : main (NULL)
 
    checkHR(CoInitializeEx(0, COINIT_MULTITHREADED));
    LOG4CXX_INFO(AutoLogger.GetLogger(),"Start");
-   main = new MainThread ();
+   main = MainThread::create ();
 }
 
 CServer::~CServer()
 {
     static Logging AutoLogger("~CServer()",m_Logging);
 
-   delete main;
     LOG4CXX_INFO(AutoLogger.GetLogger(),"Stop");
    CoUninitialize();
 }
