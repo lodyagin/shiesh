@@ -26,9 +26,6 @@ CServer::~CServer()
 
 void CServer::run()
 {
-    static Logging AutoLogger("run()",m_Logging);
-
-   LOG4CXX_INFO(AutoLogger.GetLogger(),"Server starting...");
    main->start ();
    Parent::run();
 }
