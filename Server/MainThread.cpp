@@ -2,6 +2,7 @@
 #include "MainThread.h"
 #include "RListeningSocket.h"
 #include "SWinCheck.h"
+#include "CoreConnectionFactory.h"
 
 void MainThread::run ()
 {
@@ -16,7 +17,7 @@ void MainThread::run ()
     RListeningSocket listen_socket 
       (RServerSocketAddress (22));
 
-    ConnectionFactory cf;
+    CoreConnectionFactory cf;
 
     listen_socket.listen 
       (500,  //TODO

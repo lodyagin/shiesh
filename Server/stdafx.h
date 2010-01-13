@@ -12,6 +12,7 @@
 #define _WIN32_WINNT 0x0400
 // TODO: reference additional headers your program requires here
 
+#include "Logging.h"
 #include "SCheck.h"
 #include "SCommon.h"
 #include "SMutex.h"
