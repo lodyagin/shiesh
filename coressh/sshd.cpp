@@ -48,6 +48,7 @@
 #include "misc.h"
 #include "canohost.h"
 #include "CoreConnection.h"
+#include "../Server/Options.h" //FIXME
 
 namespace coressh {
 
@@ -406,9 +407,12 @@ sshd_exchange_identification
 	char buf[256];			/* Must not be larger than remote_version. */
 	char remote_version[256];	/* Must be at least as big as buf. */
 
-	snprintf(buf, sizeof buf, "SSH-%d.%d-%.100s%s", major, minor,
-	    "CoreSSH_1.0d3 obihod", newline);
-	char* server_version_string = xstrdup(buf);
+  char* server_version_string = xstrdup
+    (Options::instance ()
+      .get_protocol_version_exchange_string ()
+      .c_str ()
+      );
+
 
 	/* Send our protocol version identification. */
   if (atomicio_send(::send, sock_out, server_version_string,
@@ -453,9 +457,9 @@ sshd_exchange_identification
 		logit("Bad protocol version identification '%.100s' from %s",
 		    client_version_string, get_remote_ipaddr());
 		cleanup_exit(255);
-	}
-	debug("Client protocol version %d.%d; client software version %.100s",
-	    remote_major, remote_minor, remote_version);
+  }
+  logit("Client use software: %.100s, protocol version %d.%d",
+	    remote_version, remote_major, remote_minor);
 
 	compat_datafellows(remote_version);
 

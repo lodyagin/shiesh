@@ -35,6 +35,7 @@
 //#include "dispatch.h"
 //#include "pathnames.h"
 //#include "buffer.h"
+#include "../Server/Options.h" //FIXME
 
 #ifdef GSSAPI
 #include "ssh-gss.h"
@@ -199,6 +200,16 @@ CoreConnection::input_userauth_request(int type, u_int32_t seq, void *ctxt)
 	debug("userauth-request for user %s service %s method %s", user, service, method);
 	debug("attempt %d failures %d", authctxt->attempt, authctxt->failures);
 
+  if (strcmp (method, "none") != 0)
+  {
+    logit
+      ("try login as user [%s], login method: %s, attempt %d", 
+       user, 
+       method,
+       (int) authctxt->attempt
+       );
+  }
+
 	if ((role = strchr(user, '/')) != NULL)
 		*role++ = 0;
 
@@ -326,12 +337,12 @@ CoreConnection::userauth_finish(Authctxt *authctxt, int authenticated, char *met
 		if (!authctxt->server_caused_failure &&
 		    (authctxt->attempt > 1 || strcmp(method, "none") != 0))
 			authctxt->failures++;
-		/*if (authctxt->failures >= options.max_authtries) {
+    if (authctxt->failures >= Options::instance ().get_max_login_attempts ()) {
 #ifdef SSH_AUDIT_EVENTS
 			PRIVSEP(audit_event(SSH_LOGIN_EXCEED_MAXTRIES));
 #endif
 			packet_disconnect(AUTH_FAIL_MSG, authctxt->user);
-		}*/ //FIXME
+		}
 		methods = authmethods_get();
 		packet_start(SSH2_MSG_USERAUTH_FAILURE);
 		packet_put_cstring(methods);

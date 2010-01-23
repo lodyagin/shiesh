@@ -60,7 +60,7 @@ struct Authctxt {
   
   ~Authctxt ()
   {
-    delete pw;
+    //delete pw; //FIXME
   }
 
 	volatile bool	 success;

@@ -35,10 +35,12 @@
 
 // FIXME change the priority
 #define	KEX_DEFAULT_ENCRYPT \
-	"aes128-cbc,3des-cbc,blowfish-cbc,cast128-cbc," \
-	"arcfour128,arcfour256,arcfour," \
-	"aes192-cbc,aes256-cbc,rijndael-cbc@lysator.liu.se," \
-	"aes128-ctr,aes192-ctr,aes256-ctr"
+  "aes256-ctr,aes256-cbc," \
+  "aes192-ctr,aes192-cbc," \
+  "aes128-ctr,aes128-cbc," \
+	"3des-cbc,blowfish-cbc,cast128-cbc," \
+	"arcfour256,arcfour128,arcfour," \
+	"rijndael-cbc@lysator.liu.se" 
 #define	KEX_DEFAULT_MAC \
 	"hmac-md5,hmac-sha1,umac-64@openssh.com,hmac-ripemd160," \
 	"hmac-ripemd160@openssh.com," \
@@ -138,6 +140,7 @@ void CoreConnection::run ()
 
     do_ssh2_kex();
     do_authentication2 (authctxt);
+    logit ("User authenticated, start the session");
 
     for (int i = 0; i < 25; i++) //FIXME to options
     {
@@ -1080,7 +1083,9 @@ CoreConnection::packet_read_seqnr(u_int32_t *seqnr_p)
 			cleanup_exit(255);
 		}
 		if (len < 0)
-      fatal("Read from socket failed: %.100s", ::WSAGetLastError ());
+    {
+      sSocketCheck (false);
+    }
 		/* Append it to the buffer. */
 		packet_process_incoming(buf, len);
 	}
@@ -2072,7 +2077,7 @@ CoreConnection::kex_choose_conf(Kex *kex)
 		choose_enc (&newkeys->enc,  cprop[nenc],  sprop[nenc]);
 		choose_mac (&newkeys->mac,  cprop[nmac],  sprop[nmac]);
 		choose_comp(&newkeys->comp, cprop[ncomp], sprop[ncomp]);
-		debug("kex: %s %s %s %s",
+		logit("kex: %s cpiher=%s mac=%s compression=%s",
 		    ctos ? "client->server" : "server->client",
 		    newkeys->enc.name,
 		    newkeys->mac.name,

@@ -131,7 +131,7 @@
 				PreprocessorDefinitions="NDEBUG,WIN32,_LIB,LOG4CXX_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="1"

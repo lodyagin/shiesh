@@ -7,6 +7,7 @@
 #include "SException.h"
 #include "Logging.h"
 #include "SCommon.h"
+#include "SWinCheck.h"
 #include <winsock2.h>
 #include <string>
 
@@ -17,3 +18,4 @@
 #include "port.h"
 
 #include <openssl/ossl_typ.h>
+#include <assert.h>

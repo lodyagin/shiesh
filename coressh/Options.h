@@ -16,5 +16,8 @@ public:
 
   const std::string 
   get_protocol_version_exchange_string () const;
+
+  // TODO change to number in time interval
+  int get_max_login_attempts () const;
 };
 
