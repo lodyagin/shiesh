@@ -3,9 +3,18 @@
 #include "RListeningSocket.h"
 #include "SWinCheck.h"
 #include "CoreConnectionFactory.h"
+#include "SensitiveData.h"
+#include <openssl/evp.h>
 
 void MainThread::run ()
 {
+	SSLeay_add_all_algorithms();
+
+  // The singleton
+  // FIXME reenterab. everywere
+  SensitiveData* sensitive =
+    new SensitiveData;
+
   WSADATA wsaData;
   SOCKET listen_socket = 0;
 
