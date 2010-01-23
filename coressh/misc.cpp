@@ -26,6 +26,7 @@
 
 #include "StdAfx.h"
 #include "misc.h"
+#include <sys/timeb.h>
 
 namespace coressh {
 
@@ -125,6 +126,7 @@ set_nodelay(int fd)
 	if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &opt, sizeof opt) == -1)
 		error("setsockopt TCP_NODELAY: %.100s", strerror(errno));
 }
+#endif
 
 /* Characters considered whitespace in strsep calls. */
 #define WHITESPACE " \t\r\n"
@@ -170,6 +172,7 @@ strdelim(char **s)
 	return (old);
 }
 
+#if 0
 struct passwd *
 pwcopy(struct passwd *pw)
 {
@@ -590,6 +593,7 @@ percent_expand(const char *string, ...)
 	return (xstrdup(buf));
 #undef EXPAND_MAX_KEYS
 }
+#endif
 
 /*
  * Read an entire line from a public key file into a static buffer, discarding
@@ -606,7 +610,7 @@ read_keyfile_line(FILE *f, const char *filename, char *buf, size_t bufsz,
 		if (buf[strlen(buf) - 1] == '\n' || feof(f)) {
 			return 0;
 		} else {
-			debug("%s: %s line %lu exceeds size limit", __func__,
+			debug("%s: %s line %lu exceeds size limit", __FUNCTION__,
 			    filename, *lineno);
 			/* discard remainder of line */
 			while (fgetc(f) != '\n' && !feof(f))
@@ -616,6 +620,7 @@ read_keyfile_line(FILE *f, const char *filename, char *buf, size_t bufsz,
 	return -1;
 }
 
+#if 0
 int
 tun_open(int tun, int mode)
 {
@@ -708,6 +713,7 @@ sanitise_stdfd(void)
 	if (nullfd > 2)
 		close(nullfd);
 }
+#endif
 
 char *
 tohex(const void *vp, size_t l)
@@ -720,7 +726,7 @@ tohex(const void *vp, size_t l)
 		return xstrdup("tohex: length > 65536");
 
 	hl = l * 2 + 1;
-	r = xcalloc(1, hl);
+	r = (char*) xcalloc(1, hl);
 	for (i = 0; i < l; i++) {
 		snprintf(b, sizeof(b), "%02x", p[i]);
 		strlcat(r, b, hl);
@@ -813,7 +819,7 @@ ms_subtract_diff(struct timeval *start, int *ms)
 {
 	struct timeval diff, finish;
 
-	gettimeofday(&finish, NULL);
+  coressh::gettimeofday(&finish);
 	timersub(&finish, start, &diff);	
 	*ms -= (diff.tv_sec * 1000) + (diff.tv_usec / 1000);
 }
@@ -827,6 +833,19 @@ ms_to_timeval(struct timeval *tv, int ms)
 	tv->tv_usec = (ms % 1000) * 1000;
 }
 
-#endif
+void 
+gettimeofday (struct timeval* tv)
+{
+  assert (tv);
+
+  struct _timeb tb;
+
+  _ftime_s (&tb);
+  tv->tv_sec = (long) (tb.time);
+  // TODO 32bit time problem
+
+  tv->tv_usec = tb.millitm;
+}
+
 
 }

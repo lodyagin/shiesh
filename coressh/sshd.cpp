@@ -47,6 +47,7 @@
 #include "compat.h"
 #include "misc.h"
 #include "canohost.h"
+#include "CoreConnection.h"
 
 namespace coressh {
 
@@ -207,23 +208,6 @@ char *server_version_string = NULL;
 Kex *xxx_kex;
 
 /*
- * Any really sensitive data in the application is contained in this
- * structure. The idea is that this structure could be locked into memory so
- * that the pages do not get written into swap.  However, there are some
- * problems. The private key contains BIGNUMs, and we do not (in principle)
- * have access to the internals of them, and locking just the structure is
- * not very useful.  Currently, memory locking is not implemented.
- */
-struct {
-	Key	*server_key;		/* ephemeral server key */
-	Key	*ssh1_host_key;		/* ssh1 host key */
-	Key	**host_keys;		/* all private host keys */
-	int	have_ssh1_key;
-	int	have_ssh2_key;
-	u_char	ssh1_cookie[SSH_SESSION_KEY_LENGTH];
-} sensitive_data;
-
-/*
  * Flag indicating whether the RSA server key needs to be regenerated.
  * Is set in the SIGALRM handler and cleared when the key is regenerated.
  */
@@ -232,13 +216,6 @@ static volatile sig_atomic_t key_do_regen = 0;
 /* This is set to true when a signal is received. */
 static volatile sig_atomic_t received_sighup = 0;
 static volatile sig_atomic_t received_sigterm = 0;
-
-/* session identifier, used by RSA-auth */
-u_char session_id[16];
-
-/* same for ssh2 */
-u_char *session_id2 = NULL;
-u_int session_id2_len = 0;
 
 /* record remote hostname or ip */
 u_int utmp_len = MAXHOSTNAMELEN;
@@ -413,7 +390,12 @@ key_regeneration_alarm(int sig)
 
 
 void
-sshd_exchange_identification(SOCKET sock_in, SOCKET sock_out)
+sshd_exchange_identification
+  (SOCKET sock_in, 
+   SOCKET sock_out,
+   std::string& server_version,
+   std::string& client_version
+   )
 {
 	u_int i;
 	int mismatch;
@@ -535,30 +517,13 @@ sshd_exchange_identification(SOCKET sock_in, SOCKET sock_out)
 		    server_version_string, client_version_string);
 		cleanup_exit(255);
 	}
+
+  server_version = server_version_string;
+  client_version = client_version_string;
 }
 
 
 #if 0
-
-/* Destroy the host and server keys.  They will no longer be needed. */
-void
-destroy_sensitive_data(void)
-{
-	int i;
-
-	if (sensitive_data.server_key) {
-		key_free(sensitive_data.server_key);
-		sensitive_data.server_key = NULL;
-	}
-	for (i = 0; i < options.num_host_key_files; i++) {
-		if (sensitive_data.host_keys[i]) {
-			key_free(sensitive_data.host_keys[i]);
-			sensitive_data.host_keys[i] = NULL;
-		}
-	}
-	sensitive_data.ssh1_host_key = NULL;
-	memset(sensitive_data.ssh1_cookie, 0, SSH_SESSION_KEY_LENGTH);
-}
 
 /* Demote private to public keys for network child */
 void
@@ -718,69 +683,6 @@ privsep_postauth(Authctxt *authctxt)
 	 * this information is not part of the key state.
 	 */
 	packet_set_authenticated();
-}
-
-static char *
-list_hostkey_types(void)
-{
-	Buffer b;
-	const char *p;
-	char *ret;
-	int i;
-
-	buffer_init(&b);
-	for (i = 0; i < options.num_host_key_files; i++) {
-		Key *key = sensitive_data.host_keys[i];
-		if (key == NULL)
-			continue;
-		switch (key->type) {
-		case KEY_RSA:
-		case KEY_DSA:
-			if (buffer_len(&b) > 0)
-				buffer_append(&b, ",", 1);
-			p = key_ssh_name(key);
-			buffer_append(&b, p, strlen(p));
-			break;
-		}
-	}
-	buffer_append(&b, "\0", 1);
-	ret = xstrdup(buffer_ptr(&b));
-	buffer_free(&b);
-	debug("list_hostkey_types: %s", ret);
-	return ret;
-}
-
-Key *
-get_hostkey_by_type(int type)
-{
-	int i;
-
-	for (i = 0; i < options.num_host_key_files; i++) {
-		Key *key = sensitive_data.host_keys[i];
-		if (key != NULL && key->type == type)
-			return key;
-	}
-	return NULL;
-}
-
-Key *
-get_hostkey_by_index(int ind)
-{
-	if (ind < 0 || ind >= options.num_host_key_files)
-		return (NULL);
-	return (sensitive_data.host_keys[ind]);
-}
-
-int
-get_hostkey_index(Key *key)
-{
-	int i;
-
-	for (i = 0; i < options.num_host_key_files; i++) {
-		if (key == sensitive_data.host_keys[i])
-			return (i);
-	}
-	return (-1);
 }
 
 /*
@@ -1540,79 +1442,7 @@ main(int ac, char **av)
 	}
 	endpwent();
 
-	/* load private host keys */
-	sensitive_data.host_keys = xcalloc(options.num_host_key_files,
-	    sizeof(Key *));
-	for (i = 0; i < options.num_host_key_files; i++)
-		sensitive_data.host_keys[i] = NULL;
-
-	for (i = 0; i < options.num_host_key_files; i++) {
-		key = key_load_private(options.host_key_files[i], "", NULL);
-		sensitive_data.host_keys[i] = key;
-		if (key == NULL) {
-			error("Could not load host key: %s",
-			    options.host_key_files[i]);
-			sensitive_data.host_keys[i] = NULL;
-			continue;
-		}
-		if (reject_blacklisted_key(key, 1) == 1) {
-			key_free(key);
-			sensitive_data.host_keys[i] = NULL;
-			continue;
-		}
-		switch (key->type) {
-		case KEY_RSA1:
-			sensitive_data.ssh1_host_key = key;
-			sensitive_data.have_ssh1_key = 1;
-			break;
-		case KEY_RSA:
-		case KEY_DSA:
-			sensitive_data.have_ssh2_key = 1;
-			break;
-		}
-		debug("private host key: #%d type %d %s", i, key->type,
-		    key_type(key));
-	}
-	if ((options.protocol & SSH_PROTO_1) && !sensitive_data.have_ssh1_key) {
-		logit("Disabling protocol version 1. Could not load host key");
-		options.protocol &= ~SSH_PROTO_1;
-	}
-#ifndef GSSAPI
-	/* The GSSAPI key exchange can run without a host key */
-	if ((options.protocol & SSH_PROTO_2) && !sensitive_data.have_ssh2_key) {
-		logit("Disabling protocol version 2. Could not load host key");
-		options.protocol &= ~SSH_PROTO_2;
-	}
-#endif
-	if (!(options.protocol & (SSH_PROTO_1|SSH_PROTO_2))) {
-		logit("sshd: no hostkeys available -- exiting.");
-		exit(1);
-	}
-
-	/* Check certain values for sanity. */
-	if (options.protocol & SSH_PROTO_1) {
-		if (options.server_key_bits < 512 ||
-		    options.server_key_bits > 32768) {
-			fprintf(stderr, "Bad server key size.\n");
-			exit(1);
-		}
-		/*
-		 * Check that server and host key lengths differ sufficiently. This
-		 * is necessary to make double encryption work with rsaref. Oh, I
-		 * hate software patents. I dont know if this can go? Niels
-		 */
-		if (options.server_key_bits >
-		    BN_num_bits(sensitive_data.ssh1_host_key->rsa->n) -
-		    SSH_KEY_BITS_RESERVED && options.server_key_bits <
-		    BN_num_bits(sensitive_data.ssh1_host_key->rsa->n) +
-		    SSH_KEY_BITS_RESERVED) {
-			options.server_key_bits =
-			    BN_num_bits(sensitive_data.ssh1_host_key->rsa->n) +
-			    SSH_KEY_BITS_RESERVED;
-			debug("Forcing server key to %d bits to make it differ from host key.",
-			    options.server_key_bits);
-		}
-	}
+.....
 
 	if (use_privsep) {
 		struct stat st;
@@ -2055,6 +1885,9 @@ main(int ac, char **av)
 	exit(0);
 }
 
+#endif
+
+#if 0
 /*
  * Decrypt session_key_int using our private server key and private host key
  * (key with larger modulus first).
@@ -2275,129 +2108,6 @@ do_ssh1_kex(void)
 	packet_send();
 	packet_write_wait();
 }
-
-/*
- * SSH2 key exchange: diffie-hellman-group1-sha1
- */
-static void
-do_ssh2_kex(void)
-{
-	Kex *kex;
-
-	if (options.ciphers != NULL) {
-		myproposal[PROPOSAL_ENC_ALGS_CTOS] =
-		myproposal[PROPOSAL_ENC_ALGS_STOC] = options.ciphers;
-	}
-	myproposal[PROPOSAL_ENC_ALGS_CTOS] =
-	    compat_cipher_proposal(myproposal[PROPOSAL_ENC_ALGS_CTOS]);
-	myproposal[PROPOSAL_ENC_ALGS_STOC] =
-	    compat_cipher_proposal(myproposal[PROPOSAL_ENC_ALGS_STOC]);
-
-	if (options.macs != NULL) {
-		myproposal[PROPOSAL_MAC_ALGS_CTOS] =
-		myproposal[PROPOSAL_MAC_ALGS_STOC] = options.macs;
-	}
-	if (options.compression == COMP_NONE) {
-		myproposal[PROPOSAL_COMP_ALGS_CTOS] =
-		myproposal[PROPOSAL_COMP_ALGS_STOC] = "none";
-	} else if (options.compression == COMP_DELAYED) {
-		myproposal[PROPOSAL_COMP_ALGS_CTOS] =
-		myproposal[PROPOSAL_COMP_ALGS_STOC] = "none,zlib@openssh.com";
-	}
-
-	myproposal[PROPOSAL_SERVER_HOST_KEY_ALGS] = list_hostkey_types();
-
-#ifdef GSSAPI
-	{
-	char *orig;
-	char *gss = NULL;
-	char *newstr = NULL;
-	orig = myproposal[PROPOSAL_KEX_ALGS];
-
-	/* 
-	 * If we don't have a host key, then there's no point advertising
-	 * the other key exchange algorithms
-	 */
-
-	if (strlen(myproposal[PROPOSAL_SERVER_HOST_KEY_ALGS]) == 0)
-		orig = NULL;
-
-	if (options.gss_keyex)
-		gss = ssh_gssapi_server_mechanisms();
-	else
-		gss = NULL;
-
-	if (gss && orig)
-		xasprintf(&newstr, "%s,%s", gss, orig);
-	else if (gss)
-		newstr = gss;
-	else if (orig)
-		newstr = orig;
-
-	/* 
-	 * If we've got GSSAPI mechanisms, then we've got the 'null' host
-	 * key alg, but we can't tell people about it unless its the only
-  	 * host key algorithm we support
-	 */
-	if (gss && (strlen(myproposal[PROPOSAL_SERVER_HOST_KEY_ALGS])) == 0)
-		myproposal[PROPOSAL_SERVER_HOST_KEY_ALGS] = "null";
-
-	if (newstr)
-		myproposal[PROPOSAL_KEX_ALGS] = newstr;
-	else
-		fatal("No supported key exchange algorithms");
-	}
-#endif
-
-	/* start key exchange */
-	kex = kex_setup(myproposal);
-	kex->kex[KEX_DH_GRP1_SHA1] = kexdh_server;
-	kex->kex[KEX_DH_GRP14_SHA1] = kexdh_server;
-	kex->kex[KEX_DH_GEX_SHA1] = kexgex_server;
-	kex->kex[KEX_DH_GEX_SHA256] = kexgex_server;
-#ifdef GSSAPI
-	kex->kex[KEX_GSS_GRP1_SHA1] = kexgss_server;
-	kex->kex[KEX_GSS_GRP14_SHA1] = kexgss_server;
-	kex->kex[KEX_GSS_GEX_SHA1] = kexgss_server;
-#endif
-	kex->server = 1;
-	kex->client_version_string=client_version_string;
-	kex->server_version_string=server_version_string;
-	kex->load_host_key=&get_hostkey_by_type;
-	kex->host_key_index=&get_hostkey_index;
-
-	xxx_kex = kex;
-
-	dispatch_run(DISPATCH_BLOCK, &kex->done, kex);
-
-	session_id2 = kex->session_id;
-	session_id2_len = kex->session_id_len;
-
-#ifdef DEBUG_KEXDH
-	/* send 1st encrypted/maced/compressed message */
-	packet_start(SSH2_MSG_IGNORE);
-	packet_put_cstring("markus");
-	packet_send();
-	packet_write_wait();
-#endif
-	debug("KEX done");
-}
-
-/* server specific fatal cleanup */
-void
-cleanup_exit(int i)
-{
-	if (the_authctxt)
-		do_cleanup(the_authctxt);
-#ifdef SSH_AUDIT_EVENTS
-	/* done after do_cleanup so it can cancel the PAM auth 'thread' */
-	if (!use_privsep || mm_is_monitor())
-		audit_event(SSH_CONNECTION_ABANDON);
-#endif
-	_exit(i);
-}
-
-};
 
 #endif
 

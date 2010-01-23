@@ -27,14 +27,14 @@
 #include "compat.h"
 #include "match.h"
 #include "buffer.h"
+#include "CoreConnection.h"
 
 namespace coressh {
 
-#if 0
-int compat13 = 0;
-int compat20 = 0;
-int datafellows = 0;
+const int compat13 = 0;
+const int compat20 = 1;
 
+#if 0
 void
 enable_compat20(void)
 {
