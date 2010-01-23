@@ -1,12 +1,15 @@
 #include "stdafx.h"
 #include "Options.h"
 
-Options::Options(void)
-{
-}
+const std::string Options::version ("1.1d4");
+const std::string Options::progName ("CoreSSH");
 
-Options::~Options(void)
+const std::string 
+Options::get_protocol_version_exchange_string () const
 {
+  return "SSH-2.0-"
+    + prog_name_version ()
+    + " obihod\r\n";
 }
 
 static Options options;

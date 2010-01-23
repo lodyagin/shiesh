@@ -145,7 +145,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\SNTLib;&quot;..\Concurrenc++&quot;;..\coressh;&quot;..\..\apache-log4cxx\src\main\include&quot;"
+				AdditionalIncludeDirectories=".;..\SNTLib;&quot;..\Concurrenc++&quot;;..\coressh;&quot;..\..\apache-log4cxx\src\main\include&quot;;..\openssl\inc32"
 				PreprocessorDefinitions="WIN32,_DEBUG,_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -334,10 +334,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories=".;..\SNTLib;&quot;..\Concurrenc++&quot;;..\coressh;&quot;..\..\apache-log4cxx\src\main\include&quot;"
+				AdditionalIncludeDirectories=".;..\SNTLib;&quot;..\Concurrenc++&quot;;..\coressh;&quot;..\..\apache-log4cxx\src\main\include&quot;;..\openssl\inc32"
 				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE,LOG4CXX_STATIC"
 				StringPooling="true"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
@@ -365,11 +365,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:X64"
-				AdditionalDependencies="NTServiceLib.lib &quot;Concurrenc++.lib&quot; log4cxx.lib ws2_32.lib Mswsock.lib"
+				AdditionalDependencies="NTServiceLib.lib &quot;Concurrenc++.lib&quot; log4cxx.lib ws2_32.lib Mswsock.lib libeay32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\apache-log4cxx\target\$(PlatformName)\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\apache-log4cxx\target\$(PlatformName)\$(ConfigurationName)&quot;;..\openssl\out64"
 				ProgramDatabaseFile=".\Release/CoreSSHServer.pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
@@ -523,7 +523,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\SNTLib;&quot;..\Concurrenc++&quot;;..\coressh;&quot;..\..\apache-log4cxx\src\main\include&quot;"
+				AdditionalIncludeDirectories=".;..\SNTLib;&quot;..\Concurrenc++&quot;;..\coressh;&quot;..\..\apache-log4cxx\src\main\include&quot;;..\openssl\inc32"
 				PreprocessorDefinitions="WIN32,_DEBUG,_CONSOLE,LOG4CXX_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -715,7 +715,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\SNTLib;&quot;..\Concurrenc++&quot;;..\coressh;&quot;..\..\apache-log4cxx\src\main\include&quot;"
+				AdditionalIncludeDirectories=".;..\SNTLib;&quot;..\Concurrenc++&quot;;..\coressh;&quot;..\..\apache-log4cxx\src\main\include&quot;;..\openssl\inc32"
 				PreprocessorDefinitions="WIN32,_DEBUG,_CONSOLE,LOG4CXX_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"

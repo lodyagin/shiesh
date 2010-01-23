@@ -2,6 +2,8 @@
 #include "CoreSSHServer.h"
 #include <direct.h>
 #include <time.h>
+#include <string>
+#include "Options.h"
 
 Logging CServer::m_Logging("CServer");
 
@@ -12,7 +14,11 @@ CServer::CServer () : main (NULL)
    static Logging AutoLogger("CServer()",m_Logging);
 
    checkHR(CoInitializeEx(0, COINIT_MULTITHREADED));
-   LOG4CXX_INFO(AutoLogger.GetLogger(),"Start");
+   LOG4CXX_INFO 
+     (AutoLogger.GetLogger(), 
+     std::string ("Start ") 
+      + Options::instance ().prog_name_version ()
+     );
    main = MainThread::create ();
 }
 

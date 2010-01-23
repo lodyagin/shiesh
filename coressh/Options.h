@@ -5,14 +5,16 @@
 class Options : public SSingleton<Options>
 {
 public:
-  Options(void);
-  ~Options(void);
+  static const std::string version;
+  static const std::string progName;
 
-  const std::string& get_protocol_version_exchange_string ()
+  const std::string
+  prog_name_version () const
   {
-    static std::string str 
-      ("SSH-2.0-CoreSSH_1.0d1 obihod\r\n");
-    return str;
+    return progName + '_' + version;
   }
+
+  const std::string 
+  get_protocol_version_exchange_string () const;
 };
 
