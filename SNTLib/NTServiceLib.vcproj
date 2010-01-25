@@ -49,7 +49,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\..\apache-log4cxx\src\main\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\apache-log4cxx\src\main\include&quot;"
 				PreprocessorDefinitions="NDEBUG,WIN32,_LIB,LOG4CXX_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -127,7 +127,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\..\apache-log4cxx\src\main\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\apache-log4cxx\src\main\include&quot;"
 				PreprocessorDefinitions="NDEBUG,WIN32,_LIB,LOG4CXX_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -204,7 +204,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\..\apache-log4cxx\src\main\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\apache-log4cxx\src\main\include&quot;"
 				PreprocessorDefinitions="_DEBUG,WIN32,_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -283,7 +283,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\..\apache-log4cxx\src\main\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\apache-log4cxx\src\main\include&quot;"
 				PreprocessorDefinitions="_DEBUG,WIN32,_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -361,7 +361,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\..\apache-log4cxx\src\main\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\apache-log4cxx\src\main\include&quot;"
 				PreprocessorDefinitions="_DEBUG,WIN32,_LIB,LOG4CXX_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -440,7 +440,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\..\apache-log4cxx\src\main\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\apache-log4cxx\src\main\include&quot;"
 				PreprocessorDefinitions="_DEBUG,WIN32,_LIB,LOG4CXX_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -518,7 +518,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\..\apache-log4cxx\src\main\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\apache-log4cxx\src\main\include&quot;"
 				PreprocessorDefinitions="_DEBUG,WIN32,_LIB,LOG4CXX_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -597,7 +597,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\..\apache-log4cxx\src\main\include&quot;"
+				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\apache-log4cxx\src\main\include&quot;"
 				PreprocessorDefinitions="_DEBUG,WIN32,_LIB,LOG4CXX_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
