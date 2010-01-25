@@ -23,48 +23,38 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "includes.h"
+#include "StdAfx.h"
+#include "auth.h"
 
-#include <sys/types.h>
-#include <sys/stat.h>
-
-#include <fcntl.h>
-#include <pwd.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <unistd.h>
-
-#include "xmalloc.h"
 #include "ssh.h"
 #include "ssh2.h"
 #include "packet.h"
 #include "buffer.h"
-#include "log.h"
-#include "servconf.h"
+//#include "servconf.h"
 #include "compat.h"
-#include "key.h"
-#include "hostfile.h"
-#include "auth.h"
-#include "pathnames.h"
-#include "uidswap.h"
-#include "auth-options.h"
+//#include "key.h"
+//#include "hostfile.h"
+//#include "pathnames.h"
+//#include "uidswap.h"
+//#include "auth-options.h"
 #include "canohost.h"
 #ifdef GSSAPI
 #include "ssh-gss.h"
 #endif
-#include "monitor_wrap.h"
+//#include "monitor_wrap.h"
 #include "misc.h"
+#include "CoreConnection.h"
 
 /* import */
-extern ServerOptions options;
-extern u_char *session_id2;
-extern u_int session_id2_len;
+//extern ServerOptions options;
+//extern u_char *session_id2;
+//extern u_int session_id2_len;
 
-static int
-userauth_pubkey(Authctxt *authctxt)
+int
+CoreConnection::userauth_pubkey(Authctxt *authctxt)
 {
 	Buffer b;
-	Key *key = NULL;
+	Key *key = NULL;.
 	char *pkalg;
 	u_char *pkblob, *sig;
 	u_int alen, blen, slen;
@@ -76,18 +66,18 @@ userauth_pubkey(Authctxt *authctxt)
 		return 0;
 	}
 	have_sig = packet_get_char();
-	if (datafellows & SSH_BUG_PKAUTH) {
+	if (datafellows () & SSH_BUG_PKAUTH) {
 		debug2("userauth_pubkey: SSH_BUG_PKAUTH");
 		/* no explicit pkalg given */
-		pkblob = packet_get_string(&blen);
+		pkblob = (u_char*) packet_get_string(&blen);
 		buffer_init(&b);
 		buffer_append(&b, pkblob, blen);
 		/* so we have to extract the pkalg from the pkblob */
-		pkalg = buffer_get_string(&b, &alen);
+		pkalg = (char*) buffer_get_string(&b, &alen);
 		buffer_free(&b);
 	} else {
 		pkalg = packet_get_string(&alen);
-		pkblob = packet_get_string(&blen);
+		pkblob = (u_char*) packet_get_string(&blen);
 	}
 	pktype = key_type_from_name(pkalg);
 	if (pktype == KEY_UNSPEC) {
@@ -107,10 +97,10 @@ userauth_pubkey(Authctxt *authctxt)
 		goto done;
 	}
 	if (have_sig) {
-		sig = packet_get_string(&slen);
+		sig = (u_char*) packet_get_string(&slen);
 		packet_check_eom();
 		buffer_init(&b);
-		if (datafellows & SSH_OLD_SESSIONID) {
+		if (datafellows () & SSH_OLD_SESSIONID) {
 			buffer_append(&b, session_id2, session_id2_len);
 		} else {
 			buffer_put_string(&b, session_id2, session_id2_len);
@@ -119,10 +109,10 @@ userauth_pubkey(Authctxt *authctxt)
 		buffer_put_char(&b, SSH2_MSG_USERAUTH_REQUEST);
 		buffer_put_cstring(&b, authctxt->user);
 		buffer_put_cstring(&b,
-		    datafellows & SSH_BUG_PKSERVICE ?
+		    datafellows () & SSH_BUG_PKSERVICE ?
 		    "ssh-userauth" :
 		    authctxt->service);
-		if (datafellows & SSH_BUG_PKAUTH) {
+		if (datafellows () & SSH_BUG_PKAUTH) {
 			buffer_put_char(&b, have_sig);
 		} else {
 			buffer_put_cstring(&b, "publickey");
@@ -136,7 +126,7 @@ userauth_pubkey(Authctxt *authctxt)
 		/* test for correct signature */
 		authenticated = 0;
 		if (PRIVSEP(user_key_allowed(authctxt->pw, key)) &&
-		    PRIVSEP(key_verify(key, sig, slen, buffer_ptr(&b),
+		    PRIVSEP(key_verify(key, sig, slen, (const char*) buffer_ptr(&b),
 		    buffer_len(&b))) == 1)
 			authenticated = 1;
 		buffer_free(&b);
@@ -163,7 +153,7 @@ userauth_pubkey(Authctxt *authctxt)
 		}
 	}
 	if (authenticated != 1)
-		auth_clear_options();
+		; //auth_clear_options(); //FIXME
 done:
 	debug2("userauth_pubkey: authenticated %d pkalg %s", authenticated, pkalg);
 	if (key != NULL)
@@ -177,6 +167,8 @@ done:
 	return authenticated;
 }
 
+namespace coressh {
+
 /* return 1 if user allows given key */
 static int
 user_key_allowed2(struct passwd *pw, Key *key, char *file)
@@ -189,7 +181,7 @@ user_key_allowed2(struct passwd *pw, Key *key, char *file)
 	char *fp;
 
 	/* Temporarily use the user's uid. */
-	temporarily_use_uid(pw);
+	//temporarily_use_uid(pw);
 
 	debug("trying public key file %s", file);
 	f = auth_openkeyfile(file, pw, options.strict_modes);
@@ -274,8 +266,4 @@ user_key_allowed(struct passwd *pw, Key *key)
 	return success;
 }
 
-Authmethod method_pubkey = {
-	"publickey",
-	userauth_pubkey,
-	&options.pubkey_authentication
-};
+}

@@ -88,6 +88,7 @@ CoreConnection::CoreConnection
    authctxt (0),
    none_auth_method_enabled (1),
    password_authentication (1),
+   pubkey_authentication (1),
    method_none 
     ("none", 
      &CoreConnection::userauth_none,
@@ -96,6 +97,10 @@ CoreConnection::CoreConnection
     ("password", 
      &CoreConnection::userauth_passwd,
      &password_authentication),
+   /*method_pubkey
+    ("publickey", 
+     &CoreConnection::userauth_pubkey,
+     &pubkey_authentication),*/
    authmethods (0)
 {
   connection_in = connection_out =

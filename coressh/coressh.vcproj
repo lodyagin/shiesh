@@ -304,6 +304,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\auth2-pubkey.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\auth2.cpp"
 				>
 			</File>
@@ -356,6 +368,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DbAdapter.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dh.cpp"
 				>
 			</File>
@@ -401,6 +417,10 @@
 			</File>
 			<File
 				RelativePath=".\misc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Options.cpp"
 				>
 			</File>
 			<File
@@ -498,6 +518,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DbAdapter.h"
+				>
+			</File>
+			<File
 				RelativePath=".\defines.h"
 				>
 			</File>
@@ -543,6 +567,10 @@
 			</File>
 			<File
 				RelativePath=".\misc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Options.h"
 				>
 			</File>
 			<File

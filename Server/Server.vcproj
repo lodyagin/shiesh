@@ -1205,10 +1205,6 @@
 				RelativePath=".\MainThread.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\Options.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1220,10 +1216,6 @@
 			</File>
 			<File
 				RelativePath=".\MainThread.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Options.h"
 				>
 			</File>
 			<File

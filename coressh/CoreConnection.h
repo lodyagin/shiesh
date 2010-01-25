@@ -325,6 +325,7 @@ private:
 
   Authmethod method_none;
   Authmethod method_passwd;
+  //Authmethod method_pubkey;
   Authmethod **authmethods;
 
   /* "none" is allowed only one time */
@@ -332,6 +333,7 @@ private:
 
   //TODO to options
   int password_authentication;
+  int pubkey_authentication;
 
   // protocol
   void input_service_request(int, u_int32_t, void *);
@@ -342,6 +344,7 @@ private:
   // the methods
   int userauth_none(Authctxt *authctxt);
   int userauth_passwd(Authctxt *authctxt);
+  //int userauth_pubkey(Authctxt *authctxt);
 
 
   // servants

@@ -35,7 +35,7 @@
 //#include "dispatch.h"
 //#include "pathnames.h"
 //#include "buffer.h"
-#include "../Server/Options.h" //FIXME
+#include "Options.h"
 
 #ifdef GSSAPI
 #include "ssh-gss.h"

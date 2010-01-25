@@ -48,7 +48,7 @@
 #include "misc.h"
 #include "canohost.h"
 #include "CoreConnection.h"
-#include "../Server/Options.h" //FIXME
+#include "Options.h" //FIXME
 
 namespace coressh {
 
