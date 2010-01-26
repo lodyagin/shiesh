@@ -42,6 +42,7 @@
 #endif
 //#include "monitor_wrap.h"
 #include "CoreConnection.h"
+#include "AuthDispatcher.h"
 
 namespace coressh {
 
@@ -143,9 +144,9 @@ userauth_banner(void)
 void
 CoreConnection::do_authentication2(Authctxt *authctxt)
 {
-  dispatch_init(&CoreConnection::dispatch_protocol_error);
-	dispatch_set(SSH2_MSG_SERVICE_REQUEST, &CoreConnection::input_service_request);
-	dispatch_run(DISPATCH_BLOCK, &authctxt->success, authctxt);
+  authDispatcher->dispatch_run
+    (Dispatcher::DISPATCH_BLOCK, 
+    &authctxt->success, authctxt);
 }
 
 /*ARGSUSED*/
@@ -156,7 +157,7 @@ CoreConnection::input_service_request(int type, u_int32_t seq, void *ctxt)
 	u_int len;
 	int acceptit = 0;
 	char *service = (char*) packet_get_string(&len);
-	packet_check_eom();
+	packet_check_eom(this);
 
 	if (authctxt == NULL)
 		fatal("input_service_request: no authctxt");
@@ -165,7 +166,7 @@ CoreConnection::input_service_request(int type, u_int32_t seq, void *ctxt)
 		if (!authctxt->success) {
 			acceptit = 1;
 			/* now we can handle user-auth requests */
-			dispatch_set(SSH2_MSG_USERAUTH_REQUEST, &CoreConnection::input_userauth_request);
+      authDispatcher->enable_userauth_request_msg ();
 		}
 	}
 	/* XXX all other service requests are denied */
@@ -324,7 +325,7 @@ CoreConnection::userauth_finish(Authctxt *authctxt, int authenticated, char *met
 	/* XXX todo: check if multiple auth methods are needed */
 	if (authenticated == 1) {
 		/* turn off userauth */
-    dispatch_set(SSH2_MSG_USERAUTH_REQUEST, &CoreConnection::dispatch_protocol_ignore);
+    authDispatcher->disable_userauth_request_msg ();
 		packet_start(SSH2_MSG_USERAUTH_SUCCESS);
 		packet_send();
 		packet_write_wait();

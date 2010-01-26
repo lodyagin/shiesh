@@ -9,18 +9,22 @@
 #include "queue.h"
 #include "Arc4Random.h"
 #include "auth.h"
-
-
-#define DISPATCH_MIN	0
-#define DISPATCH_MAX	255
+#include "Dispatcher.h"
+#include "AuthDispatcher.h"
 
 using namespace coressh;
 
 struct CoreConnectionPars;
 
+class KexDispatcher;
+//class AuthDispatcher;
+
 class CoreConnection : public RConnection
 {
   friend CoreConnectionPars;
+  friend Dispatcher;
+  friend KexDispatcher;
+  friend AuthDispatcher;
 
 public:
   ~CoreConnection ();
@@ -139,21 +143,15 @@ protected:
 
   /* end key exch interface */
 
-  enum {
-	  DISPATCH_BLOCK,
-	  DISPATCH_NONBLOCK
-  };
-
-  typedef void (CoreConnection::*dispatch_fn) (int, u_int32_t, void *);
-
+#if 0
   void	 dispatch_init(dispatch_fn);
   void	 dispatch_set(int, dispatch_fn);
   void	 dispatch_range(u_int, u_int, dispatch_fn);
-  void	 dispatch_run(int, volatile bool *, void *);
   void	 dispatch_protocol_error(int, u_int32_t, void *);
-  void	 dispatch_protocol_ignore(int, u_int32_t, void *);
+  //void	 dispatch_protocol_ignore(int, u_int32_t, void *);
 
   /* end of dispatch interface */
+#endif
 
   /* compress interface */
 
@@ -186,6 +184,12 @@ protected:
 
   std::string client_version_string;
   std::string server_version_string;
+
+  // dispatcher for the Kex protocol
+  KexDispatcher* kexDispatcher;
+
+  // dispatcher for the Auth protocol
+  AuthDispatcher* authDispatcher;
 
 private:
 
@@ -284,12 +288,6 @@ private:
 
   /* end of packets */
 
-  /* dispatch */
-
-  dispatch_fn dispatch[DISPATCH_MAX];
-
-  /* end of dispatch */
-
   /* compress module data */
 
   z_stream incoming_stream;
@@ -308,8 +306,8 @@ private:
     (Buffer *raw, int *first_kex_follows);
   void kex_prop_free(char **proposal);
   void kex_prop2buf(Buffer *b, char *proposal[PROPOSAL_MAX]);
-  void kex_protocol_error(int type, u_int32_t seq, void *ctxt);
-  void kex_reset_dispatch(void);
+  //void kex_protocol_error(int type, u_int32_t seq, void *ctxt);
+  //void kex_reset_dispatch(void);
   u_char *derive_key(Kex *kex, int id, u_int need, u_char *hash, u_int hashlen,
     BIGNUM *shared_secret);
   void kex_kexinit_finish(Kex *kex);

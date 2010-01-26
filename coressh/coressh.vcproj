@@ -48,7 +48,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="1"
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -322,6 +322,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\AuthDispatcher.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\authfile.cpp"
 				>
 			</File>
@@ -375,6 +379,10 @@
 			</File>
 			<File
 				RelativePath=".\dh.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Dispatcher.cpp"
 				>
 			</File>
 			<File
@@ -488,6 +496,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\AuthDispatcher.h"
+				>
+			</File>
+			<File
 				RelativePath=".\authfile.h"
 				>
 			</File>
@@ -529,6 +541,10 @@
 			</File>
 			<File
 				RelativePath=".\dh.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Dispatcher.h"
 				>
 			</File>
 			<File

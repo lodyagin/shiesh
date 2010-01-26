@@ -44,7 +44,7 @@ CoreConnection::userauth_passwd(Authctxt *authctxt)
 		memset(newpass, 0, newlen);
 		xfree(newpass);
 	}
-	packet_check_eom();
+	packet_check_eom(this);
 
 	if (change)
 		logit("password change not supported");

@@ -35,7 +35,7 @@ int
 CoreConnection::userauth_none(Authctxt *authctxt)
 {
 	none_auth_method_enabled = 0;
-	packet_check_eom();
+	packet_check_eom(this);
 #ifdef HAVE_CYGWIN
 	if (check_nt_auth(1, authctxt->pw) == 0)
 		return (0);

@@ -64,6 +64,59 @@ static char *def_proposal[PROPOSAL_MAX] = {
 
 //namespace coressh {
 
+class KexDispatcher : public Dispatcher
+{
+public:
+  KexDispatcher (CoreConnection* con);
+protected:
+  // Overrides
+  void kexinit_msg (int, u_int32_t, void *);
+  void unexpected_msg (int, u_int32_t, void *);
+  void service_request_msg (int, u_int32_t, void *) {}
+  void userauth_request_msg (int, u_int32_t, void *) {}
+};
+
+KexDispatcher::KexDispatcher (CoreConnection* con)
+: Dispatcher (con)
+{
+  dispatch[SSH2_MSG_KEXINIT] = 
+    &Dispatcher::kexinit_msg;
+}
+
+void KexDispatcher::kexinit_msg
+  (int type, u_int32_t seq, void *ctxt)
+{
+	char *ptr;
+	u_int i, dlen;
+	Kex *kex = (Kex *)ctxt;
+
+	debug("SSH2_MSG_KEXINIT received");
+	if (kex == NULL)
+		fatal("kex_input_kexinit: no kex, cannot rekey");
+
+	ptr = (char*) connection->packet_get_raw(&dlen);
+  coressh::buffer_append(&kex->peer, ptr, dlen);
+
+	/* discard packet */
+	for (i = 0; i < KEX_COOKIE_LEN; i++)
+		connection->packet_get_char();
+	for (i = 0; i < PROPOSAL_MAX; i++)
+		xfree(connection->packet_get_string(NULL));
+	(void) connection->packet_get_char();
+	(void) connection->packet_get_int();
+	packet_check_eom (connection);
+
+	connection->kex_kexinit_finish(kex);
+}
+
+void KexDispatcher::unexpected_msg 
+  (int type, u_int32_t seq, void *)
+{
+  	error
+      ("Hm, kex protocol error: type %d seq %u", 
+      type, seq);
+}
+
 CoreConnection::CoreConnection 
   (void* repo, 
    RConnectedSocket* cs
@@ -101,7 +154,9 @@ CoreConnection::CoreConnection
     ("publickey", 
      &CoreConnection::userauth_pubkey,
      &pubkey_authentication),*/
-   authmethods (0)
+   authmethods (0),
+   kexDispatcher (0),
+   authDispatcher (0)
 {
   connection_in = connection_out =
     get_socket () -> get_socket ();
@@ -124,12 +179,18 @@ CoreConnection::CoreConnection
   authmethods[0] = &method_none;
   authmethods[1] = &method_passwd;
   authmethods[2] = NULL;
+
+  kexDispatcher = new KexDispatcher (this);
+  authDispatcher = new AuthDispatcher (this);
+  //FIXME check alloc
 }
 
 CoreConnection::~CoreConnection ()
 {
   delete authctxt;
   delete [] authmethods;
+  delete kexDispatcher;
+  delete authDispatcher;
 }
 
 
@@ -1255,6 +1316,7 @@ CoreConnection::packet_close(void)
 
 /* end of packets interface */
 
+#if 0
 /* dispatch interface */
 
 void
@@ -1267,18 +1329,6 @@ CoreConnection::dispatch_protocol_error(int type, u_int32_t seq, void *ctxt)
 	packet_put_int(seq);
 	packet_send();
 	packet_write_wait();
-}
-void
-CoreConnection::dispatch_protocol_ignore(int type, u_int32_t seq, void *ctxt)
-{
-	logit("dispatch_protocol_ignore: type %d seq %u", type, seq);
-}
-void
-CoreConnection::dispatch_init(dispatch_fn dflt)
-{
-	u_int i;
-	for (i = 0; i < DISPATCH_MAX; i++)
-		dispatch[i] = dflt;
 }
 void
 CoreConnection::dispatch_range(u_int from, u_int to, dispatch_fn fn)
@@ -1298,30 +1348,8 @@ CoreConnection::dispatch_set(int type, dispatch_fn fn)
 }
 
 
-void
-CoreConnection::dispatch_run(int mode, volatile bool *done, void *ctxt)
-{
-	for (;;) {
-		int type;
-		u_int32_t seqnr;
-
-		if (mode == DISPATCH_BLOCK) {
-			type = packet_read_seqnr(&seqnr);
-		} else {
-			type = packet_read_poll_seqnr(&seqnr);
-			if (type == SSH_MSG_NONE)
-				return;
-		}
-		if (type > 0 && type < DISPATCH_MAX && dispatch[type] != NULL)
-			(this->*(dispatch[type]))(type, seqnr, ctxt);
-		else
-			packet_disconnect("protocol error: rcvd type %d", type);
-		if (done != NULL && *done)
-			return;
-	}
-}
-
 /* end of dispatch interface */
+#endif
 
 /* copress interface */
 
@@ -1515,7 +1543,12 @@ CoreConnection::do_ssh2_kex(void)
 
 	Kex* xxx_kex = kex;
 
-	dispatch_run(DISPATCH_BLOCK, &kex->done, kex);
+  // Run kex 
+	kexDispatcher->dispatch_run
+    (Dispatcher::DISPATCH_BLOCK, 
+     &kex->done, 
+     kex
+     );
 
 	session_id2 = kex->session_id;
 	session_id2_len = kex->session_id_len;
@@ -1572,7 +1605,7 @@ CoreConnection::kexdh_server(Kex *kex)
 	if ((dh_client_pub = BN_new()) == NULL)
 		fatal("dh_client_pub == NULL");
 	packet_get_bignum2(dh_client_pub);
-	packet_check_eom();
+	packet_check_eom(this);
 
 #ifdef DEBUG_KEXDH
 	fprintf(stderr, "dh_client_pub= ");
@@ -1691,7 +1724,7 @@ CoreConnection::kexgex_server(Kex *kex)
 	default:
 		fatal("protocol error during kex, no DH_GEX_REQUEST: %d", type);
 	}
-	packet_check_eom();
+	packet_check_eom(this);
 
 	if (max < min || nbits < min || max < nbits)
 		fatal("DH_GEX_REQUEST, bad parameters: %d !< %d !< %d",
@@ -1721,7 +1754,7 @@ CoreConnection::kexgex_server(Kex *kex)
 	if ((dh_client_pub = BN_new()) == NULL)
 		fatal("dh_client_pub == NULL");
 	packet_get_bignum2(dh_client_pub);
-	packet_check_eom();
+	packet_check_eom(this);
 
 #ifdef DEBUG_KEXDH
 	fprintf(stderr, "dh_client_pub= ");
@@ -1877,22 +1910,6 @@ CoreConnection::kex_prop_free(char **proposal)
 	xfree(proposal);
 }
 
-void
-CoreConnection::kex_reset_dispatch(void)
-{
-	dispatch_range(SSH2_MSG_TRANSPORT_MIN,
-    SSH2_MSG_TRANSPORT_MAX, &CoreConnection::kex_protocol_error);
-	dispatch_set(SSH2_MSG_KEXINIT, &CoreConnection::kex_input_kexinit);
-}
-
-
-/* ARGSUSED */
-void
-CoreConnection::kex_protocol_error(int type, u_int32_t seq, void *ctxt)
-{
-	error("Hm, kex protocol error: type %d seq %u", type, seq);
-}
-
 Kex *
 CoreConnection::kex_setup(char *proposal[PROPOSAL_MAX])
 {
@@ -1905,7 +1922,7 @@ CoreConnection::kex_setup(char *proposal[PROPOSAL_MAX])
 	kex->done = 0;
 
 	kex_send_kexinit(kex);					/* we start */
-	kex_reset_dispatch();
+	//kex_reset_dispatch();
 
 	return kex;
 }
@@ -1986,7 +2003,7 @@ CoreConnection::derive_key(Kex *kex, int id, u_int need, u_char *hash, u_int has
 void
 CoreConnection::kex_finish(Kex *kex)
 {
-	kex_reset_dispatch();
+	//kex_reset_dispatch();
 
 	packet_start(SSH2_MSG_NEWKEYS);
 	packet_send();
@@ -1995,7 +2012,7 @@ CoreConnection::kex_finish(Kex *kex)
 
 	debug("expecting SSH2_MSG_NEWKEYS");
 	packet_read_expect(SSH2_MSG_NEWKEYS);
-	packet_check_eom();
+	packet_check_eom(this);
 	debug("SSH2_MSG_NEWKEYS received");
 
 	kex->done = 1;
@@ -2004,33 +2021,6 @@ CoreConnection::kex_finish(Kex *kex)
 	kex->flags &= ~KEX_INIT_SENT;
 	xfree(kex->name);
 	kex->name = NULL;
-}
-
-/* ARGSUSED */
-void
-CoreConnection::kex_input_kexinit(int type, u_int32_t seq, void *ctxt)
-{
-	char *ptr;
-	u_int i, dlen;
-	Kex *kex = (Kex *)ctxt;
-
-	debug("SSH2_MSG_KEXINIT received");
-	if (kex == NULL)
-		fatal("kex_input_kexinit: no kex, cannot rekey");
-
-	ptr = (char*) packet_get_raw(&dlen);
-	buffer_append(&kex->peer, ptr, dlen);
-
-	/* discard packet */
-	for (i = 0; i < KEX_COOKIE_LEN; i++)
-		packet_get_char();
-	for (i = 0; i < PROPOSAL_MAX; i++)
-		xfree(packet_get_string(NULL));
-	(void) packet_get_char();
-	(void) packet_get_int();
-	packet_check_eom();
-
-	kex_kexinit_finish(kex);
 }
 
 void

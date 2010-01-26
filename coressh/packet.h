@@ -29,13 +29,13 @@ namespace coressh {
 #define  packet_get_maxsize() max_packet_size
 
 /* don't allow remaining bytes after the end of the message */
-#define packet_check_eom() \
+#define packet_check_eom(clas) \
 do { \
-	int _len = packet_remaining(); \
+	int _len = (clas)->packet_remaining(); \
 	if (_len > 0) { \
 		logit("Packet integrity error (%d bytes remaining) at %s:%d", \
 		    _len ,__FILE__, __LINE__); \
-		packet_disconnect("Packet integrity error."); \
+		(clas)->packet_disconnect("Packet integrity error."); \
 	} \
 } while (0)
 
