@@ -58,4 +58,4 @@ void CServer::error( const std::exception & x )
 }
 
 
-SDEFINE_SERVICE(CServer, "CoreSSHServer")
+SDEFINE_SERVICE(CServer, L"CoreSSHServer")

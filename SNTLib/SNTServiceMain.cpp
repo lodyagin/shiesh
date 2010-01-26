@@ -2,7 +2,7 @@
 #include "SNTService.h"
 
 
-int main( int argc, char * argv [] )
+int wmain( int argc, wchar_t * argv [] )
 {
   return SNTServiceMgr::main(argc, argv);
 }

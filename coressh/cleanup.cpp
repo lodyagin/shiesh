@@ -25,8 +25,8 @@ namespace coressh {
 void
 cleanup_exit(int i)
 {
-  std::ostringstream strm;
-  strm << "exit code: " << i;
+  std::wostringstream strm;
+  strm << L"exit code: " << i;
   ::xShuttingDown (strm.str ());
 }
 

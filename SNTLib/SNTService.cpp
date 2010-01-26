@@ -25,7 +25,7 @@ SNTService::~SNTService()
   //MGR.service = 0;
 }
 
-string SNTService::name()
+wstring SNTService::name()
 {
   return SNTServiceMgr::instance ().name();
 }
@@ -64,7 +64,7 @@ void SNTService::error( const exception & x )
 
 // XSNTSrvError::XSNTSrvError  ===================================================
 
-XSNTSrvError::XSNTSrvError( const string & m ) :
+XSNTSrvError::XSNTSrvError( const wstring & m ) :
   Parent(m)
 {
 }

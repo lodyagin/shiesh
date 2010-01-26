@@ -184,7 +184,7 @@
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -205,7 +205,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\apache-log4cxx\src\main\include&quot;"
-				PreprocessorDefinitions="_DEBUG,WIN32,_LIB"
+				PreprocessorDefinitions="_DEBUG,WIN32,_LIB;UNICODE;_UNICODE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -284,7 +284,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\apache-log4cxx\src\main\include&quot;"
-				PreprocessorDefinitions="_DEBUG,WIN32,_LIB"
+				PreprocessorDefinitions="_DEBUG,WIN32,_LIB;UNICODE;_UNICODE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"

@@ -7,7 +7,7 @@ using namespace std;
 
 Logging SNTServiceMgr::m_Logging("SNTServiceMgr");
 
-SNTServiceMgr::SNTServiceMgr( const string & name ) :
+SNTServiceMgr::SNTServiceMgr( const wstring & name ) :
   service(0),
   _name(name),
   _asConsole(0),
@@ -24,12 +24,12 @@ SNTServiceMgr::~SNTServiceMgr()
   //instance = 0;
 }
 
-string SNTServiceMgr::name()
+wstring SNTServiceMgr::name()
 {
   return _name;
 }
 
-const char * SNTServiceMgr::getOptVal( char opt )
+const WCHAR * SNTServiceMgr::getOptVal( WCHAR opt )
 {
   for ( int i = 0; i < argc; ++i )
     if ( argv[i][0] == '-' && argv[i][1] == opt )
@@ -37,14 +37,14 @@ const char * SNTServiceMgr::getOptVal( char opt )
   return 0;
 }
 
-string SNTServiceMgr::getSrvName( const string & defName )
+wstring SNTServiceMgr::getSrvName( const wstring & defName )
 {
-  const char * name = getOptVal('n');
-  if ( name ) return string(name);
+  const WCHAR * name = getOptVal('n');
+  if ( name ) return wstring(name);
   return defName;
 }
 
-void SNTServiceMgr::start( int _argc, char * _argv [] )
+void SNTServiceMgr::start( int _argc, WCHAR * _argv [] )
 {
   try
   {
@@ -91,7 +91,7 @@ void SNTServiceMgr::startConsole()
 void SNTServiceMgr::startService()
 {
   initStatus();
-  ::strncpy_s
+  ::wcsncpy_s
     (serviceName, 
      sizeof (serviceName),
      ptr2ptr(name()), 
@@ -183,7 +183,7 @@ void SNTServiceMgr::handleError( const exception & x )
 
 void SNTServiceMgr::handleError()
 {
-  handleError(XSNTSrvError("Unknown object exception"));
+  handleError(XSNTSrvError(L"Unknown object exception"));
 }
 
 void SNTServiceMgr::initStatus()
@@ -335,7 +335,7 @@ BOOL WINAPI SNTServiceMgr::_consoleControl( DWORD ctrl )
 //============================================================================//
 
 //SNTServiceMgr * SNTServiceMgr::instance = 0;
-char SNTServiceMgr::serviceName [srvNameSize];
+WCHAR SNTServiceMgr::serviceName [srvNameSize];
 
 SERVICE_TABLE_ENTRY SNTServiceMgr::dispatchTable [] =
 {
@@ -345,7 +345,7 @@ SERVICE_TABLE_ENTRY SNTServiceMgr::dispatchTable [] =
 
 //============================================================================//
 
-int SNTServiceMgr::main( int argc, char ** argv )
+int SNTServiceMgr::main( int argc, WCHAR ** argv )
 {
   SThread::create (SThread::external);
  

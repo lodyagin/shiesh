@@ -8,7 +8,7 @@ class SNTEventLog
 {
 public:
 
-  SNTEventLog( const string & srcname );
+  SNTEventLog( const wstring & srcname );
   ~SNTEventLog();
 
   void logError( int msg_id, unsigned short paramCount, ... );

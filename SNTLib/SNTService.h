@@ -20,7 +20,7 @@ public:
 
   typedef SException Parent;
 
-  XSNTSrvError( const string & msg );
+  XSNTSrvError( const wstring & msg );
 
 };
 
@@ -43,7 +43,7 @@ protected:
   virtual void shutDown();
   virtual void error( const std::exception & );
 
-  string name();
+  wstring name();
   bool asConsole();
 
   SShutdown shutdown;
@@ -58,24 +58,24 @@ public:
 
   friend class SNTService;
 
-  SNTServiceMgr( const string & name );
+  SNTServiceMgr( const wstring & name );
   virtual ~SNTServiceMgr();
 
   virtual SNTService * create( 
-    const string & name, int argc, char * argv [] ) = 0;
+    const wstring & name, int argc, WCHAR * argv [] ) = 0;
 
-  string name();
+  wstring name();
   bool asConsole() { return _asConsole; }
   void setStatus( DWORD state, DWORD waitHint = SNTSRV_DEFWAITHINT );
   void errorStop( DWORD exitCode );
   void checkPoint( DWORD waitHint = SNTSRV_DEFWAITHINT );
 
-  void start( int argc, char ** argv );
+  void start( int argc, WCHAR ** argv );
 
-  const char * getOptVal( char opt );
+  const WCHAR * getOptVal( WCHAR opt );
 
   //static SNTServiceMgr & mgr();
-  static int main( int argc, char ** argv );
+  static int main( int argc, WCHAR ** argv );
 
 protected:
 
@@ -83,7 +83,7 @@ protected:
   void handleError( const std::exception & );
   void handleError();
 
-  string getSrvName( const string & defName );
+  wstring getSrvName( const wstring & defName );
 
 private:
 
@@ -108,9 +108,9 @@ private:
 
 
   SNTService * service;
-  string _name;
+  wstring _name;
   int argc;
-  char ** argv;
+  WCHAR ** argv;
   bool _asConsole;
   SClassPtr<SNTEventLog> eventLog;
   SERVICE_STATUS_HANDLE statusHandle;
@@ -118,7 +118,7 @@ private:
   SMutex scmMutex;
 
   //static SNTServiceMgr * instance;
-  static char serviceName[srvNameSize];
+  static WCHAR serviceName[srvNameSize];
   static SERVICE_TABLE_ENTRY dispatchTable [];
   
 };
@@ -131,7 +131,7 @@ private:
 struct Mgr : public SNTServiceMgr  \
 {  \
   Mgr() : SNTServiceMgr(name) {}  \
-  virtual SNTService * create( const string &, int, char * [] )  \
+  virtual SNTService * create( const wstring &, int, WCHAR * [] )  \
   {  \
     return new Class;  \
   }  \

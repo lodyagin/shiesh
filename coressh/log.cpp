@@ -147,7 +147,7 @@ fatal(const char *fmt,...)
 
 	va_start(args, fmt);
   LOG4CXX_FATAL
-    (Logging::Root (), sFormatVa (fmt, args));
+    (Logging::Root (), sFormatVaA (fmt, args));
 	va_end(args);
   cleanup_exit (255);
 }
@@ -159,7 +159,7 @@ error(const char *fmt,...)
 
 	va_start(args, fmt);
   LOG4CXX_ERROR 
-    (Logging::Root (), sFormatVa (fmt, args));
+    (Logging::Root (), sFormatVaA (fmt, args));
 	va_end(args);
 }
 
@@ -188,7 +188,7 @@ logit(const char *fmt,...)
 
 	va_start(args, fmt);
   LOG4CXX_INFO
-    (Logging::Root (), sFormatVa (fmt, args));
+    (Logging::Root (), sFormatVaA (fmt, args));
 	va_end(args);
 }
 
@@ -201,7 +201,7 @@ verbose(const char *fmt,...)
 
 	va_start(args, fmt);
   LOG4CXX_DEBUG
-    (Logging::Root (), sFormatVa (fmt, args));
+    (Logging::Root (), sFormatVaA (fmt, args));
 	va_end(args);
 }
 
@@ -214,7 +214,7 @@ debug(const char *fmt,...)
 
 	va_start(args, fmt);
   LOG4CXX_DEBUG
-    (Logging::Root (), sFormatVa (fmt, args));
+    (Logging::Root (), sFormatVaA (fmt, args));
 	va_end(args);
 }
 
@@ -225,7 +225,7 @@ debug2(const char *fmt,...)
 
 	va_start(args, fmt);
   LOG4CXX_DEBUG
-    (Logging::Root (), sFormatVa (fmt, args));
+    (Logging::Root (), sFormatVaA (fmt, args));
 	va_end(args);
 }
 
@@ -236,7 +236,7 @@ debug3(const char *fmt,...)
 
 	va_start(args, fmt);
   LOG4CXX_DEBUG
-    (Logging::Root (), sFormatVa (fmt, args));
+    (Logging::Root (), sFormatVaA (fmt, args));
 	va_end(args);
 }
 

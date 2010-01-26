@@ -4,7 +4,7 @@
 #include "stdarg.h"
 
 
-SNTEventLog::SNTEventLog( const string & srcname ) :
+SNTEventLog::SNTEventLog( const wstring & srcname ) :
   handle(RegisterEventSource(0, ptr2ptr(srcname)))
 {
   SCHECK(handle);
@@ -28,9 +28,9 @@ void SNTEventLog::_log( unsigned short type, int msg_id,
 {
   SCHECK(paramCount <= 32);
 
-  const char * p [32];
+  const wchar_t * p [32];
   for ( int i = 0; i < paramCount; ++i )
-    p[i] = va_arg(args, const char *);
+    p[i] = va_arg(args, const wchar_t *);
 
   ReportEvent(handle, type, /* category */ 0, msg_id, /* user SID */ 0,
     paramCount, /* raw data size */ 0, p, /* raw data */ 0);

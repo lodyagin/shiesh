@@ -29,7 +29,7 @@
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -51,7 +51,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..\SNTLib;&quot;..\Concurrenc++&quot;;..\coressh;&quot;..\apache-log4cxx\src\main\include&quot;;..\openssl\inc32"
-				PreprocessorDefinitions="WIN32,_DEBUG,_CONSOLE"
+				PreprocessorDefinitions="WIN32,_DEBUG,_CONSOLE;UNICODE;_UNICODE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -90,6 +90,7 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/CoreSSHServer.pdb"
 				SubSystem="1"
+				EntryPointSymbol="wmainCRTStartup"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 			/>
