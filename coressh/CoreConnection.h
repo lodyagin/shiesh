@@ -11,13 +11,13 @@
 #include "auth.h"
 #include "Dispatcher.h"
 #include "AuthDispatcher.h"
+#include "ServerMainDispatcher.h"
 
 using namespace coressh;
 
 struct CoreConnectionPars;
 
 class KexDispatcher;
-//class AuthDispatcher;
 
 class CoreConnection : public RConnection
 {
@@ -25,6 +25,7 @@ class CoreConnection : public RConnection
   friend Dispatcher;
   friend KexDispatcher;
   friend AuthDispatcher;
+  friend ServerMainDispatcher;
 
 public:
   ~CoreConnection ();
@@ -64,10 +65,15 @@ public:
   /* end of packets interface */
 
 protected:
-  CoreConnection 
-    (void* repo, RConnectedSocket* cs);
-
   Arc4Random arc4rand;
+
+  CoreConnection 
+    (void* repo, 
+     RConnectedSocket* cs,
+     const std::string& objId
+     );
+
+  void server_loop ();
 
   /* packets interface */
 
@@ -180,6 +186,13 @@ protected:
 
   /* end of authentication */
 
+  /* channel requests */
+
+  void server_input_channel_open
+    (int type, u_int32_t seq, void *ctxt);
+
+  /* end of channel requests */
+
   int aDatafellows;
 
   std::string client_version_string;
@@ -191,6 +204,8 @@ protected:
   // dispatcher for the Auth protocol
   AuthDispatcher* authDispatcher;
 
+  ServerMainDispatcher* srvDispatcher;
+
 private:
 
   /* packets */
@@ -199,7 +214,8 @@ private:
   u_char *session_id2;
   u_int session_id2_len;
 
-
+  // Kex for rekeying
+  Kex* xxx_kex;
 
   /* Set to true if we are the server side. */
   static const int server_side = 0; //FIXME const
@@ -350,5 +366,13 @@ private:
   Authmethod *authmethod_lookup(const char *name);
 
   /* end of authentication */
+
+  /* channels & sessions */
+
+  int no_more_sessions ; /* Disallow further sessions. */
+
+  //Channel* server_request_session(void);
+
+ /* end of channels & sessions */
 
 };

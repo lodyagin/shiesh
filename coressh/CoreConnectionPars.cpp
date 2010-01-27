@@ -3,8 +3,11 @@
 #include "CoreConnection.h"
 
 RConnection* CoreConnectionPars::create_derivation
-  (void* repo) const
+  (const ConnectionRepository::ObjectCreationInfo& info) const
 {
   assert (socket);
-  return new CoreConnection (repo, socket);
+  return new CoreConnection 
+    (info.repository, 
+     socket,
+     info.objectId);
 }

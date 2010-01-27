@@ -36,3 +36,8 @@ void AuthDispatcher::disable_userauth_request_msg ()
     &Dispatcher::ignored_msg;
 }
 
+void AuthDispatcher::unexpected_msg 
+  (int type, u_int32_t seq, void * ctxt)
+{
+  protocol_error (type, seq, ctxt);
+}

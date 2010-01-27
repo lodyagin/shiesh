@@ -54,5 +54,13 @@ void Dispatcher::dispatch_run
 		if (done != NULL && *done)
 			return;
 	}
+}
 
+void Dispatcher::protocol_error(int type, u_int32_t seq, void *ctxt)
+{
+	logit("dispatch_protocol_error: type %d seq %u", type, seq);
+	connection->packet_start(SSH2_MSG_UNIMPLEMENTED);
+	connection->packet_put_int(seq);
+	connection->packet_send();
+	connection->packet_write_wait();
 }

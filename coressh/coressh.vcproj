@@ -48,9 +48,70 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="1"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="4"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="2"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;..\openssl\inc32;..\zlib;&quot;..\apache-log4cxx\src\main\include&quot;"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				WarningLevel="3"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -112,67 +173,6 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
-			CharacterSet="2"
-			WholeProgramOptimization="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;..\openssl\inc32;..\zlib;&quot;..\apache-log4cxx\src\main\include&quot;"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -346,6 +346,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Channel.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ChannelFactory.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ChannelPars.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\cipher-ctr.cpp"
 				>
 			</File>
@@ -438,6 +450,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\serverloop.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ServerMainDispatcher.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Session.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\sha2.cpp"
 				>
 			</File>
@@ -509,6 +533,18 @@
 			</File>
 			<File
 				RelativePath=".\canohost.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Channel.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ChannelFactory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ChannelPars.h"
 				>
 			</File>
 			<File
@@ -597,6 +633,14 @@
 			</File>
 			<File
 				RelativePath=".\SensitiveData.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ServerMainDispatcher.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Session.h"
 				>
 			</File>
 			<File

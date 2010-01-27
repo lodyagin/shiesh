@@ -74,6 +74,20 @@ protected:
   void unexpected_msg (int, u_int32_t, void *);
   void service_request_msg (int, u_int32_t, void *) {}
   void userauth_request_msg (int, u_int32_t, void *) {}
+  void channel_close_msg (int, u_int32_t, void *) {}
+  void channel_data_msg (int, u_int32_t, void *) {}
+  void channel_eof_msg (int, u_int32_t, void *) {}
+  void channel_extended_data_msg (int, u_int32_t, void *) {}
+  void channel_open_msg (int, u_int32_t, void *) {}
+  void channel_open_confirmation_msg (int, u_int32_t, void *) {}
+  void channel_open_failure_msg (int, u_int32_t, void *) {}
+  void channel_request_msg (int, u_int32_t, void *) {}
+  void channel_window_adjust_msg (int, u_int32_t, void *) {}
+  void global_request_msg (int, u_int32_t, void *) {}
+  void channel_success_msg (int, u_int32_t, void *) {}
+  void channel_failure_msg (int, u_int32_t, void *) {}
+  void request_success_msg (int, u_int32_t, void *) {}
+  void request_failure_msg (int, u_int32_t, void *) {}
 };
 
 KexDispatcher::KexDispatcher (CoreConnection* con)
@@ -119,9 +133,11 @@ void KexDispatcher::unexpected_msg
 
 CoreConnection::CoreConnection 
   (void* repo, 
-   RConnectedSocket* cs
+   RConnectedSocket* cs,
+   const std::string& objId
    )
-   : RConnection (repo, cs), aDatafellows (0),
+   : RConnection (repo, cs, objId), 
+   aDatafellows (0),
    packets_initialized (false),
    compression_buffer_ready (0),
    packet_compression (0),
@@ -156,7 +172,10 @@ CoreConnection::CoreConnection
      &pubkey_authentication),*/
    authmethods (0),
    kexDispatcher (0),
-   authDispatcher (0)
+   authDispatcher (0),
+   srvDispatcher (0),
+   xxx_kex (0),
+   no_more_sessions (0)
 {
   connection_in = connection_out =
     get_socket () -> get_socket ();
@@ -191,6 +210,7 @@ CoreConnection::~CoreConnection ()
   delete [] authmethods;
   delete kexDispatcher;
   delete authDispatcher;
+  delete srvDispatcher;
 }
 
 
@@ -1320,17 +1340,6 @@ CoreConnection::packet_close(void)
 /* dispatch interface */
 
 void
-CoreConnection::dispatch_protocol_error(int type, u_int32_t seq, void *ctxt)
-{
-	logit("dispatch_protocol_error: type %d seq %u", type, seq);
-	if (!compat20)
-		fatal("protocol error");
-	packet_start(SSH2_MSG_UNIMPLEMENTED);
-	packet_put_int(seq);
-	packet_send();
-	packet_write_wait();
-}
-void
 CoreConnection::dispatch_range(u_int from, u_int to, dispatch_fn fn)
 {
 	u_int i;
@@ -1541,7 +1550,7 @@ CoreConnection::do_ssh2_kex(void)
 	kex->host_key_index=
     &SensitiveData::get_hostkey_index;
 
-	Kex* xxx_kex = kex;
+	xxx_kex = kex;
 
   // Run kex 
 	kexDispatcher->dispatch_run
@@ -2364,5 +2373,36 @@ CoreConnection::packet_write_poll(void)
 		buffer_consume(&output, len);
 	}
 }
+
+void CoreConnection::server_loop ()
+{
+  if (!srvDispatcher)
+  {
+    srvDispatcher = new ServerMainDispatcher (this);
+    //FIXME check alloc
+  }
+
+  for (;;)
+  {
+
+    // process buffered input packets
+    srvDispatcher->dispatch_run 
+      (Dispatcher::DISPATCH_NONBLOCK, 
+       NULL,
+       xxx_kex
+       );
+
+    // rekey request set done = 0
+    const bool rekeying = (xxx_kex && !xxx_kex->done);
+
+    // TODO change the constant for sessions interactive
+    // which needs an interactive response
+    //if (!rekeying && buffer_len (&output) < 128 * 1024)
+      //channel_output_poll ();
+
+    //...
+  }
+}
+
 
 

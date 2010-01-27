@@ -4,6 +4,8 @@
 struct CoreConnectionPars : public ConnectionPars
 {
   CoreConnectionPars () {}
-  virtual RConnection* create_derivation
-    (void* repo) const;
+
+  // Overrides
+  RConnection* create_derivation
+    (const ConnectionRepository::ObjectCreationInfo&) const;
 };
