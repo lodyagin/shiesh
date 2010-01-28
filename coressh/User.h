@@ -4,6 +4,7 @@
 #include <map>
 
 // Full user info
+// FIXME access from several places
 class User
 {
 public:

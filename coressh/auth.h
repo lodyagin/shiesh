@@ -52,6 +52,7 @@ typedef struct Authctxt Authctxt;
 typedef struct Authmethod Authmethod;
 typedef struct KbdintDevice KbdintDevice;
 
+// FIXME check access from diff places
 struct Authctxt {
   Authctxt () 
   {

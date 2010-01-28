@@ -136,7 +136,10 @@ CoreConnection::CoreConnection
    RConnectedSocket* cs,
    const std::string& objId
    )
-   : RConnection (repo, cs, objId), 
+   : RConnection (repo, cs, objId),
+   ChannelRepository (10000), // UT overflow
+   SessionRepository (10000), // --//--
+
    aDatafellows (0),
    packets_initialized (false),
    compression_buffer_ready (0),
@@ -175,7 +178,8 @@ CoreConnection::CoreConnection
    authDispatcher (0),
    srvDispatcher (0),
    xxx_kex (0),
-   no_more_sessions (0)
+   no_more_sessions (0),
+   connection_closed (false)
 {
   connection_in = connection_out =
     get_socket () -> get_socket ();
@@ -228,26 +232,15 @@ void CoreConnection::run ()
     do_authentication2 (authctxt);
     logit ("User authenticated, start the session");
 
-    for (int i = 0; i < 25; i++) //FIXME to options
-    {
-      if (SThread::current ().is_stop_requested ())         
-      {
-        /*::xShuttingDown 
-            ("Stop request from the owner thread.");*/
-
-        break; // thread stop is requested
-      }
-
-      ::Sleep (1000); 
-    }
+    server_loop ();
 
     //FIXME wrong place!
-    LOG4STRM_INFO
+    /*LOG4STRM_INFO
       (Logging::Root (),
        oss_ << "Connection timed out with "
        << socket->get_peer_address().get_ip () << ':'
        << socket->get_peer_address().get_port()
-       );
+       );*/
 
     delete socket;
     socket = NULL; //TODO add UT checking working
@@ -284,7 +277,7 @@ int CoreConnection::datafellows () const
 int
 CoreConnection::packet_read_poll2(u_int32_t *seqnr_p)
 {
-	static u_int packet_length = 0;
+	static u_int packet_length = 0; //FIXME!!
 	u_int padlen, need;
 	u_char *macbuf, *cp, type;
 	u_int maclen, block_size;
@@ -1333,6 +1326,19 @@ CoreConnection::packet_close(void)
 	cipher_cleanup(&receive_context);
 }
 
+#define MAX_PACKETS	(1U<<31)
+int
+CoreConnection::packet_need_rekeying(void)
+{
+	if (datafellows () & SSH_BUG_NOREKEY)
+		return 0;
+	return
+	    (p_send.packets > MAX_PACKETS) ||
+	    (p_read.packets > MAX_PACKETS) ||
+	    (max_blocks_out && (p_send.blocks > max_blocks_out)) ||
+	    (max_blocks_in  && (p_read.blocks > max_blocks_in));
+}
+
 
 /* end of packets interface */
 
@@ -2376,6 +2382,10 @@ CoreConnection::packet_write_poll(void)
 
 void CoreConnection::server_loop ()
 {
+  fd_set readSET, writeSET;
+  fd_set* readset = &readSET;
+  fd_set* writeset = &writeSET;
+
   if (!srvDispatcher)
   {
     srvDispatcher = new ServerMainDispatcher (this);
@@ -2384,25 +2394,62 @@ void CoreConnection::server_loop ()
 
   for (;;)
   {
-
     // process buffered input packets
+    // NONBLOCK returns with no action if no packets
+    // were collected in wait_until_can_do_something
     srvDispatcher->dispatch_run 
       (Dispatcher::DISPATCH_NONBLOCK, 
        NULL,
        xxx_kex
        );
-
+    
     // rekey request set done = 0
     const bool rekeying = (xxx_kex && !xxx_kex->done);
 
     // TODO change the constant for sessions interactive
     // which needs an interactive response
-    //if (!rekeying && buffer_len (&output) < 128 * 1024)
-      //channel_output_poll ();
+    //FIXME if (!rekeying && buffer_len (&output) < 128 * 1024)
+    //FIXME  channel_output_poll ();
 
-    //...
+		wait_until_can_do_something(&readset, &writeset, 0);
+
+    if (SThread::current ().is_stop_requested ())         
+    {
+      /*::xShuttingDown 
+          (L"Stop request from the owner thread.");*/
+
+      break; // thread stop is requested
+    }
+
+		//FIXME collect_children();
+		if (!rekeying) {
+
+			//FIXME posthandlers
+      // channel_after_select(readset, writeset);
+
+			if (packet_need_rekeying()) {
+				debug("need rekeying"); //UT rekeying
+				xxx_kex->done = 0;
+				kex_send_kexinit(xxx_kex);
+			}
+		}
+		process_input(readset);
+
+    if (connection_closed)
+			break;
+
+		process_output(writeset);
   }
+	//FIXME collect_children();
+
+	/* free all channels, no more reads and writes */
+	//FIXME! channel_free_all();
+
+	/* free remaining sessions, e.g. remove wtmp entries */
+	//FIXME! session_destroy_all(NULL);
 }
+
+    
 
 
 

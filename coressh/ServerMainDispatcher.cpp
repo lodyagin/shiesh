@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "CoreConnection.h"
 #include "ServerMainDispatcher.h"
 #include "ssh2.h"
 
@@ -45,12 +46,29 @@ void ServerMainDispatcher::channel_close_msg (int, u_int32_t, void *) {}
 void ServerMainDispatcher::channel_data_msg (int, u_int32_t, void *) {}
 void ServerMainDispatcher::channel_eof_msg (int, u_int32_t, void *) {}
 void ServerMainDispatcher::channel_extended_data_msg (int, u_int32_t, void *) {}
-void ServerMainDispatcher::channel_open_msg (int, u_int32_t, void *) {}
+
+void ServerMainDispatcher::channel_open_msg 
+  (int type, u_int32_t seq, void *ctxt) 
+{
+  connection->server_input_channel_open (type, seq, ctxt);
+}
+
 void ServerMainDispatcher::channel_open_confirmation_msg (int, u_int32_t, void *) {}
 void ServerMainDispatcher::channel_open_failure_msg (int, u_int32_t, void *) {}
-void ServerMainDispatcher::channel_request_msg (int, u_int32_t, void *) {}
+
+void ServerMainDispatcher::channel_request_msg 
+  (int type, u_int32_t seq, void *ctxt) 
+{
+  connection->server_input_channel_req (type, seq, ctxt);
+}
+
 void ServerMainDispatcher::channel_window_adjust_msg (int, u_int32_t, void *) {}
-void ServerMainDispatcher::global_request_msg (int, u_int32_t, void *) {}
+
+void ServerMainDispatcher::global_request_msg 
+  (int type, u_int32_t seq, void *ctxt) 
+{
+}
+
 void ServerMainDispatcher::channel_success_msg (int, u_int32_t, void *) {}
 void ServerMainDispatcher::channel_failure_msg (int, u_int32_t, void *) {}
 void ServerMainDispatcher::request_success_msg (int, u_int32_t, void *) {}

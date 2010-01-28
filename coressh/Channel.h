@@ -13,12 +13,37 @@ struct SessionChannelPars;
 class Channel : public SNotCopyable
 {
   friend SessionChannelPars;
-
+  
 public:
+  // check currentChanState
+  bool channelStateIs (const char* stateName);
+
   // It is a repository id
   const std::string universal_object_id;
+  // The same 
+  const int self;		
+
+  const std::string ctype;		/* type */
 
   virtual ~Channel(void);
+
+
+  // The selectors
+
+  int get_remote_id () const 
+  {
+    return remote_id;
+  }
+
+  u_int get_local_window () const
+  {
+    return local_window;
+  }
+
+  u_int get_local_maxpacket () const
+  {
+    return local_maxpacket;
+  }
 
 protected:
 
@@ -26,6 +51,7 @@ protected:
 
   static StateMap* inputStateMap;
   static StateMap* outputStateMap;
+  static StateMap* channelStateMap;
 
   static UniversalState inputOpenState;
   static UniversalState inputWaitDrainState;
@@ -35,9 +61,18 @@ protected:
   static UniversalState outputWaitDrainState;
   static UniversalState outputClosedState;
 
+  static UniversalState openChanState;
+  //static UniversalState closedState;
+  static UniversalState larvalChanState;
+  //static UniversalState connectingState;
+  //static UniversalState zombieState; 
+  //FIXME initializing
+
   static const State2Idx allInputStates[];
   static const StateTransition allInputTrans[];
   static const StateTransition allOutputTrans[];
+  static const State2Idx allChanStates[];
+  static const StateTransition allChanTrans[];
 public:
   static void initializeStates ();
 protected:
@@ -53,10 +88,8 @@ protected:
     );
 
   // the attached session (if any) or NULL
-  Session* session;
+  //Session* session;
   
-  const int self;		/* my own channel identifier */
-
 	Buffer  input;		/* data read from socket, to be sent over
 				 * encrypted connection */
 	Buffer  output;		/* data received over encrypted connection for
@@ -91,8 +124,6 @@ protected:
 	//int     extended_usage;
 	int	single_connection;
 
-  std::string ctype;		/* type */
-
 #if 0
 	/* callback */
 	channel_callback_fn	*open_confirm;
@@ -118,6 +149,7 @@ private:
 
   UniversalState currentInputState;
   UniversalState currentOutputState;
+  UniversalState currentChanState;
 
 };
 

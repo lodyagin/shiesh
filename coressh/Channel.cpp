@@ -13,18 +13,33 @@ const StateTransition Channel::allInputTrans[] =
 {
   {"open", "closed"},
   {"open", "waitDrain"},
-  {"waitDrain", "closed"}
+  {"waitDrain", "closed"},
+  {0, 0}
 };
 
 const StateTransition Channel::allOutputTrans[] =
 {
   {"open", "closed"},
   {"open", "waitDrain"},
-  {"waitDrain", "closed"}
+  {"waitDrain", "closed"},
+  {0, 0}
+};
+
+const State2Idx Channel::allChanStates[] =
+{
+  {1, "larval"},
+  {2, "open"},
+  {0, 0}
+};
+
+const StateTransition Channel::allChanTrans[] =
+{
+  {0, 0}
 };
 
 StateMap* Channel::inputStateMap;
 StateMap* Channel::outputStateMap;
+StateMap* Channel::channelStateMap;
 
 UniversalState Channel::inputOpenState;
 UniversalState Channel::inputWaitDrainState;
@@ -33,6 +48,9 @@ UniversalState Channel::inputClosedState;
 UniversalState Channel::outputOpenState;
 UniversalState Channel::outputWaitDrainState;
 UniversalState Channel::outputClosedState;
+
+UniversalState Channel::larvalChanState;
+UniversalState Channel::openChanState;
 
 static int initStateMap = 
   (Channel::initializeStates(), 1);
@@ -47,7 +65,7 @@ Channel::Channel
   )
 : universal_object_id (channelId),
   self (fromString<int> (channelId)),
-  session (0),
+  //session (0),
   remote_id (-1),
   force_drain (0),
   remote_name (remoteName),
@@ -66,6 +84,7 @@ Channel::Channel
 
   currentInputState = inputOpenState;
   currentOutputState = outputOpenState;
+  currentChanState = larvalChanState;
 
 	debug("channel %d: new [%s]", self, remote_name.c_str ());
 }
@@ -79,6 +98,7 @@ void Channel::initializeStates ()
   inputStateMap = new StateMap (allInputStates, allInputTrans);
   // the same state set as for input
   outputStateMap = new StateMap (allInputStates, allOutputTrans);
+  channelStateMap = new StateMap (allChanStates, allChanTrans);
 
   inputOpenState = inputStateMap->create_state ("open");
   inputWaitDrainState = inputStateMap->create_state ("waitDrain");
@@ -87,6 +107,16 @@ void Channel::initializeStates ()
   outputOpenState = outputStateMap->create_state ("open");
   outputWaitDrainState = outputStateMap->create_state ("waitDrain");
   outputClosedState = outputStateMap->create_state ("closed");
+
+  larvalChanState = channelStateMap->create_state ("larval");
+  openChanState = channelStateMap->create_state ("open");
+}
+
+bool Channel::channelStateIs (const char* stateName)
+{
+  // TODO move to sets 
+  UniversalState state = channelStateMap->create_state (stateName);
+  return channelStateMap->is_equal (currentChanState, state);
 }
 
 

@@ -10,10 +10,14 @@ typedef Repository<Channel, ChannelPars> ChannelRepository;
 
 struct ChannelPars
 {
-  ////std::string ctype;       // channel type name
-  //u_int window;            // window size
-  //std::string remote_name; // remote hostname 
+  ChannelPars (const std::string& remName)
+    : remote_id (-1), rwindow (0), rmaxpack (0),
+    remote_name (remName)
+  {}
 
+  virtual ~ChannelPars () {}
+
+  std::string remote_name; // remote hostname
   int remote_id;  // peer's id of the channel
   u_int rwindow;  // peer's max window size
   u_int rmaxpack; // peer's max packet size
@@ -25,6 +29,10 @@ struct ChannelPars
 // For session type of channel
 struct SessionChannelPars : public ChannelPars
 {
+  SessionChannelPars ()
+    : ChannelPars ("server-session")
+  {}
+
   Channel* create_derivation 
     (const ChannelRepository::ObjectCreationInfo&) const;
 };

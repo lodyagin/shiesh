@@ -350,10 +350,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ChannelFactory.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\ChannelPars.cpp"
 				>
 			</File>
@@ -462,6 +458,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SessionPars.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\sha2.cpp"
 				>
 			</File>
@@ -537,10 +537,6 @@
 			</File>
 			<File
 				RelativePath=".\Channel.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ChannelFactory.h"
 				>
 			</File>
 			<File
@@ -641,6 +637,10 @@
 			</File>
 			<File
 				RelativePath=".\Session.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SessionPars.h"
 				>
 			</File>
 			<File

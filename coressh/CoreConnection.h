@@ -12,6 +12,8 @@
 #include "Dispatcher.h"
 #include "AuthDispatcher.h"
 #include "ServerMainDispatcher.h"
+#include "ChannelPars.h"
+#include "SessionPars.h"
 
 using namespace coressh;
 
@@ -19,7 +21,10 @@ struct CoreConnectionPars;
 
 class KexDispatcher;
 
-class CoreConnection : public RConnection
+class CoreConnection 
+  : public RConnection, 
+    protected ChannelRepository,
+    protected SessionRepository
 {
   friend CoreConnectionPars;
   friend Dispatcher;
@@ -62,6 +67,9 @@ public:
   char	*packet_get_string(u_int *length_ptr);
   void	*packet_get_string_ptr(u_int *length_ptr);
 
+  int	   packet_remaining(void);
+  void   packet_disconnect(const char *fmt,...);
+
   /* end of packets interface */
 
 protected:
@@ -100,7 +108,6 @@ protected:
   int      packet_read_seqnr(u_int32_t *seqnr_p);
   int      packet_read_poll_seqnr(u_int32_t *seqnr_p);
 
-  void     packet_disconnect(const char *fmt,...);
   void     packet_send_debug(const char *fmt,...);
 
   void	 set_newkeys(int mode);
@@ -120,7 +127,6 @@ protected:
 
   int	 packet_connection_is_on_socket(void);
   int	 packet_connection_is_ipv4(void);
-  int	 packet_remaining(void);
   void	 packet_send_ignore(int);
   void	 packet_add_padding(u_char);
 
@@ -189,6 +195,9 @@ protected:
   /* channel requests */
 
   void server_input_channel_open
+    (int type, u_int32_t seq, void *ctxt);
+
+  void server_input_channel_req
     (int type, u_int32_t seq, void *ctxt);
 
   /* end of channel requests */
@@ -301,6 +310,7 @@ private:
   void packet_send2_wrapped(void);
   void packet_send2(void);
   int packet_read_poll2(u_int32_t *seqnr_p);
+  int packet_need_rekeying(void);
 
   /* end of packets */
 
@@ -371,8 +381,19 @@ private:
 
   int no_more_sessions ; /* Disallow further sessions. */
 
-  //Channel* server_request_session(void);
+  Channel* server_request_session 
+    (const ChannelPars& chPars);
 
  /* end of channels & sessions */
+
+ /* serverloop routines */
+  void wait_until_can_do_something
+    (fd_set **readsetp, fd_set **writesetp,
+    u_int max_time_milliseconds);
+
+  void process_input(fd_set *readset);
+  void process_output(fd_set *writeset);
+
+  bool connection_closed;
 
 };
