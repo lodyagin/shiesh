@@ -23,7 +23,7 @@ class KexDispatcher;
 
 class CoreConnection 
   : public RConnection, 
-    protected ChannelRepository,
+    public ChannelRepository, //TODO
     protected SessionRepository
 {
   friend CoreConnectionPars;
@@ -383,6 +383,9 @@ private:
 
   Channel* server_request_session 
     (const ChannelPars& chPars);
+
+  void channel_input_data
+    (int type, u_int32_t seq, void *ctxt);
 
  /* end of channels & sessions */
 

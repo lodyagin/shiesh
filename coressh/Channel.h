@@ -5,18 +5,31 @@
 #include "SNotCopyable.h"
 #include "Session.h"
 #include <string>
+#include "Logging.h"
+#include "BusyThreadReadBuffer.h"
+#include "BusyThreadWriteBuffer.h"
+
+/* default window/packet sizes for tcp/x11-fwd-channel */
+#define CHAN_SES_PACKET_DEFAULT	(32*1024)
+#define CHAN_SES_WINDOW_DEFAULT	(64*CHAN_SES_PACKET_DEFAULT)
+#define CHAN_TCP_PACKET_DEFAULT	(32*1024)
+#define CHAN_TCP_WINDOW_DEFAULT	(64*CHAN_TCP_PACKET_DEFAULT)
 
 using namespace coressh;
 
 struct SessionChannelPars;
 
+class CoreConnection;
+
 class Channel : public SNotCopyable
 {
   friend SessionChannelPars;
+  friend CoreConnection; //TODO
   
 public:
   // check currentChanState
   bool channelStateIs (const char* stateName);
+  bool outputStateIs (const char* stateName);
 
   // It is a repository id
   const std::string universal_object_id;
@@ -44,6 +57,8 @@ public:
   {
     return local_maxpacket;
   }
+
+  void open (u_int window_max);
 
 protected:
 
@@ -84,18 +99,18 @@ protected:
     const std::string& channelId,
     u_int windowSize,
     u_int maxPacketSize,
-    const std::string& remoteName
+    const std::string& remoteName,
+    CoreConnection* connection
     );
 
   // the attached session (if any) or NULL
   //Session* session;
   
-	Buffer  input;		/* data read from socket, to be sent over
-				 * encrypted connection */
-	Buffer  output;		/* data received over encrypted connection for
-				 * send on socket */
-	Buffer  extended;
-
+public:
+  BusyThreadWriteBuffer<Buffer> fromChannel;
+  BusyThreadReadBuffer<Buffer> toChannel;
+  //BusyThreadReadBuffer<Buffer> fromChannelExt;
+protected:
  	int     remote_id;	/* channel identifier for remote peer */
 	//int     flags;		/* close sent/rcvd */
 	//int     rfd;		/* read fd */
@@ -145,7 +160,15 @@ protected:
 	/* non-blocking connect */
 	//struct channel_connect	connect_ctx;
 
+  CoreConnection* con;
+
 private:
+
+  //void check_moving_to (const UniversalState& to);
+
+  void chan_state_move_to (const UniversalState& to);
+
+  static Logging log;
 
   UniversalState currentInputState;
   UniversalState currentOutputState;

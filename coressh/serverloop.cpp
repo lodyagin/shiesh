@@ -671,6 +671,7 @@ CoreConnection::server_input_channel_open
   chPars.remote_id = packet_get_int();
 	chPars.rwindow = packet_get_int();
 	chPars.rmaxpack = packet_get_int();
+  chPars.connection = this;
 
 	debug("server_input_channel_open: ctype %s rchan %d win %d max %d",
 	    ctype, 
@@ -796,11 +797,6 @@ CoreConnection::server_input_channel_req
 		packet_disconnect("server_input_channel_req: "
 		    "unknown channel %d", id);
 	
-  /*if (!strcmp(rtype, "eow@openssh.com")) {
-		packet_check_eom();
-		chan_rcvd_eow(c);
-	} else*/ 
-  
   if (
       (
        c->channelStateIs ("larval") ||

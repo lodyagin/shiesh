@@ -4,6 +4,7 @@
 #include "SessionPars.h"
 #include "CoreConnection.h"
 #include "packet.h"
+#include "SFTP.h"
 
 Session::Session
   (const std::string& objId,
@@ -16,13 +17,19 @@ Session::Session
      authctxt (authCtxt),
      pw (authCtxt->pw),
      chanid (channelId),
-     connection (con)
+     connection (con)/*,
+     channel (chan)*/
 {
+  assert (connection);
+
+  channel = connection->ChannelRepository::get_object_by_id (chanid);
+  assert (channel);
+
   // check from OpenSSH
   if (pw == NULL || !authctxt->valid)
     fatal ("no user for session %d", (int) self);
 	debug("session_open: session %d: link with channel %d",
-    (int) self, (int) chanid);
+    (int) self, channel->self);
 }
 
 Session::~Session(void)
@@ -81,9 +88,9 @@ Session::session_input_channel_req
 int
 Session::session_subsystem_req ()
 {
-	u_int len;
-	int success = 0;
-	char *subsys;
+	u_int len = 0;
+	char *subsys = 0;
+  Subsystem* s = 0;
 
   assert (connection);
 
@@ -92,14 +99,19 @@ Session::session_subsystem_req ()
 	logit("subsystem request for %.100s", subsys);
 
   if (strcmp (subsys, "sftp") == 0)
-	  success = 1; // do_exec
+  {
+    s = new SFTP (pw, &channel->fromChannel, &channel->toChannel);
+    s->start (); // TODO stop ()
+  }
 
-	if (!success)
+	if (!s)
 		logit("subsystem request for %.100s failed, subsystem not found",
 		    subsys);
+  else
+    channel->open (CHAN_SES_WINDOW_DEFAULT); 
 
 	xfree(subsys);
-	return success;
+	return s != 0;
 }
 
 

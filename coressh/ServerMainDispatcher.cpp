@@ -43,7 +43,13 @@ ServerMainDispatcher::ServerMainDispatcher(CoreConnection* con)
 
 void ServerMainDispatcher::kexinit_msg (int, u_int32_t, void *) {}
 void ServerMainDispatcher::channel_close_msg (int, u_int32_t, void *) {}
-void ServerMainDispatcher::channel_data_msg (int, u_int32_t, void *) {}
+
+void ServerMainDispatcher::channel_data_msg 
+  (int type, u_int32_t seq, void *ctxt) 
+{
+  connection->channel_input_data (type, seq, ctxt);
+}
+
 void ServerMainDispatcher::channel_eof_msg (int, u_int32_t, void *) {}
 void ServerMainDispatcher::channel_extended_data_msg (int, u_int32_t, void *) {}
 

@@ -44,7 +44,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;..\openssl\inc32;..\zlib;&quot;..\apache-log4cxx\src\main\include&quot;"
-				PreprocessorDefinitions=";UNICODE;_UNICODE"
+				PreprocessorDefinitions="_DEBUG;UNICODE;_UNICODE;_USE_32BIT_TIME_T"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -110,6 +110,7 @@
 				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;..\openssl\inc32;..\zlib;&quot;..\apache-log4cxx\src\main\include&quot;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -462,6 +463,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sftp-common.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sftp-server.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\sha2.cpp"
 				>
 			</File>
@@ -479,6 +488,30 @@
 			</File>
 			<File
 				RelativePath=".\StdAfx.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\strmode.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Subsystem.cpp"
 				>
 			</File>
 			<File
@@ -644,6 +677,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sftp-common.h"
+				>
+			</File>
+			<File
+				RelativePath=".\sftp.h"
+				>
+			</File>
+			<File
 				RelativePath=".\sha2.h"
 				>
 			</File>
@@ -661,6 +702,10 @@
 			</File>
 			<File
 				RelativePath=".\StdAfx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Subsystem.h"
 				>
 			</File>
 			<File

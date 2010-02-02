@@ -1,20 +1,20 @@
 #include "StdAfx.h"
 #include "User.h"
 
-std::map<std::string, std::string> User::userList;
+User::UserMap User::userList;
 
 User* User::fakeUser = 0;
 
 void User::init ()
 {
-  userList["serg"] = "s4";
-  userList["matt"] = "m4";
-  userList["mary"] = "m5";
+  userList[L"serg"] = "s4";
+  userList[L"matt"] = "m4";
+  userList[L"mary"] = "m5";
 }
 
 static int inited = (User::init (), true);
 
-User::User(const char* name)
+User::User(const std::wstring& name)
 : isFake (false), userName (name)
 {
 }
@@ -35,7 +35,7 @@ User* User::fake_user ()
 }
 
 
-User* User::find_allowed (const char* user)
+User* User::find_allowed (const std::wstring& user)
 {
   UserMap::const_iterator cit = userList.find (user);
   if (cit != userList.end ())
@@ -45,7 +45,7 @@ User* User::find_allowed (const char* user)
   else return 0;
 }
 
-const std::string& User::encrypted_passwd () const
+const User::EncryptedPasswd User::encrypted_passwd () const
 {
   if (isFake)
     return fakeEncPasswd;
@@ -59,5 +59,13 @@ const std::string& User::encrypted_passwd () const
   }
 }
 //FIXME reenterable
+
+const std::wstring User::home_dir () const
+{
+  return std::wstring (L"c:\\coressh\\home\\") 
+    + userName;
+  //FIXME
+}
+
 
 std::string User::fakeEncPasswd ("!");

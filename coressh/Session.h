@@ -35,5 +35,7 @@ protected:
 
   int session_subsystem_req ();
 
+  Channel* channel;
+
   CoreConnection* connection;
 };

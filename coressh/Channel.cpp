@@ -1,5 +1,9 @@
 #include "StdAfx.h"
 #include "Channel.h"
+#include "CoreConnection.h"
+#include "ssh2.h"
+
+Logging Channel::log ("Channel");
 
 const State2Idx Channel::allInputStates[] =
 {
@@ -34,6 +38,7 @@ const State2Idx Channel::allChanStates[] =
 
 const StateTransition Channel::allChanTrans[] =
 {
+  {"larval", "open"},
   {0, 0}
 };
 
@@ -61,7 +66,8 @@ Channel::Channel
   const std::string& channelId,
   u_int windowSize,
   u_int maxPacketSize,
-  const std::string& remoteName
+  const std::string& remoteName,
+  CoreConnection* connection
   )
 : universal_object_id (channelId),
   self (fromString<int> (channelId)),
@@ -76,11 +82,13 @@ Channel::Channel
   local_consumed (0),
   local_maxpacket (maxPacketSize),
   single_connection (0),
-  ctype (channelType)
+  ctype (channelType),
+  con (connection)/*,
+  datagram (0)*/
 {
-  buffer_init (&input);
-  buffer_init (&output);
-  buffer_init (&extended);
+  //buffer_init (&input);
+  //buffer_init (&output);
+  //buffer_init (&extended);
 
   currentInputState = inputOpenState;
   currentOutputState = outputOpenState;
@@ -112,12 +120,46 @@ void Channel::initializeStates ()
   openChanState = channelStateMap->create_state ("open");
 }
 
-bool Channel::channelStateIs (const char* stateName)
+bool Channel::channelStateIs 
+  (const char* stateName)
 {
   // TODO move to sets 
   UniversalState state = channelStateMap->create_state (stateName);
   return channelStateMap->is_equal (currentChanState, state);
 }
 
+bool Channel::outputStateIs 
+  (const char* stateName)
+{
+  UniversalState state = 
+    outputStateMap->create_state (stateName);
+  return outputStateMap->is_equal 
+    (currentOutputState, state);
+}
 
+void Channel::open (u_int window_max)
+{
+  chan_state_move_to (openChanState);
+	local_window = local_window_max = window_max;
+	con->packet_start(SSH2_MSG_CHANNEL_WINDOW_ADJUST);
+	con->packet_put_int(remote_id);
+	con->packet_put_int(local_window);
+	con->packet_send();
+}
+
+/*void SThread::check_moving_to 
+  (const UniversalState& to)
+{
+  stateMap->check_transition (currentState, to);
+}*/
+
+void Channel::chan_state_move_to
+  (const UniversalState& to)
+{
+  LOG4STRM_TRACE (log.GetLogger (), 
+    oss_ << "from " << channelStateMap->get_state_name (currentChanState)
+    << " to " << channelStateMap->get_state_name (to));
+  channelStateMap->check_transition (currentChanState, to);
+  currentChanState = to;
+}
 

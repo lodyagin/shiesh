@@ -5,9 +5,14 @@
 
 // Full user info
 // FIXME access from several places
+// FIXME return pointers - user can be deleted,
+// the credential should be processed as
+// Concurrent++' handles
 class User
 {
 public:
+  typedef std::string EncryptedPasswd;
+
   class NoSuchUser {};
 
   virtual ~User(void);
@@ -17,22 +22,26 @@ public:
 
   // Return user info if the user is allowed
   // otherwise return NULL
-  static User* find_allowed (const char* user);
+  static User* find_allowed (const std::wstring& user);
 
   static void init ();
 
-  const std::string& encrypted_passwd () const;
+  const EncryptedPasswd encrypted_passwd () const;
+
+  const std::wstring home_dir () const;
+
+  const std::wstring userName;
+
 protected:
   User () : isFake (true) {}
-  User(const char* name);
-  std::string userName;
+  User(const std::wstring& name);
 
 private:
-  typedef std::map<std::string, std::string> UserMap; 
+  typedef std::map<std::wstring, EncryptedPasswd> UserMap; 
 
   static UserMap userList;
   static User* fakeUser;
-  static std::string fakeEncPasswd;
+  static EncryptedPasswd fakeEncPasswd;
 
   bool isFake;
 };

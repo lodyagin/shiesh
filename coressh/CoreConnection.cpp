@@ -2449,6 +2449,65 @@ void CoreConnection::server_loop ()
 	//FIXME! session_destroy_all(NULL);
 }
 
+/* -- protocol input */
+
+/* ARGSUSED */
+void
+CoreConnection::channel_input_data
+  (int type, u_int32_t seq, void *ctxt)
+{
+	int id;
+	char *data;
+	u_int data_len;
+	Channel *c = 0;
+
+	/* Get the channel number and verify it. */
+	id = packet_get_int();
+  c = ChannelRepository::get_object_by_id (id);
+	if (c == NULL)
+		packet_disconnect
+      ("Received data for nonexistent channel %d.", id);
+
+	/* Ignore any data for non-open channels (might happen on close) */
+	if (!c->channelStateIs ("open"))
+		return;
+
+	/* Get the data. */
+	data = (char*) packet_get_string_ptr(&data_len);
+
+	/*
+	 
+	 * The sending side is reducing its window as it sends
+	 * data, so we must 'fake' consumption of the data in order to ensure
+	 * that window updates are sent back.  Otherwise the connection might
+	 * deadlock.
+	 */
+  if (!c->outputStateIs ("open")) 
+  {
+			c->local_window -= data_len;
+			c->local_consumed += data_len;
+      return;
+	}
+
+	if (data_len > c->local_maxpacket) {
+		logit("channel %d: rcvd big packet %d, maxpack %d",
+		    c->self, data_len, c->local_maxpacket);
+	}
+	if (data_len > c->local_window) {
+		logit("channel %d: rcvd too much data %d, win %d",
+		    c->self, data_len, c->local_window);
+		return;
+	}
+	c->local_window -= data_len;
+
+  c->fromChannel.put (data, data_len);
+
+  //   if (false /*c->datagram*/)
+	//else
+	//FIXME buffer_append(&c->output, data, data_len);
+	packet_check_eom(this);
+}
+
     
 
 

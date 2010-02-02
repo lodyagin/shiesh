@@ -21,6 +21,7 @@ struct ChannelPars
   int remote_id;  // peer's id of the channel
   u_int rwindow;  // peer's max window size
   u_int rmaxpack; // peer's max packet size
+  CoreConnection* connection;
 
   virtual Channel* create_derivation 
     (const ChannelRepository::ObjectCreationInfo&) const = 0;

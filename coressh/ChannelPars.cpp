@@ -18,7 +18,8 @@ Channel* SessionChannelPars::create_derivation
      info.objectId,
      /*window size*/0,
      CHAN_SES_PACKET_DEFAULT,
-     remote_name
+     remote_name,
+     connection
      );
   c->remote_id = remote_id;
   c->remote_window = rwindow;
