@@ -23,7 +23,7 @@ class KexDispatcher;
 
 class CoreConnection 
   : public RConnection, 
-    public ChannelRepository, //TODO
+    public ChannelRepository, //TODO (public)
     protected SessionRepository
 {
   friend CoreConnectionPars;
@@ -302,8 +302,8 @@ private:
   /* Set to true if we are authenticated. */
   int after_authentication; //TODO to states?
 
-  SOCKET connection_in;
-  SOCKET connection_out;
+  //SOCKET connection_in;
+  //SOCKET connection_out;
 
   void packet_init_compression(void);
   void packet_enable_delayed_compress(void);
@@ -391,12 +391,19 @@ private:
 
  /* serverloop routines */
   void wait_until_can_do_something
-    (fd_set **readsetp, fd_set **writesetp,
-    u_int max_time_milliseconds);
+    (HANDLE eventArray[], 
+     int nEvents,
+     u_int max_time_milliseconds,
+     bool signalled[]
+     );
 
-  void process_input(fd_set *readset);
-  void process_output(fd_set *writeset);
+  void process_input(long networkEvents);
+  void process_output();
 
   bool connection_closed;
+
+  bool lastSendBlocks;
+
+  void all_channels_output_poll ();
 
 };

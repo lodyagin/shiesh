@@ -34,43 +34,6 @@
 namespace coressh {
 
 /*
- * ensure all of data on socket comes through. f==send
- */
-size_t
-atomicio_send
-  (int (__stdcall *f) (SOCKET, const char *, int, int), 
-   SOCKET fd, void *_s, size_t n/*, int flags*/)
-{
-	char *s = reinterpret_cast<char*> (_s);
-	size_t pos = 0;
-	int res;
-
-	while (n > pos) {
-		res = (f) (fd, s + pos, n - pos, /*flags*/ 0);
-		switch (res) {
-		case SOCKET_ERROR:
-      {
-        int err = ::WSAGetLastError ();
-			  if (err == WSAEINTR)
-				  continue;
-			  if (err == WSAEWOULDBLOCK) {
-          ::Sleep(1000); // FIXME
-				  continue;
-			  }
-			  return 0;
-      }
-		case 0:
-      THROW_EXCEPTION
-        (SException,
-         oss_ << "The connection is closed by peer");
-		default:
-			pos += (size_t)res;
-		}
-	}
-	return (pos);
-}
-
-/*
  * ensure all of data on socket comes through. f==recv 
  */
 size_t

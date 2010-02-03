@@ -233,21 +233,16 @@ client_alive_check(void)
 }
 #endif
 
-/*
- * Sleep in select() until we can do something.  This will initialize the
- * select masks.  Upon return, the masks will indicate which descriptors
- * have data or can accept data.  Optionally, a maximum time can be specified
- * for the duration of the wait (0 = infinite).
- */
 void
 CoreConnection::wait_until_can_do_something
-  (fd_set **readsetp, fd_set **writesetp,
-   u_int max_time_milliseconds)
+  (HANDLE eventArray[], 
+   int nEvents,
+   u_int max_time_milliseconds,
+   bool signalled[]
+   )
 {
-	struct timeval tv, *tvp;
-	int ret;
-	int client_alive_scheduled = 0;
-	int program_alive_scheduled = 0;
+	/*int client_alive_scheduled = 0;
+	int program_alive_scheduled = 0;*/
 
 #if 0 //FIXME should be enabled
   /*
@@ -268,18 +263,8 @@ CoreConnection::wait_until_can_do_something
 	/* Allocate and update select() masks for channel descriptors. */
   // It is not used in coreSSH
 	//channel_prepare_select(readsetp, writesetp, maxfdp, nallocp, 0);
-  FD_ZERO (*readsetp);
-  FD_ZERO (*writesetp);
-	FD_SET(connection_in, *readsetp);
 
 	//notify_prepare(*readsetp); //notify pipe
-
-	/*
-	 * If we have buffered packet data going to the client, mark that
-	 * descriptor.
-	 */
-	if (buffer_len (&output) != 0)
-		FD_SET(connection_out, *writesetp);
 
 	/*
 	 * If child has terminated and there is enough buffer space to read
@@ -289,45 +274,55 @@ CoreConnection::wait_until_can_do_something
 		if (max_time_milliseconds == 0 || client_alive_scheduled)
 			max_time_milliseconds = 100;*/
 
-	if (max_time_milliseconds == 0)
-		tvp = NULL;
-	else {
-		tv.tv_sec = max_time_milliseconds / 1000;
-		tv.tv_usec = 1000 * (max_time_milliseconds % 1000);
-		tvp = &tv;
-	}
+  memset (signalled, 0, nEvents * sizeof (bool));
 
-	/* Wait for something to happen, or the timeout to expire. */
-  ret = ::select(0 /*ignored*/, *readsetp, *writesetp, NULL, tvp);
+  if (!socket->wait_fd_write ()
+    && buffer_len(&output) > 0) // can write
+  {
+    signalled[0] = true;
+    return;
+  }
 
-	if (ret == SOCKET_ERROR) {
-    const int err = ::WSAGetLastError ();
-    FD_ZERO (*readsetp);
-		FD_ZERO (*writesetp);
-		if (err != WSAEINTR)
-			error("select: %.100s", sWinErrMsg (err).c_str ());
-        // FIXME UNICODE
-	} else {
-		if (ret == 0 /*&& client_alive_scheduled*/) //FIXME
-			; //FIXME client_alive_check();
-	}
+  DWORD waitResult = //::WSAWaitForMultipleEvents
+    ::WaitForMultipleObjectsEx
+    (nEvents, eventArray, FALSE, /* wait any*/
+     (max_time_milliseconds != 0) 
+       ? max_time_milliseconds : WSA_INFINITE,
+      FALSE
+      );
 
-	//notify_done(*readsetp); //notify pipe
+  while ((waitResult = ::WSAWaitForMultipleEvents
+    (nEvents, eventArray, FALSE, /* wait any*/
+     0,
+     FALSE
+     )) != WSA_WAIT_TIMEOUT)
+  {
+    const int eventNum = waitResult - WSA_WAIT_EVENT_0;
+    
+    if (eventNum < 0 || eventNum >= nEvents)
+        THROW_EXCEPTION (SException, 
+           L" bad result of events waiting");
+
+    signalled[eventNum] = true;
+    ::WSAResetEvent (eventArray[eventNum]);
+  }
+
+  //notify_done(*readsetp); //notify pipe
 }
 
 /*
- * Processes input from the client and the program.  Input data is stored
+ * Processes input from the client.  Input data is stored
  * in buffers and processed later.
  */
 void
-CoreConnection::process_input(fd_set *readset)
+CoreConnection::process_input(long networkEvents)
 {
 	int len;
 	char buf[16384];
 
 	/* Read and buffer any input data from the client. */
-	if (FD_ISSET(connection_in, readset)) {
-    len = ::recv(connection_in, buf, sizeof(buf), 0);
+	if (networkEvents & FD_READ) {
+    len = ::recv(socket->get_socket (), buf, sizeof(buf), 0);
 		if (len == 0) {
 			verbose("Connection closed by %.100s",
 			    socket->get_peer_address ().get_ip ().c_str ());
@@ -354,13 +349,13 @@ CoreConnection::process_input(fd_set *readset)
 }
 
 /*
- * Sends data from internal buffers to client program stdin.
+ * Sends data from internal buffers to client.
  */
 void
-CoreConnection::process_output(fd_set *writeset)
+CoreConnection::process_output(/*long networkEvents*/)
 {
 	/* Send any buffered packet data to the client. */
-	if (FD_ISSET(connection_out, writeset))
+	//if (networkEvents & FD_WRITE)
 		packet_write_poll();
 }
 

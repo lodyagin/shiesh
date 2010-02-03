@@ -9,6 +9,33 @@
 #define CHAN_X11_PACKET_DEFAULT	(16*1024)
 #define CHAN_X11_WINDOW_DEFAULT	(4*CHAN_X11_PACKET_DEFAULT)
 
+void ChannelRepository::fill_event_array 
+  (HANDLE events[], 
+   int chanNums[],
+   size_t eventsMaxSize, 
+   size_t *eventsSize
+   ) //UT
+{
+  SMutex::Lock lock (objectsM);
+
+  size_t mapSize = 0;
+
+  for (ObjectId i = 0; i < objects->size (); i++)
+   {
+      Channel* c = objects->at (i);
+      if (c != NULL)
+      {
+        if (mapSize >= eventsMaxSize)
+          break; // TODO silent break ?
+
+        events[mapSize] = c->get_data_ready_event ();
+        chanNums[mapSize] = i;
+        ++ mapSize;
+      }
+   }
+  *eventsSize = mapSize;
+}
+
 
 Channel* SessionChannelPars::create_derivation
   (const ChannelRepository::ObjectCreationInfo& info) const

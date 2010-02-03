@@ -137,8 +137,8 @@ CoreConnection::CoreConnection
    const std::string& objId
    )
    : RConnection (repo, cs, objId),
-   ChannelRepository (10000), // UT overflow
-   SessionRepository (10000), // --//--
+   //ChannelRepository (),
+   //SessionRepository (), // --//--
 
    aDatafellows (0),
    packets_initialized (false),
@@ -153,8 +153,6 @@ CoreConnection::CoreConnection
    deflate_failed (0),
    after_authentication (0),
    extra_pad (0),
-   connection_in (-1),
-   connection_out (-1),
    session_id2 (0),
    session_id2_len (0),
    authctxt (0),
@@ -181,10 +179,6 @@ CoreConnection::CoreConnection
    no_more_sessions (0),
    connection_closed (false)
 {
-  connection_in = connection_out =
-    get_socket () -> get_socket ();
-  //TODO direct socket access
-
   for (int i = 0; i < PROPOSAL_MAX; i++)
     myproposal[i] = def_proposal[i];
 
@@ -223,8 +217,7 @@ void CoreConnection::run ()
   try
   {
     coressh::sshd_exchange_identification 
-      (get_socket () -> get_socket (),
-       get_socket () -> get_socket (),
+      (*get_socket (),
        server_version_string,
        client_version_string);
 
@@ -1122,7 +1115,7 @@ CoreConnection::packet_read_seqnr(u_int32_t *seqnr_p)
 		 */
   	FD_ZERO (setp);
 
-		FD_SET(connection_in, setp);
+    FD_SET(socket->get_socket (), setp);
 
 		if (packet_timeout_ms > 0) {
 			ms_remain = packet_timeout_ms;
@@ -1156,7 +1149,7 @@ CoreConnection::packet_read_seqnr(u_int32_t *seqnr_p)
 			cleanup_exit(255);
 		}
 		/* Read data from the socket. */
-    len = ::recv(connection_in, buf, sizeof(buf), 0);
+    len = ::recv(socket->get_socket (), buf, sizeof(buf), 0);
 		if (len == 0) {
 			logit("Connection closed by %.200s", get_remote_ipaddr());
 			cleanup_exit(255);
@@ -1180,7 +1173,8 @@ CoreConnection::packet_read_poll_seqnr(u_int32_t *seqnr_p)
 
 	for (;;) {
 		if (true /*compat20*/) {
-			type = packet_read_poll2(seqnr_p);
+
+      type = packet_read_poll2(seqnr_p);
 			if (type) {
 				keep_alive_timeouts = 0;
 				DBG(debug("received packet type %d", type));
@@ -2314,7 +2308,7 @@ CoreConnection::packet_write_wait(void)
 	packet_write_poll();
 	while (packet_have_data_to_write()) {
     FD_ZERO (setp);
-		FD_SET(connection_out, setp);
+    FD_SET(socket->get_socket (), setp);
 
 		if (packet_timeout_ms > 0) {
 			ms_remain = packet_timeout_ms;
@@ -2364,16 +2358,10 @@ void
 CoreConnection::packet_write_poll(void)
 {
 	int len = buffer_len(&output);
+  int err = 0;
 
 	if (len > 0) {
-    len = ::send(connection_out, (const char*) buffer_ptr(&output), len, 0);
-		if (len == -1) {
-      const int err = ::WSAGetLastError ();
-			if (err == WSAEINTR || 
-			    err == WSAEWOULDBLOCK)
-				return;
-      fatal("Write failed: %.100s", sWinErrMsg (err).c_str ());
-		}
+    len = socket->send(buffer_ptr(&output), len, &err);
 		if (len == 0)
 			fatal("Write connection closed");
 		buffer_consume(&output, len);
@@ -2382,9 +2370,16 @@ CoreConnection::packet_write_poll(void)
 
 void CoreConnection::server_loop ()
 {
-  fd_set readSET, writeSET;
-  fd_set* readset = &readSET;
-  fd_set* writeset = &writeSET;
+  HANDLE eventArray[WSA_MAXIMUM_WAIT_EVENTS] = {0};
+  bool signalled[WSA_MAXIMUM_WAIT_EVENTS] = {0};
+
+  // put channel num in accordance to each channel event
+  int chanNums[WSA_MAXIMUM_WAIT_EVENTS] = {0}; 
+ 
+  size_t nChannelEvents;
+  DWORD socketEvents = 0;
+
+  eventArray[0] = socket->get_event_object ();
 
   if (!srvDispatcher)
   {
@@ -2394,6 +2389,7 @@ void CoreConnection::server_loop ()
 
   for (;;)
   {
+    // buffer CoreConnection::input -> to action
     // process buffered input packets
     // NONBLOCK returns with no action if no packets
     // were collected in wait_until_can_do_something
@@ -2405,21 +2401,27 @@ void CoreConnection::server_loop ()
     
     // rekey request set done = 0
     const bool rekeying = (xxx_kex && !xxx_kex->done);
+    // FIXME sequence !
 
+    // buffer Channel::ascending -> buffer CoreConnection::output
     // TODO change the constant for sessions interactive
     // which needs an interactive response
-    //FIXME if (!rekeying && buffer_len (&output) < 128 * 1024)
-    //FIXME  channel_output_poll ();
+    if (!rekeying && buffer_len (&output) < 128 * 1024)
+        all_channels_output_poll ();
 
-		wait_until_can_do_something(&readset, &writeset, 0);
+    // Fill the event array with the all channel data ready events
+    fill_event_array 
+      (eventArray + 1, 
+       chanNums + 1,
+       WSA_MAXIMUM_WAIT_EVENTS - 1,
+       &nChannelEvents
+       );
+
+		wait_until_can_do_something
+      (eventArray, nChannelEvents + 1, 0, signalled);
 
     if (SThread::current ().is_stop_requested ())         
-    {
-      /*::xShuttingDown 
-          (L"Stop request from the owner thread.");*/
-
-      break; // thread stop is requested
-    }
+      break; // FIXME add stop event into the wait set
 
 		//FIXME collect_children();
 		if (!rekeying) {
@@ -2433,12 +2435,32 @@ void CoreConnection::server_loop ()
 				kex_send_kexinit(xxx_kex);
 			}
 		}
-		process_input(readset);
+
+    for (int i = 1; i < nChannelEvents + 1; i++)
+    {
+      if (signalled[i]) // Data from channel
+      { // it is a channel event
+        Channel* c = ChannelRepository::get_object_by_id 
+          (chanNums[i]);
+        assert (c);
+        // buffer Channel::toChannel -> buffer Channel::ascending
+        if (c) c->piece_to_ascending ();
+      }
+    }
+
+    if (signalled[0])
+      socketEvents = socket->get_events ();
+    else
+      socketEvents = 0;
+
+    // socket -> buffer "CoreConnection::input"
+    process_input(socketEvents);
 
     if (connection_closed)
 			break;
 
-		process_output(writeset);
+    // buffer "CoreConnection::output" -> socket
+		process_output();
   }
 	//FIXME collect_children();
 
@@ -2508,7 +2530,15 @@ CoreConnection::channel_input_data
 	packet_check_eom(this);
 }
 
-    
+void CoreConnection::all_channels_output_poll ()
+{
+  // FIXME
+  Channel* c = ChannelRepository::get_object_by_id (1);
+  if (c)
+  {
+    c->channel_output_poll ();
+  }
+}
 
 
 

@@ -86,9 +86,7 @@ Channel::Channel
   con (connection)/*,
   datagram (0)*/
 {
-  //buffer_init (&input);
-  //buffer_init (&output);
-  //buffer_init (&extended);
+  buffer_init (&ascending);
 
   currentInputState = inputOpenState;
   currentOutputState = outputOpenState;
@@ -99,6 +97,7 @@ Channel::Channel
 
 Channel::~Channel(void)
 {
+  buffer_free (&ascending);
 }
 
 void Channel::initializeStates ()
@@ -137,6 +136,15 @@ bool Channel::outputStateIs
     (currentOutputState, state);
 }
 
+bool Channel::inputStateIs 
+  (const char* stateName)
+{
+  UniversalState state = 
+    inputStateMap->create_state (stateName);
+  return inputStateMap->is_equal 
+    (currentInputState, state);
+}
+
 void Channel::open (u_int window_max)
 {
   chan_state_move_to (openChanState);
@@ -163,3 +171,104 @@ void Channel::chan_state_move_to
   currentChanState = to;
 }
 
+/* If there is data to send to the connection, enqueue some of it now. */
+void Channel::channel_output_poll ()
+{
+	u_int i, len;
+
+  if (!channelStateIs ("open")) return;
+  
+#if 0
+  if ((c->flags & (CHAN_CLOSE_SENT|CHAN_CLOSE_RCVD))) {
+			/* XXX is this true? */
+			debug3("channel %d: will not send data after close", c->self);
+			return;
+	}
+#endif
+
+	/* Get the amount of buffered data for this channel. */
+	if ((inputStateIs ("open")  ||
+	    inputStateIs ("waitDrain")) &&
+	    (len = buffer_len(&ascending)) > 0) {
+#if 0 //FIXME
+		if (c->datagram) {
+			if (len > 0) {
+				u_char *data;
+				u_int dlen;
+
+				data = buffer_get_string(&c->input,
+				    &dlen);
+				packet_start(SSH2_MSG_CHANNEL_DATA);
+				packet_put_int(c->remote_id);
+				packet_put_string(data, dlen);
+				packet_send();
+				c->remote_window -= dlen + 4;
+				xfree(data);
+			}
+			return;
+		}
+#endif
+		/*
+		 * Send some data for the other side over the secure
+		 * connection.
+		 */
+		if (len > remote_window)
+			len = remote_window;
+		if (len > remote_maxpacket)
+			len = remote_maxpacket;
+
+    if (len > 0) {
+			con->packet_start(SSH2_MSG_CHANNEL_DATA);
+			con->packet_put_int(remote_id);
+			con->packet_put_string(buffer_ptr(&ascending), len);
+			con->packet_send();
+			buffer_consume(&ascending, len);
+			remote_window -= len;
+		}
+	} 
+#if 0 //FIXME
+  else if (c->istate == CHAN_INPUT_WAIT_DRAIN) {
+		/*
+		 * input-buffer is empty and read-socket shutdown:
+		 * tell peer, that we will not send more data: send IEOF.
+		 * hack for extended data: delay EOF if EFD still in use.
+		 */
+		if (CHANNEL_EFD_INPUT_ACTIVE(c))
+			debug2("channel %d: ibuf_empty delayed efd %d/(%d)",
+			    c->self, c->efd, buffer_len(&c->extended));
+		else
+			chan_ibuf_empty(c);
+	}
+#endif
+
+#if 0 // FIXME
+	/* Send extended data, i.e. stderr */
+	if (compat20 &&
+	    !(c->flags & CHAN_EOF_SENT) &&
+	    c->remote_window > 0 &&
+	    (len = buffer_len(&c->extended)) > 0 &&
+	    c->extended_usage == CHAN_EXTENDED_READ) {
+		debug2("channel %d: rwin %u elen %u euse %d",
+		    c->self, c->remote_window, buffer_len(&c->extended),
+		    c->extended_usage);
+		if (len > c->remote_window)
+			len = c->remote_window;
+		if (len > c->remote_maxpacket)
+			len = c->remote_maxpacket;
+		packet_start(SSH2_MSG_CHANNEL_EXTENDED_DATA);
+		packet_put_int(c->remote_id);
+		packet_put_int(SSH2_EXTENDED_DATA_STDERR);
+		packet_put_string(buffer_ptr(&c->extended), len);
+		packet_send();
+		buffer_consume(&c->extended, len);
+		c->remote_window -= len;
+		debug2("channel %d: sent ext data %d", c->self, len);
+	}
+#endif
+}
+
+
+void Channel::piece_to_ascending ()
+{
+  toChannel.get (&ascending);
+}

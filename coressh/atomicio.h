@@ -31,13 +31,6 @@
 namespace coressh {
 
 /*
- * Ensure all of data on socket comes through. f==::send
- */
-size_t	atomicio_send
-  (int (__stdcall *f) (SOCKET, const char *, int, int), 
-   SOCKET fd, void *_s, size_t n/*, int flags*/);
-
-/*
  * Ensure all of data on socket comes through. f==::recv
  */
 size_t	atomicio_recv

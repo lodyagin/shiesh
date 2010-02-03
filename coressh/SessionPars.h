@@ -9,8 +9,8 @@ class SessionRepository
   : public Repository<Session, SessionPars> 
 {
 public:
-  SessionRepository (int maxNumberOfObjects)
-    : Repository (maxNumberOfObjects)
+  SessionRepository ()
+    : Repository (ChannelRepository::MAX_NUM_OF_CHANNELS)
   {}
 
   Session* get_session_by_channel (int chanid);

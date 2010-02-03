@@ -1,13 +1,13 @@
 #pragma once
 
 #include <string>
+#include "RInOutSocket.h"
 
 namespace coressh {
 
 void
 sshd_exchange_identification
-  (SOCKET sock_in, 
-   SOCKET sock_out,
+  (RInOutSocket& socket,
    std::string& server_version,
    std::string& client_version
    );

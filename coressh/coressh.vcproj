@@ -44,7 +44,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;..\openssl\inc32;..\zlib;&quot;..\apache-log4cxx\src\main\include&quot;"
-				PreprocessorDefinitions="_DEBUG;UNICODE;_UNICODE;_USE_32BIT_TIME_T"
+				PreprocessorDefinitions="_DEBUG;UNICODE;_UNICODE;_USE_32BIT_TIME_T;PACKET_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"

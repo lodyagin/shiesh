@@ -6,7 +6,24 @@
 
 struct ChannelPars;
 
-typedef Repository<Channel, ChannelPars> ChannelRepository;
+class ChannelRepository : public Repository<Channel, ChannelPars> 
+{
+public:
+  enum {MAX_NUM_OF_CHANNELS = WSA_MAXIMUM_WAIT_EVENTS - 1};
+  // in server loop wait: one event for client socket, others
+  // are for channels
+
+  ChannelRepository () : Repository (MAX_NUM_OF_CHANNELS) // TODO overflow
+  {}
+
+  // Fill the event array by all channel events
+  void fill_event_array 
+    (HANDLE events[], 
+     int chanNums[],
+     size_t eventsMaxSize, 
+     size_t *eventsSize
+     );
+};
 
 struct ChannelPars
 {

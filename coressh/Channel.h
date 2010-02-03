@@ -30,6 +30,7 @@ public:
   // check currentChanState
   bool channelStateIs (const char* stateName);
   bool outputStateIs (const char* stateName);
+  bool inputStateIs (const char* stateName);
 
   // It is a repository id
   const std::string universal_object_id;
@@ -60,7 +61,13 @@ public:
 
   void open (u_int window_max);
 
+  void channel_output_poll ();
+
+  void piece_to_ascending ();
+
 protected:
+
+  Buffer ascending; // buffer to client
 
   /* -- States */
 
@@ -107,9 +114,21 @@ protected:
   //Session* session;
   
 public:
-  BusyThreadWriteBuffer<Buffer> fromChannel;
-  BusyThreadReadBuffer<Buffer> toChannel;
+  // from channel to subsystem
+  BusyThreadWriteBuffer<Buffer> fromChannel; 
+
+  // from subsystem to channel
+  BusyThreadReadBuffer<Buffer> toChannel;   
+
   //BusyThreadReadBuffer<Buffer> fromChannelExt;
+
+  // Return the handle to the event
+  // of data appearence in the toChannel (^) stream
+  HANDLE get_data_ready_event ()
+  {
+    return toChannel.dataReady.evt ();
+  }
+
 protected:
  	int     remote_id;	/* channel identifier for remote peer */
 	//int     flags;		/* close sent/rcvd */

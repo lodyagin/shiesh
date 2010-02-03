@@ -392,8 +392,9 @@ key_regeneration_alarm(int sig)
 
 void
 sshd_exchange_identification
-  (SOCKET sock_in, 
-   SOCKET sock_out,
+  (/*SOCKET sock_in, 
+   SOCKET sock_out,*/
+   RInOutSocket& socket,
    std::string& server_version,
    std::string& client_version
    )
@@ -415,7 +416,7 @@ sshd_exchange_identification
 
 
 	/* Send our protocol version identification. */
-  if (atomicio_send(::send, sock_out, server_version_string,
+  if (socket.atomicio_send(server_version_string,
 	    strlen(server_version_string))
 	    != strlen(server_version_string)) {
 		logit("Could not write ident string to %s", get_remote_ipaddr());
@@ -425,7 +426,7 @@ sshd_exchange_identification
 	/* Read other sides version identification. */
 	memset(buf, 0, sizeof(buf));
 	for (i = 0; i < sizeof(buf) - 1; i++) {
-    if (atomicio_recv(::recv, sock_in, &buf[i], 1) != 1) {
+    if (atomicio_recv(::recv, socket.get_socket (), &buf[i], 1) != 1) {
 			logit("Did not receive identification string from %s",
 			    get_remote_ipaddr());
 			cleanup_exit(255);
@@ -453,7 +454,7 @@ sshd_exchange_identification
 	if (sscanf(client_version_string, "SSH-%d.%d-%[^\n]\n",
 	    &remote_major, &remote_minor, remote_version) != 3) {
 		s = "Protocol mismatch.\n";
-    (void) atomicio_send(::send, sock_out, s, strlen(s));
+    (void) socket.atomicio_send(s, strlen(s));
 		logit("Bad protocol version identification '%.100s' from %s",
 		    client_version_string, get_remote_ipaddr());
 		cleanup_exit(255);
@@ -513,7 +514,7 @@ sshd_exchange_identification
 
 	if (mismatch) {
 		s = "Protocol major versions differ.\n";
-    (void) atomicio_send(::send, sock_out, s, strlen(s));
+    (void) socket.atomicio_send(s, strlen(s));
 		//close(sock_in);
 		//close(sock_out);
 		logit("Protocol major versions differ for %s: %.200s vs. %.200s",
