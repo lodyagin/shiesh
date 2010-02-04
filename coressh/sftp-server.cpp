@@ -27,79 +27,41 @@
 
 //TODO UT
 
-Path::Path (const std::wstring& _path)
+/*Path::Path (const std::wstring& _path)
 : path (_path)
 {
   init ();
-}
+}*/
 
 Path::Path 
-  (const std::wstring& _path, 
-   bool endWithSlash
+  (const std::wstring& _path/*, 
+   bool _endWithSlash*/
    )
-: path (_path)
+//: endWithSlash (_endWithSlash)
 {
-  init ();
-
-  if (endWithSlash)
-  { 
-    if (path.length () == 0
-        || path.length () >= 1 
-           && path[path.length () - 1] != L'\\'
-        ) // it is not ended with '\'
-    {
-      Path p2 (path + L'\\');
-
-      if (p2.is_relative () == isRelative
-          && p2.is_root_dir () == isRootDir
-          )
-        path = p2.to_string ();
-      else
-        throw InvalidPath 
-          (path, 
-          L"unable to append \\ at the end");
-    }
-  }
-  else
-  {
-    if (path.length () >= 1 
-        && path[path.length () - 1] == L'\\'
-        ) // if it is ended with '\'
-    {
-      Path p2 (path.substr (0, path.length () - 1));
-
-      if (p2.is_relative () == isRelative
-          && p2.is_root_dir () == isRootDir
-          )
-        path = p2.to_string ();
-      else
-        throw InvalidPath 
-          (path, 
-          L"unable to remove \\ from the end");
-    }
-  }
+  init (_path);
 }
 
 // common part of constructors
-void Path::init ()
+void Path::init (const std::wstring& pathStr)
 {
   // Must not contain repeated '\\'
-  if (path.find (L"\\\\") != std::wstring::npos)
-    throw InvalidPath (path, L" found the sequence of \\");
+  if (pathStr.find (L"\\\\") != std::wstring::npos)
+    throw InvalidPath (pathStr, L" found the sequence of \\");
 
   // Check passed path
 
-  const bool driveSpecified = path.length () >= 2
-    && path[1] == L':' ;
+  const bool driveSpecified = pathStr.length () >= 2
+    && pathStr[1] == L':' ;
 
   isRelative = !
-    (path.length () >= 1 && path[0] == L'\\'
-    || path.length () >= 3 && driveSpecified && path[2] == L'\\');
+    (pathStr.length () >= 1 && pathStr[0] == L'\\'
+    || pathStr.length () >= 3 && driveSpecified && pathStr[2] == L'\\');
 
   // Absolute path is accepted only with a drive
   if (!isRelative && !driveSpecified)
     throw InvalidPath 
-      (path, L" absolute path must contain a drive letter");
+      (pathStr, L" absolute path must contain a drive letter");
 
 #if 0 
   if (isRelative && path.length () > MAX_PATH)
@@ -107,37 +69,198 @@ void Path::init ()
   // UT for dir creation MAX_PATH - 12 (8.3 is leaved for files)
 #endif 
 
-  isRootDir = !isRelative && path.length () == 3;
+  parse_path (pathStr);
+  assert (isRelative || path.size () >= 1);
+}
+
+// from string to list of directories
+void Path::parse_path (const std::wstring& pathStr)
+{
+  std::wstring::size_type from = 0;
+
+  while (from < pathStr.length ())
+  {
+    std::wstring::size_type pos = 
+      pathStr.find_first_of (L'\\', from);
+
+    if (pos == std::wstring::npos)
+    {
+      path.push_back 
+        (pathStr.substr (from, pathStr.length () - from));
+      return;
+    }
+
+    if (pos > 0)
+    {
+      path.push_back (pathStr.substr (from, pos - from));
+      from = pos + 1;
+    }
+  }
+}
+
+std::wstring Path::to_string (bool endWithSlash) const 
+{
+  if (endWithSlash)
+  {
+    if (isRelative && path.size () == 0)
+      throw InvalidPath 
+        (to_string (), 
+        L"unable to append \\ to the end");
+  }
+  else
+  {
+    if (!isRelative && path.size () <= 1)
+      throw InvalidPath 
+        (to_string (), 
+        L"unable to remove \\ from the end");
+  }
+
+  std::wstring s = to_string ();
+  if (!endWithSlash)
+    return s;
+  else
+    return (s[s.length () - 1] == L'\\') ? s : s + L'\\';
+}
+
+std::wstring Path::to_string () const 
+{
+  return to_string_generic (L'\\');
+}
+
+std::wstring Path::to_string_generic (wchar_t separator) const 
+{
+  std::wostringstream strm;
+  assert (isRelative || path.size () >= 1);
+  List::const_iterator cit = path.begin ();
+  if (!isRelative) 
+  {
+    strm << (*path.begin ()) << separator;
+    // i.e., "c:\"
+    cit++;
+  }
+
+  bool first = true;
+  for (; cit != path.end (); cit++)
+  {
+    if (!first) strm << separator;
+    strm << (*cit);
+    first = false;
+  }
+  return strm.str ();
+}
+
+std::wstring Path::unix_form () const
+{
+  return to_string_generic (L'/');
+}
+
+
+
+bool Path::is_root_dir () const 
+{ 
+  return !isRelative && path.size () == 1; 
+}
+
+bool Path::normalize ()
+{
+  const std::wstring point (L".");
+  const std::wstring point2 (L"..");
+
+  List res;
+  bool normalized = true;
+
+  List::const_iterator cit = path.begin ();
+  while (cit != path.end ())
+  {
+    if (*cit == point)
+      ; // just skip
+    else if (*cit == point2)
+    {
+      if (res.size () > 0 && res.back () != point2)
+        res.pop_back ();
+      else
+      {
+        res.push_back (point2);
+        normalized = false;
+      }
+    }
+    else res.push_back (*cit);
+    cit++;
+  }
+  
+  path = res; // replace the current path 
+  return normalized;
+}
+
+Path Path::n_first_dirs (unsigned int n) const
+{
+  if (n > nDirs ())
+    throw std::out_of_range ("Path::n_first_dirs overflow");
+
+  List res;
+  List::const_iterator cit = path.begin ();
+  for (List::size_type i = 0; i < n; i++)
+    res.push_back (*cit++);
+
+  return Path (res, isRelative);
 }
 
 /*   SFTPFilePath   */
 
 const std::wstring SFTPFilePath::longPrefix (L"\\\\?\\");
 
+SFTPFilePath::SFTPFilePath 
+  (const Path& pth, 
+   List::size_type _nUserHomePos
+   )
+ : Path (pth), nUserHomePos (_nUserHomePos)
+{
+  if (isRelative) 
+    throw InvalidPath 
+      (to_string (), 
+       L" bad SFTP path, couldn't be relative"
+       );
+}
+
 std::wstring SFTPFilePath::get_for_call () const
 {
   assert (!isRelative);
-  return longPrefix + path;
+  return longPrefix + to_string ();
 }
 
 std::wstring SFTPFilePath::get_mask_for_dir_search() const
 {
   assert (!isRelative);
-  return longPrefix + path + L"\\*";  
+  return longPrefix + to_string (true) + L'*';  
 }
 
 /*   SFTPFilePathFactory   */
 
 SFTPFilePathFactory::SFTPFilePathFactory (const User * pw)
-: userHomeDir (pw->home_dir (), true /*end with '\'*/)
+: userHomeDir (0)
 {
   assert (pw);
-  if (userHomeDir.is_relative ())
+  Path home (pw->home_dir ());
+
+  if (home.is_relative ())
     throw Path::InvalidPath 
-      (userHomeDir.to_string (),
+      (userHomeDir->to_string (),
        L" as a user home dir (is relative)"
        );
+
+  if (!home.normalize ())
+    throw Path::InvalidPath
+      (home.to_string (),
+       L" impossible to get the user home normalized");
+
+  userHomeDir = new SFTPFilePath (home, home.nDirs ());
 }
+
+SFTPFilePathFactory::~SFTPFilePathFactory ()
+{
+  delete userHomeDir;
+}
+
 
 SFTPFilePath SFTPFilePathFactory::create_path 
   (const char* utf8_path)
@@ -154,12 +277,35 @@ SFTPFilePath SFTPFilePathFactory::create_path
   std::replace 
     (pathStr.begin (), pathStr.end (), L'/', L'\\');
 
-  Path path (pathStr, false);
-  if (path.is_relative ())
-    path = userHomeDir + path;
+  Path path (pathStr);
+  
+  if (!path.normalize ())
+    throw Path::InvalidPath
+      (path.to_string (),
+       L" points above a start point");
 
-  return SFTPFilePath (path);
+  if (path.is_relative ())
+    path = *userHomeDir + path;
+  else
+  {
+    if (path.n_first_dirs (userHomeDir->nDirs ())
+        != *userHomeDir
+        )
+        throw Path::InvalidPath
+        (path.to_string (),
+        L" it points outside of the user home dir");
+  }
+
+  return SFTPFilePath (path, userHomeDir->nDirs ());
 }
+
+/*const SFTPFilePath& SFTPFilePath::operator= 
+  (const SFTPFilePath& fp)
+{
+  path = fp.path;
+  
+}*/
+
 
 Path operator+ (const Path& prefix, const Path& suffix)
 {
@@ -169,14 +315,26 @@ Path operator+ (const Path& prefix, const Path& suffix)
        L" as a suffix"
        );
 
-  Path slashEndedPrefix (prefix.to_string (), true);
-  Path res(slashEndedPrefix.to_string () + suffix);
-
-  if (res.is_relative () != prefix.is_relative ())
-    throw Path::InvalidPath 
-      (res.to_string (), L" no is(n't) relative");
+  Path res (prefix.path, prefix.is_relative ());
+  
+  res.path.insert 
+    (res.path.end (), 
+     suffix.path.begin (), 
+     suffix.path.end ()
+     );
 
   return res;
+}
+
+bool operator== (const Path& a, const Path& b)
+{
+  return a.path == b.path 
+    && a.isRelative == b.isRelative;
+}
+
+bool operator!= (const Path& a, const Path& b)
+{
+  return !(a == b);
 }
 
 /* helper */
@@ -197,6 +355,8 @@ static int
 errno_to_portable(const int err)
 {
 	int ret = 0;
+
+  logit("file operations: error %d", (int) err);
 
   //TODO UT
 	switch (err) {
@@ -257,7 +417,7 @@ string_from_portable(int pflags)
 	return ret;
 }
 
-static Attrib *
+static Attrib
 get_attrib(Buffer& buf)
 {
 	return decode_attrib(&buf);
@@ -425,7 +585,7 @@ bool SFTP::handle_close(int handle)
     ret = (bool) ::CloseHandle (handles[handle].fileHandle);
 		handle_unused(handle);
 	} else if (handle_is_ok(handle, HANDLE_DIR)) {
-    ret = (bool) ::CloseHandle (handles[handle].fileHandle);
+    ret = (bool) ::CloseHandle (handles[handle].dirp);
 		handle_unused(handle);
 	} else {
     ::SetLastError (ERROR_FILE_NOT_FOUND);
@@ -438,13 +598,13 @@ void SFTP::handle_log_close(int handle, char *emsg)
 	if (handle_is_ok(handle, HANDLE_FILE)) {
 		logit("%s%sclose \"%s\" bytes read %llu written %llu",
 		    emsg == NULL ? "" : emsg, emsg == NULL ? "" : " ",
-		    handle_to_name(handle),
+		    toUTF8(handle_to_name(handle)).c_str (),
 		    (unsigned long long)handle_bytes_read(handle),
 		    (unsigned long long)handle_bytes_write(handle));
 	} else {
 		logit("%s%sclosedir \"%s\"",
 		    emsg == NULL ? "" : emsg, emsg == NULL ? "" : " ",
-		    handle_to_name(handle));
+		    toUTF8(handle_to_name(handle)).c_str ());
 	}
 }
 
@@ -604,8 +764,8 @@ void SFTP::process_init(void)
 void SFTP::process_open(void)
 {
 	u_int32_t id, pflags;
-	Attrib *a;
-	char *utf8_name;
+	Attrib a;
+	char *utf8_name = 0;
 	int status = SSH2_FX_FAILURE;
 
   try
@@ -615,7 +775,7 @@ void SFTP::process_open(void)
 	  pflags = get_int();		/* portable flags */
 	  debug3("request %u: open flags %d", id, pflags);
     a = get_attrib(this->iqueue);
-	  //mode = (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : 0666; //FIXME
+	  //mode = (a.flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : 0666; //FIXME
 
     logit("open \"%s\" flags %s mode 0%o", //FIXME UNICODE
 	      utf8_name, string_from_portable(pflags), 0/*mode*/);
@@ -668,9 +828,14 @@ void SFTP::process_open(void)
     status = SSH2_FX_FAILURE; 
     // TODO return the reason
   }
+  catch (...)
+  {
+    status = SSH2_FX_FAILURE; 
+    error ("unhandled exception in %s", __FUNCTION__);
+  }
 	if (status != SSH2_FX_OK)
 		send_status(id, status);
-	xfree(utf8_name);
+	if (utf8_name) xfree(utf8_name);
 }
 
 void SFTP::process_close(void)
@@ -702,7 +867,8 @@ void SFTP::process_read(void)
 	len = get_int();
 
 	debug("request %u: read \"%s\" (handle %d) off %llu len %d",
-	    id, handle_to_name(handle), handle, (unsigned long long)off, len);
+    id, toUTF8(handle_to_name(handle)).c_str (), 
+      handle, (unsigned long long)off, len);
 	if (len > sizeof buf) {
 		len = sizeof buf;
 		debug2("read change len %d", len);
@@ -754,7 +920,9 @@ void SFTP::process_write(void)
 	data = (char*) get_string(&len);
 
 	debug("request %u: write \"%s\" (handle %d) off %llu len %d",
-	    id, handle_to_name(handle), handle, (unsigned long long)off, len);
+	    id, 
+      toUTF8 (handle_to_name(handle)).c_str (), 
+      handle, (unsigned long long)off, len);
 	HANDLE fh = handle_to_fh(handle);
 	if (fh != NULL) {
     LARGE_INTEGER largeOffset;
@@ -793,7 +961,7 @@ void SFTP::process_do_stat(/*int do_lstat*/)
 	Attrib a;
 	WIN32_FILE_ATTRIBUTE_DATA st;
 	u_int32_t id;
-	char *utf8_name;
+	char *utf8_name = 0;
 	int status = SSH2_FX_FAILURE;
 
   try
@@ -826,9 +994,14 @@ void SFTP::process_do_stat(/*int do_lstat*/)
     status = SSH2_FX_FAILURE; 
     // TODO return the reason
   }
+  catch (...)
+  {
+    status = SSH2_FX_FAILURE; 
+    error ("unhandled exception in %s", __FUNCTION__);
+  }
 	if (status != SSH2_FX_OK)
 		send_status(id, status);
-	xfree(utf8_name);
+	if (utf8_name) xfree(utf8_name);
 }
 
 void SFTP::process_stat(void)
@@ -851,7 +1024,7 @@ void SFTP::process_fstat(void)
 	id = get_int();
 	handle = get_handle();
 	debug("request %u: fstat \"%s\" (handle %u)",
-	    id, handle_to_name(handle), handle);
+	    id, toUTF8(handle_to_name(handle)).c_str (), handle);
 	const HANDLE fh = handle_to_fh(handle);
   if (fh != NULL) 
   {
@@ -870,21 +1043,9 @@ void SFTP::process_fstat(void)
 		send_status(id, status);
 }
 
-/*static struct timeval *
-attrib_to_tv(const Attrib *a)
-{
-	static struct timeval tv[2];
-
-	tv[0].tv_sec = a->atime;
-	tv[0].tv_usec = 0;
-	tv[1].tv_sec = a->mtime;
-	tv[1].tv_usec = 0;
-	return tv;
-}*/
-
 void SFTP::process_setstat(void)
 {
-	Attrib *a;
+	Attrib a;
 	u_int32_t id;
 	char *utf8_name;
 	int status = SSH2_FX_OK;
@@ -898,9 +1059,9 @@ void SFTP::process_setstat(void)
 	  debug("request %u: setstat name \"%s\"", id, utf8_name);
 
     const SFTPFilePath path = pathFact.create_path (utf8_name);
-    attrib_to_stat (a, &st);
+    attrib_to_stat (&a, &st);
 
-	  if (a->flags & SSH2_FILEXFER_ATTR_SIZE) 
+	  if (a.flags & SSH2_FILEXFER_ATTR_SIZE) 
     {
 #if 0
 		  logit("set \"%s\" size %llu",
@@ -919,7 +1080,7 @@ void SFTP::process_setstat(void)
 	  }
 
 	  if (status == SSH2_FX_OK
-        && a->flags & SSH2_FILEXFER_ATTR_ACMODTIME) 
+        && a.flags & SSH2_FILEXFER_ATTR_ACMODTIME) 
     {
 #if 0
 		  char buf[64];
@@ -936,7 +1097,7 @@ void SFTP::process_setstat(void)
 	  }
 
 	  if (status == SSH2_FX_OK
-        && a->flags & SSH2_FILEXFER_ATTR_UIDGID) 
+        && a.flags & SSH2_FILEXFER_ATTR_UIDGID) 
     {
 #if 0
 		  logit("set \"%s\" owner %lu group %lu", name,
@@ -950,9 +1111,9 @@ void SFTP::process_setstat(void)
 
     // access premissions
 	  if (status == SSH2_FX_OK
-        && a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) 
+        && a.flags & SSH2_FILEXFER_ATTR_PERMISSIONS) 
     {
-		  logit("set \"%s\" mode %04o", utf8_name, a->perm);
+		  logit("set \"%s\" mode %04o", utf8_name, a.perm);
       if (!::SetFileAttributesW
         (path.get_for_call ().c_str (),
              st.dwFileAttributes)
@@ -968,10 +1129,14 @@ void SFTP::process_setstat(void)
     status = SSH2_FX_FAILURE; 
     // TODO return the reason
   }
-
+  catch (...)
+  {
+    status = SSH2_FX_FAILURE; 
+    error ("unhandled exception in %s", __FUNCTION__);
+  }
 
 	send_status(id, status);
-	xfree(utf8_name);
+	if (utf8_name) xfree(utf8_name);
 }
 
 #define COPY_TO_LARGE_INTEGER(li, low, high) \
@@ -980,7 +1145,7 @@ void SFTP::process_setstat(void)
 
 void SFTP::process_fsetstat(void)
 {
-	Attrib *a;
+	Attrib a;
 	u_int32_t id;
 	int handle;
 	int status = SSH2_FX_OK;
@@ -997,7 +1162,7 @@ void SFTP::process_fsetstat(void)
   else 
   {
 		if (status == SSH2_FX_OK
-        && a->flags & SSH2_FILEXFER_ATTR_UIDGID) 
+        && a.flags & SSH2_FILEXFER_ATTR_UIDGID) 
     {
 #if 0
 			logit("set \"%s\" owner %lu group %lu", name,
@@ -1013,12 +1178,12 @@ void SFTP::process_fsetstat(void)
       status = SSH2_FX_OP_UNSUPPORTED;
 		}
 
-		if (a->flags & SSH2_FILEXFER_ATTR_SIZE) {
+		if (a.flags & SSH2_FILEXFER_ATTR_SIZE) {
 			logit("set \"%s\" size %llu",
-			    "???", (unsigned long long)a->size);
+			    "???", (unsigned long long)a.size);
 
       LARGE_INTEGER largeOffset;
-      largeOffset.QuadPart = a->size;
+      largeOffset.QuadPart = a.size;
       if (!::SetFilePointerEx (fh, largeOffset, NULL, FILE_BEGIN)
           || !::SetEndOfFile (fh)
           )
@@ -1035,17 +1200,17 @@ void SFTP::process_fsetstat(void)
 
 		  if (::GetFileInformationByHandle (fh, &stBefore)) 
       {
-        attrib_to_stat (a, &stRequested);
+        attrib_to_stat (&a, &stRequested);
         
-        if (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS)
+        if (a.flags & SSH2_FILEXFER_ATTR_PERMISSIONS)
         {
-  			  logit("set \"%s\" mode %04o", "???", a->perm);
+  			  logit("set \"%s\" mode %04o", "???", a.perm);
           stAfter.FileAttributes = stRequested.dwFileAttributes;
         }
         else
           stAfter.FileAttributes = stBefore.dwFileAttributes;
   
-        if (a->flags & SSH2_FILEXFER_ATTR_ACMODTIME)
+        if (a.flags & SSH2_FILEXFER_ATTR_ACMODTIME)
         {
 			    /*char buf[64];
 			    time_t t = a->mtime;
@@ -1112,7 +1277,7 @@ void SFTP::process_fsetstat(void)
 
 void SFTP::process_opendir(void)
 {
-	char *utf8_path;
+	char *utf8_path = 0;
 	int handle, status = SSH2_FX_FAILURE;
 	u_int32_t id;
 
@@ -1164,9 +1329,14 @@ void SFTP::process_opendir(void)
     status = SSH2_FX_FAILURE; 
     // TODO return the reason
   }
+  catch (...)
+  {
+    status = SSH2_FX_FAILURE; 
+    error ("unhandled exception in %s", __FUNCTION__);
+  }
 	if (status != SSH2_FX_OK)
 		send_status(id, status);
-	xfree(utf8_path);
+	if (utf8_path) xfree(utf8_path);
 }
 
 void SFTP::process_readdir(void)
@@ -1177,7 +1347,7 @@ void SFTP::process_readdir(void)
 	id = get_int();
 	handle = get_handle();
 	debug("request %u: readdir \"%s\" (handle %d)", id,
-	    handle_to_name(handle), handle);
+    toUTF8(handle_to_name(handle)).c_str (), handle);
 	
   HANDLE dh = handle_to_dir(handle);
   const SFTPFilePath dirPath (handle_to_path (handle));
@@ -1193,13 +1363,20 @@ void SFTP::process_readdir(void)
 		int nstats = 10, count = 0, i;
 
     stats = (Stat*) xcalloc(nstats, sizeof(Stat));
-    HANDLE searchHandle = ::FindFirstFile
-      (dirPath.get_mask_for_dir_search ().c_str (),
-       &st
-       );
-    if (searchHandle != NULL) 
+    HANDLE& searchHandle = handles[handle].searchHandle;
+    bool& searchDone = handles[handle].searchDone;
+    if (!searchDone && searchHandle == 0)
     {
-      do
+      assert (!searchDone);
+      searchHandle = ::FindFirstFile
+        (dirPath.get_mask_for_dir_search ().c_str (),
+         &st
+         );
+    }
+    if (!searchDone && searchHandle != NULL) 
+    {
+      searchDone = true;
+      while (::FindNextFileW (searchHandle, &st))
       {
 			  if (count >= nstats) {
 				  nstats *= 2;
@@ -1213,12 +1390,20 @@ void SFTP::process_readdir(void)
 			  count++;
 			  /* send up to 100 entries in one message */
 			  /* XXX check packet size instead */
-			  if (count == 100)
-				  break;
+			  if (count == 100) {
+          searchDone = false;
+          break;
+        }
       }
-      while (::FindNextFileW (searchHandle, &st));
-      ::FindClose (searchHandle);
+      /*if (searchDone)
+        ::GetLastError (); // read error of FindNextFile*/
 		}
+    if (searchDone && searchHandle != 0)
+    {
+      ::FindClose (searchHandle);
+      searchHandle = 0;
+    }
+
 		if (count > 0) {
 			send_names(id, count, stats);
 			for (i = 0; i < count; i++) {
@@ -1226,6 +1411,8 @@ void SFTP::process_readdir(void)
 				xfree(stats[i].long_name);
 			}
 		} else {
+      searchHandle = 0;
+      searchDone = false;
 			send_status(id, SSH2_FX_EOF);
 		}
 		xfree(stats);
@@ -1243,8 +1430,8 @@ void SFTP::process_remove(void)
 	debug3("request %u: remove", (unsigned) id);
 	logit("remove name \"%s\"", utf8_name);
   const SFTPFilePath path = pathFact.create_path (utf8_name);
-
-  status = (::DeleteFileW (path.get_for_call ().c_str ())) 
+  BOOL res = ::DeleteFileW (path.get_for_call ().c_str ());
+  status = (!res) 
     ? errno_to_portable(::GetLastError ()) 
     : SSH2_FX_OK;
 
@@ -1254,7 +1441,7 @@ void SFTP::process_remove(void)
 
 void SFTP::process_mkdir(void)
 {
-	Attrib *a;
+	Attrib a;
 	u_int32_t id;
 	char *utf8_name;
 	int status = SSH2_FX_FAILURE;
@@ -1262,21 +1449,18 @@ void SFTP::process_mkdir(void)
 	id = get_int();
 	utf8_name = (char*) get_string(NULL);
   a = get_attrib(this->iqueue);
-	/*mode = (a->flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ?
+	/*mode = (a.flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ?
 	    a->perm & 07777 : 0777;*/
   // TODO ACL's (all is created with the system perms)
 	debug3("request %u: mkdir", (unsigned) id);
 	logit("mkdir name \"%s\" mode default", utf8_name);
 
   const SFTPFilePath path = pathFact.create_path (utf8_name);
-  status = 
-    (::CreateDirectory 
-      (path.get_for_call ().c_str ()
-       , NULL
-       )
-    )
+  BOOL res = ::CreateDirectory (path.get_for_call ().c_str (), NULL);
+  status = (!res) 
      ? errno_to_portable(::GetLastError ()) 
      : SSH2_FX_OK;
+
 	send_status(id, status);
 	xfree(utf8_name);
 }
@@ -1292,7 +1476,8 @@ void SFTP::process_rmdir(void)
 	debug3("request %u: rmdir", (unsigned) id);
 	logit("rmdir name \"%s\"", utf8_name);
   const SFTPFilePath path = pathFact.create_path (utf8_name);
-  status = (::RemoveDirectoryW (path.get_for_call ().c_str ())) 
+  BOOL res = ::RemoveDirectoryW (path.get_for_call ().c_str ());
+  status = (!res) 
     ? errno_to_portable(::GetLastError ()) : SSH2_FX_OK;
 	send_status(id, status);
 	xfree(utf8_name);
@@ -1301,33 +1486,39 @@ void SFTP::process_rmdir(void)
 void SFTP::process_realpath(void)
 {
 	u_int32_t id;
-	char *utf8_path;
+	char *utf8_path = 0;
+  int status = SSH2_FX_OK;
 
-	id = get_int();
-	utf8_path = (char*) get_string(NULL);
+	try
+  {
+    id = get_int();
+	  utf8_path = (char*) get_string(NULL);
 
-#if 0
-	//char resolvedname[MAXPATHLEN];
-	if (path[0] == '\0') {
-		xfree(path);
-		path = xstrdup(".");
-	}
-	debug3("request %u: realpath", id);
-	verbose("realpath \"%s\"", path);
-	if (realpath(path, resolvedname) == NULL) {
-		send_status(id, errno_to_portable(::GetLastError ()));
-	} else {
-		Stat s;
-		attrib_clear(&s.attrib);
-		s.name = s.long_name = resolvedname;
-		send_names(id, 1, &s);
-	}
-	xfree(path);
-#endif
+	  debug3("request %u: realpath", (unsigned) id);
+	  verbose("realpath \"%s\"", utf8_path);
 
-  const u_int32_t status = SSH2_FX_OP_UNSUPPORTED;
-  send_status (id, status);
-  xfree (utf8_path);
+    SFTPFilePath path = pathFact.create_path (utf8_path);
+
+	  Stat s;
+	  attrib_clear(&s.attrib);
+    s.name = s.long_name = xstrdup 
+      (toUTF8 (path.unix_form ()).c_str ());
+	  send_names(id, 1, &s);
+  }
+  catch (Path::InvalidPath&)
+  {
+    //logit 
+    status = SSH2_FX_FAILURE; 
+    // TODO return the reason
+  }
+  catch (...)
+  {
+    status = SSH2_FX_FAILURE; 
+    error ("unhandled exception in %s", __FUNCTION__);
+  }
+	if (status != SSH2_FX_OK)
+    send_status (id, status);
+  if (utf8_path) xfree (utf8_path);
 }
 
 // FIXME check renaming of readonly files

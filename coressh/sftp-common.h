@@ -64,7 +64,7 @@ void   stat_to_attrib
 void	 attrib_to_stat
   (const Attrib *, WIN32_FILE_ATTRIBUTE_DATA *);
 
-Attrib	*decode_attrib(Buffer *);
+Attrib	decode_attrib(Buffer *);
 void	 encode_attrib(Buffer *, const Attrib *);
 std::wstring ls_file
  (const std::wstring&, const WIN32_FIND_DATA*, int);

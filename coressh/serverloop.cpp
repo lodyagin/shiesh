@@ -291,20 +291,29 @@ CoreConnection::wait_until_can_do_something
       FALSE
       );
 
-  while ((waitResult = ::WSAWaitForMultipleEvents
-    (nEvents, eventArray, FALSE, /* wait any*/
-     0,
-     FALSE
-     )) != WSA_WAIT_TIMEOUT)
+  int arrayOffset = 0;
+  while (nEvents - arrayOffset > 0
+    && (waitResult = ::WSAWaitForMultipleEvents
+         (nEvents - arrayOffset, 
+          eventArray + arrayOffset, 
+          FALSE, /* wait any*/
+          0,
+          FALSE
+         )) != WSA_WAIT_TIMEOUT)
   {
-    const int eventNum = waitResult - WSA_WAIT_EVENT_0;
+    const int eventNum = waitResult - WSA_WAIT_EVENT_0 + arrayOffset;
     
     if (eventNum < 0 || eventNum >= nEvents)
         THROW_EXCEPTION (SException, 
            L" bad result of events waiting");
 
     signalled[eventNum] = true;
-    ::WSAResetEvent (eventArray[eventNum]);
+    debug ("wait_until_can_do_something: event %d is signalled",
+      (int) eventNum);
+    if (eventNum == 0) ::WSAResetEvent (eventArray[eventNum]);
+      // for channel messages do reset in BusyThreadReadBuffer
+      // after no data in buffer
+    arrayOffset = eventNum + 1;
   }
 
   //notify_done(*readsetp); //notify pipe

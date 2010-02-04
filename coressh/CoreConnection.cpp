@@ -2387,8 +2387,17 @@ void CoreConnection::server_loop ()
     //FIXME check alloc
   }
 
+  long roundNum = 0;
   for (;;)
   {
+    roundNum++;
+    debug
+      ("server_loop: round %ld | input = %d ^ output = %d",
+      roundNum, 
+      (int) buffer_len (&input),
+      (int) buffer_len (&output)
+      );
+
     // buffer CoreConnection::input -> to action
     // process buffered input packets
     // NONBLOCK returns with no action if no packets
@@ -2417,6 +2426,8 @@ void CoreConnection::server_loop ()
        &nChannelEvents
        );
 
+    debug ("server_loop: start waiting %d events", 
+           (int) nChannelEvents + 1);
 		wait_until_can_do_something
       (eventArray, nChannelEvents + 1, 0, signalled);
 

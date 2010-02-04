@@ -108,6 +108,7 @@
 class Path
 {
   friend Path operator+ (const Path&, const Path&);
+  friend bool operator== (const Path&, const Path&);
 public:
   class InvalidPath : public SException
   {
@@ -127,27 +128,56 @@ public:
   // if endWithSlash == true it appends '\' if 
   // not have already else delete if any
   Path 
-    (const std::wstring& _path, 
-     bool endWithSlash);
+    (const std::wstring& _path/*, 
+     bool _endWithSlash*/);
 
-  std::wstring to_string () const { return path; }
+  std::wstring to_string () const;
+  std::wstring to_string (bool endWithSlash) const;
+  std::wstring unix_form () const;
+
   bool is_relative () const { return isRelative; }
-  bool is_root_dir () const { return isRootDir; }
+  bool is_root_dir () const;
 
   // this path is below p2
   bool is_below (const Path& p2) const;
 
+  // number of directory in the path
+  // drive is counted as a directory
+  unsigned int nDirs () const { return path.size (); }
+
+  // Return a new path constructed from
+  // the first n dirst of this path
+  // n <= nDirs () 
+  Path n_first_dirs (unsigned int n) const;
+
+  // remove '.' and '..'
+  // return false if some '..' are still
+  // present (only the case it designates
+  // a relative directory above the start point
+  bool normalize (); 
+
 protected:
-  Path (const std::wstring& _path);
-  std::wstring path;
-  bool isRootDir; // only for isRelative == false
+  typedef std::list<std::wstring> List;
+
+  Path (const List& _path, bool _isRelative)
+    : path (_path), isRelative (_isRelative)
+  {}
+
+  std::wstring to_string_generic (wchar_t separator) const;
+
+  //Path (const std::wstring& _path);
+  List path;
+
   bool isRelative;
-private:
-  void init (); 
+  void init (const std::wstring& pathStr); 
+  void parse_path (const std::wstring& pathStr);
 };
 
 // The suffix mast be relative path
 Path operator+ (const Path& prefix, const Path& suffix);
+
+bool operator== (const Path&, const Path&);
+bool operator!= (const Path&, const Path&);
 
 class SFTPFilePathFactory ;
 
@@ -158,24 +188,33 @@ class SFTPFilePath : public Path
 public:
   std::wstring get_for_call () const;
   std::wstring get_mask_for_dir_search () const;
+
+  //const SFTPFilePath& operator= (const SFTPFilePath&);
+
 protected:
-  SFTPFilePath (const Path& _path) 
-    : Path (_path.to_string (), false) 
-  {}
+  SFTPFilePath 
+    (const Path& pth, 
+     List::size_type _nUserHomePos);
+
+  // number of dirs at the beginning of the path
+  // which are user home path elements
+  List::size_type nUserHomePos;
 
   static const std::wstring longPrefix;
+/*private:
+  SFTPFilePath () : nUserHomePos (0) { throw std::exception (); }*/
+
 };
 
 class SFTPFilePathFactory 
 {
 public:
-  // No access above this dir
-  // it is always ended with '\'
-  const Path userHomeDir;
-
   SFTPFilePathFactory (const User * pw);
+  ~SFTPFilePathFactory ();
   SFTPFilePath create_path (const char* utf8_path);
 protected:
+  // No access above this dir
+  SFTPFilePath* userHomeDir;
 };
 
 class SFTP : public Subsystem
@@ -222,6 +261,8 @@ protected:
       : use (_use), 
       dirp (_dirp), 
       fileHandle (_fh),
+      searchHandle (0),
+      searchDone (false),
       path (_path),
       bytes_read (0), bytes_write (0)
     {}
@@ -229,6 +270,8 @@ protected:
 	  HandleUseType use;
 	  HANDLE dirp;
 	  HANDLE fileHandle;
+    HANDLE searchHandle;
+    bool searchDone;
     SFTPFilePath path;
 	  u_int64_t bytes_read, bytes_write;
   };

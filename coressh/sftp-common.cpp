@@ -42,7 +42,7 @@ u_int32_t toPOSIXFilePerm (DWORD wPerm)
 {
   return 0444 
     | ((wPerm & FILE_ATTRIBUTE_READONLY) ? 0 : 0222)
-    | ((wPerm & FILE_ATTRIBUTE_DIRECTORY) ? 0111 : 0);
+    | ((wPerm & FILE_ATTRIBUTE_DIRECTORY) ? _S_IFDIR | 0111 : _S_IFREG);
 }
 
 DWORD toWindowsFilePerm (u_int32_t pPerm)
@@ -149,10 +149,9 @@ attrib_to_stat(const Attrib *a, WIN32_FILE_ATTRIBUTE_DATA *st)
 }
 
 /* Decode attributes in buffer */
-Attrib *
-decode_attrib(Buffer *b)
+Attrib decode_attrib(Buffer *b)
 {
-	static Attrib a;
+	Attrib a;
 
 	attrib_clear(&a);
 	a.flags = buffer_get_int(b);
@@ -182,7 +181,7 @@ decode_attrib(Buffer *b)
 			xfree(data);
 		}
 	}
-	return &a;
+	return a;
 }
 
 /* Encode attributes to buffer */
@@ -259,7 +258,7 @@ ls_file
     time = wce_SYSTEMTIME2tm (&sysTime);
 
 	if (sysTimePresent) {
-    sz = ::wcsftime(tbuf, sizeof tbuf, L"%Y %b %e %H:%M", &time);
+    sz = ::wcsftime(tbuf, sizeof (tbuf) / 2, L"%Y %b %d %H:%M", &time);
 	}
 	if (sz == 0)
 		tbuf[0] = L'\0';
@@ -268,7 +267,7 @@ ls_file
   LARGE_INTEGER li;
   li.LowPart = st->nFileSizeLow;
   li.HighPart = st->nFileSizeHigh;
-  ::_snwprintf(buf, sizeof buf, L"%s %-*s %-*s %8llu %s %s", mode,
+  ::_snwprintf(buf, sizeof (buf) / 2, L"%s %-*s %-*s %8llu %s %s", mode,
 	    ulen, user.c_str (), glen, group.c_str (),
       (unsigned long long) li.QuadPart, tbuf, name.c_str ()); //TODO unicode
   return std::wstring (buf);

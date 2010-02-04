@@ -174,7 +174,17 @@ void Channel::chan_state_move_to
 /* If there is data to send to the connection, enqueue some of it now. */
 void Channel::channel_output_poll ()
 {
-	u_int i, len;
+	u_int /*i,*/ len;
+
+  debug ("channel_output_poll: channel %d, "
+    "ascending = %d | remote_window = %d, "
+    "remote_maxpacket = %d, local_window = %d, "
+    "local_maxpacket = %d", 
+    self, 
+    (int) buffer_len (&ascending),
+    (int) remote_window, (int) remote_maxpacket,
+    (int) local_window, (int) local_maxpacket
+    );
 
   if (!channelStateIs ("open")) return;
   
