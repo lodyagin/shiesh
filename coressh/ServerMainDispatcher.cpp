@@ -78,8 +78,10 @@ void ServerMainDispatcher::channel_request_msg
 }
 
 void ServerMainDispatcher::channel_window_adjust_msg 
-  (int, u_int32_t, void *) 
-{ error ("ignored channel window adjust msg"); }
+  (int type, u_int32_t seq, void *ctxt) 
+{ 
+  connection->channel_input_window_adjust (type, seq, ctxt);
+}
 
 void ServerMainDispatcher::global_request_msg 
   (int type, u_int32_t seq, void *ctxt) 

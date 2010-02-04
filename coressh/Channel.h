@@ -59,6 +59,11 @@ public:
     return local_maxpacket;
   }
 
+  void remote_window_adjust (u_int adjust)
+  {
+    remote_window += adjust;
+  }
+
   void open (u_int window_max);
 
   void channel_output_poll ();

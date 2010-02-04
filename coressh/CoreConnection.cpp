@@ -2572,5 +2572,24 @@ void CoreConnection::all_channel_post_open ()
   }
 }
 
+void CoreConnection::channel_input_window_adjust
+  (int type, u_int32_t seq, void *ctxt)
+{
+	int id;
+	u_int adjust;
+
+	/* Get the channel number and verify it. */
+	id = packet_get_int();
+  Channel* c = ChannelRepository::get_object_by_id (id);
+
+	if (c == NULL) {
+		logit("Received window adjust for non-open channel %d.", id);
+		return;
+	}
+	adjust = packet_get_int();
+	packet_check_eom(this);
+	debug2("channel %d: rcvd adjust %u", id, adjust);
+	c->remote_window_adjust (adjust);
+}
 
 

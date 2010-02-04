@@ -200,6 +200,9 @@ protected:
   void server_input_channel_req
     (int type, u_int32_t seq, void *ctxt);
 
+  void channel_input_window_adjust
+    (int type, u_int32_t seq, void *ctxt);
+
   /* end of channel requests */
 
   int aDatafellows;
