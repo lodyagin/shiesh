@@ -2398,7 +2398,8 @@ void CoreConnection::server_loop ()
       (int) buffer_len (&output)
       );
 
-    // buffer CoreConnection::input -> to action
+    // [input] -> [descending]
+
     // process buffered input packets
     // NONBLOCK returns with no action if no packets
     // were collected in wait_until_can_do_something
@@ -2410,11 +2411,9 @@ void CoreConnection::server_loop ()
     
     // rekey request set done = 0
     const bool rekeying = (xxx_kex && !xxx_kex->done);
-    // FIXME sequence !
+    // FIXME test rekeying
 
-    // buffer Channel::ascending -> buffer CoreConnection::output
-    // TODO change the constant for sessions interactive
-    // which needs an interactive response
+    // [ascending] -> [output]
     if (!rekeying && buffer_len (&output) < 128 * 1024)
         all_channels_output_poll ();
 
@@ -2425,6 +2424,7 @@ void CoreConnection::server_loop ()
        WSA_MAXIMUM_WAIT_EVENTS - 1,
        &nChannelEvents
        );
+    //FIXME add event of channel creation to the bunch!
 
     debug ("server_loop: start waiting %d events", 
            (int) nChannelEvents + 1);
@@ -2437,8 +2437,12 @@ void CoreConnection::server_loop ()
 		//FIXME collect_children();
 		if (!rekeying) {
 
+      // [toChannel]   -> [ascending]
+      // [fromChannel] <- [descending]
+
 			//FIXME posthandlers
       // channel_after_select(readset, writeset);
+      all_channel_post_open ();
 
 			if (packet_need_rekeying()) {
 				debug("need rekeying"); //UT rekeying
@@ -2447,17 +2451,24 @@ void CoreConnection::server_loop ()
 			}
 		}
 
-    for (int i = 1; i < nChannelEvents + 1; i++)
-    {
-      if (signalled[i]) // Data from channel
-      { // it is a channel event
-        Channel* c = ChannelRepository::get_object_by_id 
-          (chanNums[i]);
-        assert (c);
-        // buffer Channel::toChannel -> buffer Channel::ascending
-        if (c) c->piece_to_ascending ();
+#if 0 //TODO signalled[] are not used
+    // TODO change the constant for sessions interactive
+    // which needs an interactive response
+    if (!rekeying && buffer_len (&output) < 128 * 1024) 
+    {  // process channel data 
+      for (int i = 1; i < nChannelEvents + 1; i++)
+      {
+        if (signalled[i]) // Data from channel
+        { // it is a channel event
+          Channel* c = ChannelRepository::get_object_by_id 
+            (chanNums[i]);
+          assert (c);
+          // buffer Channel::toChannel -> buffer Channel::ascending
+          if (c) c->channel_output_poll ();
+        }
       }
     }
+#endif
 
     if (signalled[0])
       socketEvents = socket->get_events ();
@@ -2480,11 +2491,12 @@ void CoreConnection::server_loop ()
 
 	/* free remaining sessions, e.g. remove wtmp entries */
 	//FIXME! session_destroy_all(NULL);
+
 }
 
 /* -- protocol input */
 
-/* ARGSUSED */
+
 void
 CoreConnection::channel_input_data
   (int type, u_int32_t seq, void *ctxt)
@@ -2533,11 +2545,10 @@ CoreConnection::channel_input_data
 	}
 	c->local_window -= data_len;
 
-  c->fromChannel.put (data, data_len);
-
   //   if (false /*c->datagram*/)
 	//else
-	//FIXME buffer_append(&c->output, data, data_len);
+  // put raw data into the descending buffer
+  c->put_raw_data (data, data_len);
 	packet_check_eom(this);
 }
 
@@ -2548,6 +2559,16 @@ void CoreConnection::all_channels_output_poll ()
   if (c)
   {
     c->channel_output_poll ();
+  }
+}
+
+void CoreConnection::all_channel_post_open ()
+{
+  // FIXME
+  Channel* c = ChannelRepository::get_object_by_id (1);
+  if (c)
+  {
+    c->channel_post_open ();
   }
 }
 

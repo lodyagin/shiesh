@@ -63,11 +63,11 @@ public:
 
   void channel_output_poll ();
 
-  void piece_to_ascending ();
+  // descending has a complete packet
+  // it can be send to "subsystem process"
+  bool is_complete_packet_in_descending ();
 
 protected:
-
-  Buffer ascending; // buffer to client
 
   /* -- States */
 
@@ -181,6 +181,8 @@ protected:
 
   CoreConnection* con;
 
+  int channel_check_window();
+
 private:
 
   //void check_moving_to (const UniversalState& to);
@@ -193,5 +195,10 @@ private:
   UniversalState currentOutputState;
   UniversalState currentChanState;
 
+  Buffer ascending;  // ^
+  Buffer descending; // V
+
+  void put_raw_data (void* data, u_int data_len);
+  void channel_post_open();
 };
 

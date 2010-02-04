@@ -2,6 +2,8 @@
 #include "Channel.h"
 #include "CoreConnection.h"
 #include "ssh2.h"
+#include "misc.h"
+#include "sftp.h" // temporary, for SFTP_MAX_MSG_LENGTH
 
 Logging Channel::log ("Channel");
 
@@ -86,7 +88,8 @@ Channel::Channel
   con (connection)/*,
   datagram (0)*/
 {
-  buffer_init (&ascending);
+  buffer_init(&ascending);
+  buffer_init(&descending);
 
   currentInputState = inputOpenState;
   currentOutputState = outputOpenState;
@@ -98,6 +101,8 @@ Channel::Channel
 Channel::~Channel(void)
 {
   buffer_free (&ascending);
+  buffer_free (&descending);
+  // FIXME if some data?
 }
 
 void Channel::initializeStates ()
@@ -171,21 +176,33 @@ void Channel::chan_state_move_to
   currentChanState = to;
 }
 
+#if 0
+  //!!assert (buffer_len (&ascending) == 0); 
+    // because it is a temporary
+
+  // get exactly one "subsystem processor" packet
+  toChannel.get (&ascending);
+
+#endif
+
 /* If there is data to send to the connection, enqueue some of it now. */
 void Channel::channel_output_poll ()
 {
-	u_int /*i,*/ len;
+	u_int len = 0;
 
-  debug ("channel_output_poll: channel %d, "
-    "ascending = %d | remote_window = %d, "
+  debug ("channel_output_poll: channel %d ascending %d "
+    " descending %d | remote_window = %d, "
     "remote_maxpacket = %d, local_window = %d, "
     "local_maxpacket = %d", 
     self, 
     (int) buffer_len (&ascending),
+    (int) buffer_len (&descending),
     (int) remote_window, (int) remote_maxpacket,
     (int) local_window, (int) local_maxpacket
-    );
+    ); 
 
+  //TODO should not be called for channel with state != open
+  // from the repository loop
   if (!channelStateIs ("open")) return;
   
 #if 0
@@ -219,8 +236,7 @@ void Channel::channel_output_poll ()
 		}
 #endif
 		/*
-		 * Send some data for the other side over the secure
-		 * connection.
+		 * Not allowed to send more than min of these two
 		 */
 		if (len > remote_window)
 			len = remote_window;
@@ -277,8 +293,92 @@ void Channel::channel_output_poll ()
 #endif
 }
 
-
-void Channel::piece_to_ascending ()
+int 
+Channel::channel_check_window()
 {
-  toChannel.get (&ascending);
+	if (channelStateIs ("open") &&
+	    /*!(c->flags & (CHAN_CLOSE_SENT|CHAN_CLOSE_RCVD)) &&*/ 
+        //FIXME
+	    ((local_window_max - local_window >
+	    local_maxpacket*3) ||
+	    local_window < local_window_max/2) &&
+	    local_consumed > 0) 
+  {
+		con->packet_start(SSH2_MSG_CHANNEL_WINDOW_ADJUST);
+		con->packet_put_int(remote_id);
+		con->packet_put_int(local_consumed);
+		con->packet_send();
+		debug2("channel %d: window %d sent adjust %d",
+		    (int) self, (int) local_window,
+		    (int) local_consumed);
+		local_window += local_consumed;
+		local_consumed = 0;
+	}
+	return 1;
 }
+
+void Channel::put_raw_data (void* data, u_int data_len)
+{
+  buffer_append (&descending, data, data_len);
+}
+
+bool Channel::is_complete_packet_in_descending ()
+{
+  u_int buf_len = buffer_len (&descending);
+  if (buf_len < 5) return false;
+
+  u_char* cp = (u_char*) buffer_ptr(&descending);
+  u_int msg_len = get_u32(cp); //sftp part length
+  if (msg_len > SFTP_MAX_MSG_LENGTH) {
+	  error("bad message from local user ?"/*,
+      pw->userName*/);
+	  //FIXME close the channel
+  }
+  if (buf_len < msg_len + 4) return false;
+
+  // there is complete sftp packet in the buffer
+  return true;
+}
+
+void Channel::channel_post_open()
+{
+	/*if (c->delayed)
+		return;*/ // FIXME
+
+	//channel_handle_rfd(c, readset, writeset);
+  {
+    toChannel.get (&ascending); // put full size message in ascending
+  }
+ 
+	//channel_handle_wfd(c, readset, writeset);
+  if (is_complete_packet_in_descending ())
+  {
+    u_int msg_len = buffer_get_int (&descending);
+    // now point to sftp type field
+
+    // it decrease c->local_consumed on data already
+    // on a "subsystem processor" part
+    // <NB> consume is regarded to another transactions
+    fromChannel.put 
+      (buffer_ptr (&descending), 
+       msg_len, 
+       &local_consumed
+       );
+    assert (local_consumed >= 0);
+   
+    if (local_consumed) 
+      local_consumed += 4; // for the buf_len field red above
+
+    /* discard the remaining bytes from the current packet */
+    buffer_consume(&descending, msg_len);
+  }
+  else 
+    // get consumed only
+    fromChannel.put (0, 0, &local_consumed);
+
+	//channel_handle_efd(c, readset, writeset);
+	//channel_handle_ctl(c, readset, writeset);
+
+  channel_check_window ();
+}
+

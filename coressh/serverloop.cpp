@@ -241,6 +241,12 @@ CoreConnection::wait_until_can_do_something
    bool signalled[]
    )
 {
+
+  u_int timeout = (max_time_milliseconds != 0) 
+         ? max_time_milliseconds : WSA_INFINITE;
+
+      //FIXME! channel_not_very_much_buffered_data condition !
+
 	/*int client_alive_scheduled = 0;
 	int program_alive_scheduled = 0;*/
 
@@ -276,21 +282,47 @@ CoreConnection::wait_until_can_do_something
 
   memset (signalled, 0, nEvents * sizeof (bool));
 
+  // FIXME channel_pre_xxx processing must be added
+  bool descendingSignalled = false;
+  {
+    Channel* c = ChannelRepository::get_object_by_id (1);
+    if (c)
+    {
+      descendingSignalled = signalled[1] = 
+        buffer_len (&c->descending) > 0
+        && c->is_complete_packet_in_descending ();
+
+      // check for local window here, if it -> 0
+      // we must periodically check "consumed" quantity 
+      // in fromChannel buffer
+      // in beleave "subsystem process" is making its work.
+      // But we shouldn't do it very often, thus prepeare all for wait
+      if (c->get_local_window () < c->get_local_maxpacket ())
+      {
+          signalled[1] = true;
+          timeout = MAX (timeout, 5000);
+      }
+    }
+  }
+
   if (!socket->wait_fd_write ()
     && buffer_len(&output) > 0) // can write
   {
     signalled[0] = true;
-    return;
+  }
+  
+  if (!(descendingSignalled || signalled[0])) 
+    // no events were found to this moment
+  {
+    //waitResult = //::WSAWaitForMultipleEvents
+      ::WaitForMultipleObjectsEx
+      (nEvents, eventArray, FALSE, /* wait any*/
+       timeout,
+        FALSE
+        );
   }
 
-  DWORD waitResult = //::WSAWaitForMultipleEvents
-    ::WaitForMultipleObjectsEx
-    (nEvents, eventArray, FALSE, /* wait any*/
-     (max_time_milliseconds != 0) 
-       ? max_time_milliseconds : WSA_INFINITE,
-      FALSE
-      );
-
+  DWORD waitResult;
   int arrayOffset = 0;
   while (nEvents - arrayOffset > 0
     && (waitResult = ::WSAWaitForMultipleEvents

@@ -1670,27 +1670,8 @@ SFTP::process_extended(void)
 
 void SFTP::process(void)
 {
-	u_int msg_len;
-	u_int buf_len;
-	u_int consumed;
-	u_int type;
-	u_char *cp;
-
-	buf_len = buffer_len(&iqueue);
-	if (buf_len < 5)
-		return;		/* Incomplete message. */
-	cp = (u_char*) buffer_ptr(&iqueue);
-	msg_len = get_u32(cp);
-	if (msg_len > SFTP_MAX_MSG_LENGTH) {
-		error("bad message from local user %s",
-      pw->userName);
-		sftp_server_cleanup_exit(11);
-	}
-	if (buf_len < msg_len + 4)
-		return;
-	buffer_consume(&iqueue, 4);
-	buf_len -= 4;
-	type = buffer_get_char(&iqueue);
+  const u_int msg_len = buffer_get_int (&iqueue);
+	const u_int type = buffer_get_char(&iqueue);
 	switch (type) {
 	case SSH2_FXP_INIT:
 		process_init();
@@ -1756,12 +1737,14 @@ void SFTP::process(void)
 		error("Unknown message %d", type);
 		break;
 	}
-	/* discard the remaining bytes from the current packet */
-	if (buf_len < buffer_len(&iqueue)) {
+
+  /* discard the remaining bytes from the current packet */
+	
+  if (msg_len < buffer_len(&iqueue)) {
 		error("iqueue grew unexpectedly");
 		sftp_server_cleanup_exit(255);
 	}
-	consumed = buf_len - buffer_len(&iqueue);
+	u_int consumed = msg_len - buffer_len(&iqueue);
 	if (msg_len < consumed) {
 		error("msg_len %d < consumed %d", msg_len, consumed);
 		sftp_server_cleanup_exit(255);
@@ -1802,7 +1785,7 @@ void SFTP::run ()
     else 
     {
       // copy to SFTP::iqueue
-			buffer_append(&iqueue, inputMsg, inputMsgLen);
+			buffer_put_string(&iqueue, inputMsg, inputMsgLen);
 		}
 
     /*
@@ -1810,8 +1793,9 @@ void SFTP::run ()
 		 * into the output buffer, otherwise stop processing input
 		 * and let the output queue drain.
 		 */
+    // FIXME check fitting in output buffer
 		process();
 
-    // FIXME no backpressure at all
+    // FIXME no backpressure at all (see OpenSSH)
 	}
 }

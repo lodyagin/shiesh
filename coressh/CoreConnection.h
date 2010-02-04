@@ -405,5 +405,6 @@ private:
   bool lastSendBlocks;
 
   void all_channels_output_poll ();
+  void all_channel_post_open ();
 
 };
