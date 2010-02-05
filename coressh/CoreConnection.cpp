@@ -2362,7 +2362,15 @@ CoreConnection::packet_write_poll(void)
 
 	if (len > 0) {
     len = socket->send(buffer_ptr(&output), len, &err);
-		if (len == 0)
+    if (len == -1)
+    {
+      if (err == WSAEINTR || 
+			    err == WSAEWOULDBLOCK
+          )
+          return;
+      fatal ("Write failed, errno = %d", err);
+    }
+    if (len == 0)
 			fatal("Write connection closed");
 		buffer_consume(&output, len);
 	}
