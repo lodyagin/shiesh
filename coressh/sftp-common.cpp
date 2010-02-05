@@ -46,12 +46,16 @@ u_int32_t toPOSIXFilePerm (DWORD wPerm)
 }
 
 DWORD toWindowsFilePerm (u_int32_t pPerm)
-{
+{ //UT
   DWORD wPerm = 0;
   if (! (pPerm & 0222))
     wPerm |= FILE_ATTRIBUTE_READONLY;
+  if (pPerm & _S_IFDIR)
+    wPerm |= FILE_ATTRIBUTE_DIRECTORY;
+
   if (wPerm == 0)
     wPerm = FILE_ATTRIBUTE_NORMAL;
+
   return wPerm;
 }
 

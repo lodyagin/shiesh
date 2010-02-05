@@ -390,6 +390,20 @@ errno_to_portable(const int err)
 	return ret;
 }
 
+static DWORD
+flags_from_portable(int pflags)
+{
+	int flags = 0;
+
+	if (pflags & SSH2_FXF_READ) {
+		flags |= GENERIC_READ;
+	} 
+  if (pflags & SSH2_FXF_WRITE) {
+		flags |= GENERIC_WRITE;
+	}
+	return flags;
+}
+
 static const char *
 string_from_portable(int pflags)
 {
@@ -798,7 +812,7 @@ void SFTP::process_open(void)
     const SFTPFilePath path = pathFact.create_path (utf8_name);
     HANDLE fh = ::CreateFileW
       (path.get_for_call ().c_str (),
-       GENERIC_READ | GENERIC_WRITE,
+       flags_from_portable (pflags),
        FILE_SHARE_READ,
        NULL, //FIXME ACL
        creationDisposition,
@@ -879,8 +893,14 @@ void SFTP::process_read(void)
     largeOffset.QuadPart = off;
 		if (!::SetFilePointerEx (fh, largeOffset, NULL, FILE_BEGIN)) 
     {
-			error("process_read: seek failed");
-      status = errno_to_portable(::GetLastError ());
+      int err = ::GetLastError ();
+      if (!err)
+        status = SSH2_FX_EOF;
+      else
+      {
+			  error("process_read: seek failed");
+        status = errno_to_portable(err);
+      }
 		} 
     else 
     {

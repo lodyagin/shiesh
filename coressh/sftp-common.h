@@ -75,5 +75,4 @@ const char *fx2txt(int);
 // file and directory basic permissions
 u_int32_t toPOSIXFilePerm (DWORD wPerm);
 DWORD toWindowsFilePerm (u_int32_t pPerm);
-
 }
