@@ -823,7 +823,7 @@ void SFTP::process_open(void)
        NULL
        );
 
-	  if (fh == NULL) 
+	  if (fh == INVALID_HANDLE_VALUE) 
     {
       status = errno_to_portable(::GetLastError ());
 	  } else {
@@ -888,10 +888,11 @@ void SFTP::process_read(void)
 		debug2("read change len %d", len);
 	}
 	HANDLE fh = handle_to_fh(handle);
-	if (fh != NULL) {
+	if (fh != INVALID_HANDLE_VALUE) {
     LARGE_INTEGER largeOffset;
     largeOffset.QuadPart = off;
-		if (!::SetFilePointerEx (fh, largeOffset, NULL, FILE_BEGIN)) 
+		if (!::SetFilePointerEx
+         (fh, largeOffset, NULL, FILE_BEGIN))
     {
       int err = ::GetLastError ();
       if (!err)
@@ -944,10 +945,12 @@ void SFTP::process_write(void)
       toUTF8 (handle_to_name(handle)).c_str (), 
       handle, (unsigned long long)off, len);
 	HANDLE fh = handle_to_fh(handle);
-	if (fh != NULL) {
+	if (fh != INVALID_HANDLE_VALUE) {
     LARGE_INTEGER largeOffset;
     largeOffset.QuadPart = off;
-		if (!::SetFilePointerEx (fh, largeOffset, NULL, FILE_BEGIN)) 
+		if (!::SetFilePointerEx 
+         (fh, largeOffset, NULL, FILE_BEGIN)
+        ) 
     {
 			status = errno_to_portable(::GetLastError ());
 			error("process_write: seek failed");
@@ -1046,7 +1049,7 @@ void SFTP::process_fstat(void)
 	debug("request %u: fstat \"%s\" (handle %u)",
 	    id, toUTF8(handle_to_name(handle)).c_str (), handle);
 	const HANDLE fh = handle_to_fh(handle);
-  if (fh != NULL) 
+  if (fh != INVALID_HANDLE_VALUE) 
   {
 		if (!::GetFileInformationByHandle (fh, &st)) 
     {
@@ -1175,7 +1178,7 @@ void SFTP::process_fsetstat(void)
   a = get_attrib(this->iqueue);
 	debug("request %u: fsetstat handle %d", id, handle);
 	HANDLE fh = handle_to_fh(handle);
-	if (fh == NULL) 
+	if (fh == INVALID_HANDLE_VALUE) 
   {
 		status = SSH2_FX_FAILURE;
 	} 
@@ -1326,7 +1329,7 @@ void SFTP::process_opendir(void)
        NULL
        );
 
-	  if (fh == NULL) {
+	  if (fh == INVALID_HANDLE_VALUE) {
 		  status = errno_to_portable(::GetLastError ());
 	  } 
     else 
@@ -1371,7 +1374,9 @@ void SFTP::process_readdir(void)
 	
   HANDLE dh = handle_to_dir(handle);
   const SFTPFilePath dirPath (handle_to_path (handle));
-	if (dh == NULL || dirPath.to_string ().length () == 0) 
+	if (dh == INVALID_HANDLE_VALUE 
+      || dirPath.to_string ().length () == 0
+      ) 
   {
 		send_status(id, SSH2_FX_FAILURE);
 	} 
@@ -1385,7 +1390,8 @@ void SFTP::process_readdir(void)
     stats = (Stat*) xcalloc(nstats, sizeof(Stat));
     HANDLE& searchHandle = handles[handle].searchHandle;
     bool& searchDone = handles[handle].searchDone;
-    if (!searchDone && searchHandle == 0)
+    if (!searchDone 
+        && searchHandle == INVALID_HANDLE_VALUE)
     {
       assert (!searchDone);
       searchHandle = ::FindFirstFile
@@ -1393,7 +1399,9 @@ void SFTP::process_readdir(void)
          &st
          );
     }
-    if (!searchDone && searchHandle != NULL) 
+    if (!searchDone 
+        && searchHandle != INVALID_HANDLE_VALUE
+) 
     {
       searchDone = true;
       while (::FindNextFileW (searchHandle, &st))
@@ -1418,7 +1426,8 @@ void SFTP::process_readdir(void)
       /*if (searchDone)
         ::GetLastError (); // read error of FindNextFile*/
 		}
-    if (searchDone && searchHandle != 0)
+    if (searchDone 
+        && searchHandle != INVALID_HANDLE_VALUE)
     {
       ::FindClose (searchHandle);
       searchHandle = 0;
@@ -1431,7 +1440,7 @@ void SFTP::process_readdir(void)
 				xfree(stats[i].long_name);
 			}
 		} else {
-      searchHandle = 0;
+      searchHandle = INVALID_HANDLE_VALUE;
       searchDone = false;
 			send_status(id, SSH2_FX_EOF);
 		}
@@ -1561,15 +1570,13 @@ void SFTP::process_rename(void)
   SFTPFilePath oldPath = pathFact.create_path (utf8_oldpath);
   SFTPFilePath newPath = pathFact.create_path (utf8_newpath);
 
-	if (::GetFileAttributes (newPath.get_for_call ().c_str ())
+  DWORD oldFileAttrs = 0;
+	if ((oldFileAttrs = ::GetFileAttributes 
+         (oldPath.get_for_call ().c_str ()))
             == INVALID_FILE_ATTRIBUTES
       )
 		status = errno_to_portable(::GetLastError ());
-  else if (::GetFileAttributes 
-             (oldPath.get_for_call ().c_str ()) 
-             & FILE_ATTRIBUTE_HIDDEN
-             // FIXME is regular file - check!!
-           ) 
+  else if (oldFileAttrs & FILE_ATTRIBUTE_NORMAL)
   {
 		/* Race-free rename of regular files */
     if (!::CreateHardLink 

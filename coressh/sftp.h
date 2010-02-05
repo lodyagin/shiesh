@@ -261,7 +261,7 @@ protected:
       : use (_use), 
       dirp (_dirp), 
       fileHandle (_fh),
-      searchHandle (0),
+      searchHandle (INVALID_HANDLE_VALUE),
       searchDone (false),
       path (_path),
       bytes_read (0), bytes_write (0)
