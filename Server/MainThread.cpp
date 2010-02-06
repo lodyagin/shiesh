@@ -24,13 +24,13 @@ void MainThread::run ()
   {
     // Create the listening socket
     RListeningSocket listen_socket 
-      (RServerSocketAddress (22));
+      (RServerSocketAddress (22),
+       500);  //TODO
 
     CoreConnectionFactory cf;
 
     listen_socket.listen 
-      (500,  //TODO
-       ConnectionFactory::instance ());
+      (ConnectionFactory::instance ());
     // the function returns on the 
     // current thread stop request
   }
