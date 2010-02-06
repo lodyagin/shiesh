@@ -288,9 +288,16 @@ SFTPFilePath SFTPFilePathFactory::create_path
     path = *userHomeDir + path;
   else
   {
-    if (path.n_first_dirs (userHomeDir->nDirs ())
+    bool valid = false;
+    try
+    {
+      if (path.n_first_dirs (userHomeDir->nDirs ())
         != *userHomeDir
         )
+        valid = true;
+    }
+    catch (std::out_of_range&) {}
+    if (!valid)
         throw Path::InvalidPath
         (path.to_string (),
         L" it points outside of the user home dir");
