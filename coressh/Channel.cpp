@@ -190,6 +190,7 @@ void Channel::channel_output_poll ()
 {
 	u_int len = 0;
 
+#if 0
   debug ("channel_output_poll: channel %d ascending %d "
     " descending %d | remote_window = %d, "
     "remote_maxpacket = %d, local_window = %d, "
@@ -200,6 +201,7 @@ void Channel::channel_output_poll ()
     (int) remote_window, (int) remote_maxpacket,
     (int) local_window, (int) local_maxpacket
     ); 
+#endif
 
   //TODO should not be called for channel with state != open
   // from the repository loop
@@ -308,9 +310,11 @@ Channel::channel_check_window()
 		con->packet_put_int(remote_id);
 		con->packet_put_int(local_consumed);
 		con->packet_send();
+#ifdef SLOW_DEBUG
 		debug2("channel %d: window %d sent adjust %d",
 		    (int) self, (int) local_window,
 		    (int) local_consumed);
+#endif
 		local_window += local_consumed;
 		local_consumed = 0;
 	}

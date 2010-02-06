@@ -340,8 +340,8 @@ CoreConnection::wait_until_can_do_something
            L" bad result of events waiting");
 
     signalled[eventNum] = true;
-    debug ("wait_until_can_do_something: event %d is signalled",
-      (int) eventNum);
+    //debug ("wait_until_can_do_something: event %d is signalled",
+    //  (int) eventNum);
     if (eventNum == 0) ::WSAResetEvent (eventArray[eventNum]);
       // for channel messages do reset in BusyThreadReadBuffer
       // after no data in buffer

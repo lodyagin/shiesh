@@ -2399,12 +2399,14 @@ void CoreConnection::server_loop ()
   for (;;)
   {
     roundNum++;
+#if 0
     debug
       ("server_loop: round %ld | input = %d ^ output = %d",
       roundNum, 
       (int) buffer_len (&input),
       (int) buffer_len (&output)
       );
+#endif
 
     // [input] -> [descending]
 
@@ -2434,8 +2436,8 @@ void CoreConnection::server_loop ()
        );
     //FIXME add event of channel creation to the bunch!
 
-    debug ("server_loop: start waiting %d events", 
-           (int) nChannelEvents + 1);
+    //debug ("server_loop: start waiting %d events", 
+    //       (int) nChannelEvents + 1);
 		wait_until_can_do_something
       (eventArray, nChannelEvents + 1, 0, signalled);
 
@@ -2596,7 +2598,9 @@ void CoreConnection::channel_input_window_adjust
 	}
 	adjust = packet_get_int();
 	packet_check_eom(this);
+#ifdef SLOW_DEBUG
 	debug2("channel %d: rcvd adjust %u", id, adjust);
+#endif
 	c->remote_window_adjust (adjust);
 }
 

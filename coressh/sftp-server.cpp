@@ -675,7 +675,9 @@ void SFTP::send_status(u_int32_t id, u_int32_t status)
 {
 	Buffer msg;
 
+#ifdef SLOW_DEBUG
 	debug3("request %u: sent status %u", id, status);
+#endif
 	if (/*log_level > SYSLOG_LEVEL_VERBOSE ||*/
 	    (status != SSH2_FX_OK && status != SSH2_FX_EOF))
 		logit("sent status %s", status_to_message(status));
@@ -709,8 +711,8 @@ void SFTP::send_data_or_handle
 
 void SFTP::send_data(u_int32_t id, const char *data, u_int dlen)
 {
-	debug("request %u: sent data len %lu", 
-    (unsigned) id, (long unsigned) dlen);
+	//debug("request %u: sent data len %lu", 
+  //  (unsigned) id, (long unsigned) dlen);
 	send_data_or_handle(SSH2_FXP_DATA, id, data, dlen);
 }
 
@@ -880,9 +882,11 @@ void SFTP::process_read(void)
 	off = get_int64();
 	len = get_int();
 
+#ifdef SLOW_DEBUG
 	debug("request %u: read \"%s\" (handle %d) off %llu len %d",
     id, toUTF8(handle_to_name(handle)).c_str (), 
       handle, (unsigned long long)off, len);
+#endif
 	if (len > sizeof buf) {
 		len = sizeof buf;
 		debug2("read change len %d", len);
@@ -891,6 +895,7 @@ void SFTP::process_read(void)
 	if (fh != INVALID_HANDLE_VALUE) {
     LARGE_INTEGER largeOffset;
     largeOffset.QuadPart = off;
+
 		if (!::SetFilePointerEx
          (fh, largeOffset, NULL, FILE_BEGIN))
     {
@@ -917,6 +922,11 @@ void SFTP::process_read(void)
 			} 
       else 
       {
+        if (nBytesRed < len)
+          debug ("process_read: requested %u, "
+                 "%u was red", 
+                 (unsigned) len, 
+                 (unsigned) nBytesRed); 
 				send_data(id, buf, (u_int) nBytesRed);
 				status = SSH2_FX_OK;
 				handle_update_read(handle, (u_int) nBytesRed);
@@ -940,10 +950,12 @@ void SFTP::process_write(void)
 	off = get_int64();
 	data = (char*) get_string(&len);
 
+#ifdef SLOW_DEBUG
 	debug("request %u: write \"%s\" (handle %d) off %llu len %d",
 	    id, 
       toUTF8 (handle_to_name(handle)).c_str (), 
       handle, (unsigned long long)off, len);
+#endif
 	HANDLE fh = handle_to_fh(handle);
 	if (fh != INVALID_HANDLE_VALUE) {
     LARGE_INTEGER largeOffset;
