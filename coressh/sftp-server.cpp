@@ -22,6 +22,7 @@
 #include "sftp-common.h"
 #include <algorithm>
 #include "SShutdown.h"
+#include <locale>
 
 /*   Path   */
 
@@ -51,15 +52,18 @@ void Path::init (const std::wstring& pathStr)
 
   // Check passed path
 
-  const bool driveSpecified = pathStr.length () >= 2
-    && pathStr[1] == L':' ;
+  if (pathStr.length () >= 2 && pathStr[1] == L':')
+    drive = pathStr[0];
+  else
+    drive = L'?';
 
   isRelative = !
     (pathStr.length () >= 1 && pathStr[0] == L'\\'
-    || pathStr.length () >= 3 && driveSpecified && pathStr[2] == L'\\');
+    || pathStr.length () >= 3 && has_drive_letter () 
+        && pathStr[2] == L'\\');
 
   // Absolute path is accepted only with a drive
-  if (!isRelative && !driveSpecified)
+  if (!isRelative && !has_drive_letter ())
     throw InvalidPath 
       (pathStr, L" absolute path must contain a drive letter");
 
@@ -70,13 +74,20 @@ void Path::init (const std::wstring& pathStr)
 #endif 
 
   parse_path (pathStr);
-  assert (isRelative || path.size () >= 1);
+
+  assert (isRelative || path.size () >= 1 
+          || has_drive_letter ()
+          );
 }
 
 // from string to list of directories
 void Path::parse_path (const std::wstring& pathStr)
 {
+  static const std::locale loc; 
+
   std::wstring::size_type from = 0;
+
+  bool firstIsDrive = has_drive_letter ();
 
   while (from < pathStr.length ())
   {
@@ -85,14 +96,32 @@ void Path::parse_path (const std::wstring& pathStr)
 
     if (pos == std::wstring::npos)
     {
-      path.push_back 
-        (pathStr.substr (from, pathStr.length () - from));
+      if (firstIsDrive)
+      {
+        std::wstring driveLetter = pathStr.substr 
+          (from, pathStr.length () - from); //UT
+        assert (driveLetter.length () == 1);
+        drive = std::tolower (driveLetter.at (0), loc);
+        firstIsDrive = false;
+      }
+      else
+        path.push_back 
+          (pathStr.substr (from, pathStr.length () - from));
       return;
     }
 
     if (pos > 0)
     {
-      path.push_back (pathStr.substr (from, pos - from));
+      if (firstIsDrive)
+      {
+        std::wstring driveLetter = pathStr.substr 
+          (from, pos - from);
+        assert (driveLetter.length () == 2);
+        drive = std::tolower (driveLetter.at (0), loc);
+        firstIsDrive = false;
+      }
+      else
+         path.push_back (pathStr.substr (from, pos - from));
       from = pos + 1;
     }
   }
@@ -100,7 +129,7 @@ void Path::parse_path (const std::wstring& pathStr)
 
 std::wstring Path::to_string (bool endWithSlash) const 
 {
-  if (endWithSlash)
+  if (endWithSlash) // UT
   {
     if (isRelative && path.size () == 0)
       throw InvalidPath 
@@ -109,7 +138,7 @@ std::wstring Path::to_string (bool endWithSlash) const
   }
   else
   {
-    if (!isRelative && path.size () <= 1)
+    if (!isRelative && path.size () == 0) 
       throw InvalidPath 
         (to_string (), 
         L"unable to remove \\ from the end");
@@ -129,16 +158,11 @@ std::wstring Path::to_string () const
 
 std::wstring Path::to_string_generic (wchar_t separator) const 
 {
-  std::wostringstream strm;
-  assert (isRelative || path.size () >= 1);
-  List::const_iterator cit = path.begin ();
-  if (!isRelative) 
-  {
-    strm << (*path.begin ()) << separator;
-    // i.e., "c:\"
-    cit++;
-  }
+  assert (isRelative || path.size () >= 1 
+          || has_drive_letter ());
 
+  std::wostringstream strm;
+  List::const_iterator cit = path.begin ();
   bool first = true;
   for (; cit != path.end (); cit++)
   {
@@ -146,7 +170,11 @@ std::wstring Path::to_string_generic (wchar_t separator) const
     strm << (*cit);
     first = false;
   }
-  return strm.str ();
+  if (!isRelative && has_drive_letter ())
+    return std::wstring (1, drive) + L':' 
+      + separator + strm.str ();
+  else
+    return strm.str ();
 }
 
 std::wstring Path::unix_form () const
@@ -154,11 +182,9 @@ std::wstring Path::unix_form () const
   return to_string_generic (L'/');
 }
 
-
-
 bool Path::is_root_dir () const 
 { 
-  return !isRelative && path.size () == 1; 
+  return !isRelative && path.size () == 0; 
 }
 
 bool Path::normalize ()
@@ -202,7 +228,7 @@ Path Path::n_first_dirs (unsigned int n) const
   for (List::size_type i = 0; i < n; i++)
     res.push_back (*cit++);
 
-  return Path (res, isRelative);
+  return Path (res, isRelative, drive);
 }
 
 /*   SFTPFilePath   */
@@ -292,7 +318,9 @@ SFTPFilePath SFTPFilePathFactory::create_path
     try
     {
       if (path.n_first_dirs (userHomeDir->nDirs ())
-        != *userHomeDir
+        == *userHomeDir
+        && (!path.has_drive_letter ()
+        || path.get_drive () == userHomeDir->get_drive ())
         )
         valid = true;
     }
@@ -321,8 +349,19 @@ Path operator+ (const Path& prefix, const Path& suffix)
       (suffix.to_string (), 
        L" as a suffix"
        );
+  
+  if (suffix.has_drive_letter ())
+  {
+    if (!prefix.has_drive_letter ()
+      || suffix.get_drive () != prefix.get_drive ()
+      )
+      throw Path::InvalidPath
+        (prefix.to_string () + L" (+) " 
+         + suffix.to_string (),
+        L" misplaced drive letter"); //UT
+  }
 
-  Path res (prefix.path, prefix.is_relative ());
+  Path res (prefix.path, prefix.is_relative (), prefix.get_drive ());
   
   res.path.insert 
     (res.path.end (), 
@@ -335,8 +374,9 @@ Path operator+ (const Path& prefix, const Path& suffix)
 
 bool operator== (const Path& a, const Path& b)
 {
-  return a.path == b.path 
-    && a.isRelative == b.isRelative;
+  return a.isRelative == b.isRelative
+    && a.drive == b.drive
+    && a.path == b.path;
 }
 
 bool operator!= (const Path& a, const Path& b)

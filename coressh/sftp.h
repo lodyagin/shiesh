@@ -131,12 +131,16 @@ public:
     (const std::wstring& _path/*, 
      bool _endWithSlash*/);
 
+  // can contain drive letter only in a case of absolute path
   std::wstring to_string () const;
   std::wstring to_string (bool endWithSlash) const;
   std::wstring unix_form () const;
 
   bool is_relative () const { return isRelative; }
   bool is_root_dir () const;
+  bool has_drive_letter () const { return drive != L'?'; }
+  
+  wchar_t get_drive () const { return drive; }
 
   // this path is below p2
   bool is_below (const Path& p2) const;
@@ -159,14 +163,19 @@ public:
 protected:
   typedef std::list<std::wstring> List;
 
-  Path (const List& _path, bool _isRelative)
-    : path (_path), isRelative (_isRelative)
+  Path (const List& _path, bool _isRelative, 
+        wchar_t _drive)
+    : path (_path), isRelative (_isRelative),
+    drive (_drive)
   {}
 
   std::wstring to_string_generic (wchar_t separator) const;
 
   //Path (const std::wstring& _path);
   List path;
+
+  //bool hasDriveLetter;
+  wchar_t drive;
 
   bool isRelative;
   void init (const std::wstring& pathStr); 
