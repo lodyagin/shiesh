@@ -1857,7 +1857,7 @@ SFTP::sftp_server_cleanup_exit(int i)
 void SFTP::run ()
 {
   void* inputMsg;
-  size_t inputMsgLen;
+  u_int32_t inputMsgLen;
 
 	for (;;) {
  

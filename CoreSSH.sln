@@ -53,9 +53,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Global
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = CoreSSH.vsmdi
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Pocket PC 2003 (ARMV4) = Debug|Pocket PC 2003 (ARMV4)
 		Debug|Win32 = Debug|Win32
@@ -439,7 +436,7 @@ Global
 		{B42EC073-06A2-4E5F-A965-DA29C4DAA475}.Debug|Pocket PC 2003 (ARMV4).ActiveCfg = Debug|Win32
 		{B42EC073-06A2-4E5F-A965-DA29C4DAA475}.Debug|Win32.ActiveCfg = Debug|Win32
 		{B42EC073-06A2-4E5F-A965-DA29C4DAA475}.Debug|Win32.Build.0 = Debug|Win32
-		{B42EC073-06A2-4E5F-A965-DA29C4DAA475}.Debug|x64.ActiveCfg = Debug|Win32
+		{B42EC073-06A2-4E5F-A965-DA29C4DAA475}.Debug|x64.ActiveCfg = Debug|x64
 		{B42EC073-06A2-4E5F-A965-DA29C4DAA475}.Debug64|Pocket PC 2003 (ARMV4).ActiveCfg = Debug|Win32
 		{B42EC073-06A2-4E5F-A965-DA29C4DAA475}.Debug64|Win32.ActiveCfg = Debug|Win32
 		{B42EC073-06A2-4E5F-A965-DA29C4DAA475}.Debug64|Win32.Build.0 = Debug|Win32
@@ -664,7 +661,8 @@ Global
 		{E4205BA9-E07E-4241-8AD6-B0E02823960E}.Debug|Pocket PC 2003 (ARMV4).ActiveCfg = Debug|Win32
 		{E4205BA9-E07E-4241-8AD6-B0E02823960E}.Debug|Win32.ActiveCfg = Debug|Win32
 		{E4205BA9-E07E-4241-8AD6-B0E02823960E}.Debug|Win32.Build.0 = Debug|Win32
-		{E4205BA9-E07E-4241-8AD6-B0E02823960E}.Debug|x64.ActiveCfg = Debug|Win32
+		{E4205BA9-E07E-4241-8AD6-B0E02823960E}.Debug|x64.ActiveCfg = Debug|x64
+		{E4205BA9-E07E-4241-8AD6-B0E02823960E}.Debug|x64.Build.0 = Debug|x64
 		{E4205BA9-E07E-4241-8AD6-B0E02823960E}.Debug64|Pocket PC 2003 (ARMV4).ActiveCfg = Debug|Win32
 		{E4205BA9-E07E-4241-8AD6-B0E02823960E}.Debug64|Win32.ActiveCfg = Debug|Win32
 		{E4205BA9-E07E-4241-8AD6-B0E02823960E}.Debug64|Win32.Build.0 = Debug|Win32
