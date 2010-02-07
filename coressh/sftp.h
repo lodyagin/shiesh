@@ -36,6 +36,7 @@
 #include <windows.h>
 #include <vector>
 #include <list>
+#include <set>
 #include "Buffer.h"
 
 /* version */
@@ -289,7 +290,7 @@ protected:
   HandleBunch handles;
   // the indexes of unused handles
   //typedef HandleBunch::size_type HandleIdx;
-  std::list<int>  unusedHandles;
+  std::set<int>  unusedHandles;
 
   class NoSuchHandle : public SException
   {

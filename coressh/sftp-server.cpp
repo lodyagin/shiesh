@@ -52,7 +52,7 @@ void Path::init (const std::wstring& pathStr)
 
   // Check passed path
 
-  if (pathStr.length () >= 2 && pathStr[1] == L':')
+  if (pathStr.length () >= 2 && pathStr[1] == L':') //FIXME check a-zA-Z
     drive = pathStr[0];
   else
     drive = L'?';
@@ -92,31 +92,25 @@ void Path::parse_path (const std::wstring& pathStr)
   while (from < pathStr.length ())
   {
     std::wstring::size_type pos = 
-      pathStr.find_first_of (L'\\', from);
+      pathStr.find_first_of (L"\\:", from);
 
     if (pos == std::wstring::npos)
     {
-      if (firstIsDrive)
-      {
-        std::wstring driveLetter = pathStr.substr 
-          (from, pathStr.length () - from); //UT
-        assert (driveLetter.length () == 1);
-        drive = std::tolower (driveLetter.at (0), loc);
-        firstIsDrive = false;
-      }
-      else
-        path.push_back 
+      path.push_back 
           (pathStr.substr (from, pathStr.length () - from));
       return;
     }
 
+    if (from == pos) { from++; continue; } // ":\\"
+
+    // FIXME check only one ':' in a path above
     if (pos > 0)
     {
       if (firstIsDrive)
       {
         std::wstring driveLetter = pathStr.substr 
           (from, pos - from);
-        assert (driveLetter.length () == 2);
+        assert (driveLetter.length () == 1);
         drive = std::tolower (driveLetter.at (0), loc);
         firstIsDrive = false;
       }
@@ -358,7 +352,7 @@ Path operator+ (const Path& prefix, const Path& suffix)
       throw Path::InvalidPath
         (prefix.to_string () + L" (+) " 
          + suffix.to_string (),
-        L" misplaced drive letter"); //UT
+        L" misplaced drive letter"); 
   }
 
   Path res (prefix.path, prefix.is_relative (), prefix.get_drive ());
@@ -503,7 +497,7 @@ SFTP::~SFTP ()
 void SFTP::handle_unused(int i)
 {
 	handles[i].use = HANDLE_UNUSED;
-  unusedHandles.push_front (i);
+  unusedHandles.insert (i);
 }
 
 int
@@ -528,8 +522,8 @@ SFTP::handle_new
 	  }
     else
     {
-      int i = unusedHandles.front ();
-      unusedHandles.pop_back ();
+      int i = *unusedHandles.begin ();
+      unusedHandles.erase (i);
       handles[i] = newHandle;
 	    return i;
     }
@@ -877,6 +871,8 @@ void SFTP::process_open(void)
       status = errno_to_portable(::GetLastError ());
 	  } else {
 		  int handle = handle_new(HANDLE_FILE, path, fh, NULL);
+      debug ("%s is opened as handle %d",
+        utf8_name, (int) handle);
 		  if (handle < 0) {
         (void) ::CloseHandle (fh);
 		  } else {
@@ -1021,7 +1017,11 @@ void SFTP::process_write(void)
       if (!::WriteFile (fh, data, len, &nBytesWritten, 0)) 
       {
 				error("process_write: write failed");
-				status = errno_to_portable(::GetLastError ());
+        int err = ::GetLastError ();
+        if (err != 0)
+				  status = errno_to_portable(err);
+        else 
+          status = SSH2_FX_FAILURE; //TODO reason?
 			} 
       else if ((size_t) nBytesWritten == len) 
       {
