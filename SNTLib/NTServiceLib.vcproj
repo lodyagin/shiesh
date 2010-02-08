@@ -128,7 +128,7 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;&quot;$(CommonProgramFiles)\System\Ado&quot;;&quot;..\apache-log4cxx\src\main\include&quot;"
-				PreprocessorDefinitions="NDEBUG,WIN32,_LIB,LOG4CXX_STATIC"
+				PreprocessorDefinitions="NDEBUG,WIN32,_LIB,LOG4CXX_STATIC;UNICODE;_UNICODE"
 				StringPooling="true"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
