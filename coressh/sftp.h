@@ -183,6 +183,22 @@ protected:
   void parse_path (const std::wstring& pathStr);
 };
 
+// It follows not-standard rules:
+// 1. Path always starts with '\'.
+// 2. If the first element is <drive letter>: than it is
+// absolute path
+// 3. If the first element isn't a drive letter the whole path
+// is relative and first '\' means the root folder
+class CoreSSHPath : public Path
+{
+public:
+  CoreSSHPath (const std::wstring& _path);
+
+  // Form for a Path constructor
+  static std::wstring get_standard_form 
+    (const std::wstring& coresshPath);
+};
+
 // The suffix mast be relative path
 Path operator+ (const Path& prefix, const Path& suffix);
 

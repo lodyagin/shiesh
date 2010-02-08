@@ -43,12 +43,42 @@ Path::Path
   init (_path);
 }
 
+class RemoveRepetition : 
+  public std::unary_function<wchar_t, bool>
+{
+public:
+  RemoveRepetition (wchar_t _ch) 
+    : ch (_ch), last_was_ch (false) {}
+  bool operator () (wchar_t c)
+  {
+    if (c == ch)
+    {
+      if (last_was_ch) 
+        return true; // remove
+      else
+        last_was_ch = true;
+    }
+    else
+    {
+      last_was_ch = false;
+    }
+    return false;
+  }
+protected:
+  wchar_t ch;
+  bool last_was_ch;
+};
+
 // common part of constructors
 void Path::init (const std::wstring& pathStr)
 {
   // Must not contain repeated '\\'
   if (pathStr.find (L"\\\\") != std::wstring::npos)
     throw InvalidPath (pathStr, L" found the sequence of \\");
+
+  // Can contain ':' only in the position 1
+  if (pathStr.find (L':', 2) != std::wstring::npos)
+    throw InvalidPath (pathStr, L" found ':' in a path");
 
   // Check passed path
 
@@ -287,17 +317,19 @@ SFTPFilePath SFTPFilePathFactory::create_path
 {
   std::wstring pathStr = fromUTF8 (utf8_path);
 
-  // Check the path for '\' in names
-  // (according to standard it uses '/' as separators)
-  // <NB> userHomeDir is already in windows form
-  if (std::wstring::npos != pathStr.find_first_of (L"\\"))
-    throw Path::InvalidPath (pathStr, L" '\\' usage");
+  // Make windows path:
+  // replace all "/" with "\\"
+  std::replace (pathStr.begin (), pathStr.end (), L'/', L'\\');
 
-  // Make windows path
-  std::replace 
-    (pathStr.begin (), pathStr.end (), L'/', L'\\');
+  // replace a sequence of '\\' with a single '\\'
+  std::remove_if 
+    (pathStr.begin (), pathStr.end (), RemoveRepetition (L'\\'));
 
-  Path path (pathStr);
+  const std::wstring pathStr2 = 
+    (pathStr.length () == 0 || pathStr[0] != L'\\')
+     ? L'\\' + pathStr : pathStr;
+
+  CoreSSHPath path (pathStr2);
   
   if (!path.normalize ())
     throw Path::InvalidPath
@@ -305,7 +337,10 @@ SFTPFilePath SFTPFilePathFactory::create_path
        L" points above a start point");
 
   if (path.is_relative ())
-    path = *userHomeDir + path;
+  {
+    return SFTPFilePath 
+      (*userHomeDir + path, userHomeDir->nDirs ());
+  }
   else
   {
     bool valid = false;
@@ -323,18 +358,25 @@ SFTPFilePath SFTPFilePathFactory::create_path
         throw Path::InvalidPath
         (path.to_string (),
         L" it points outside of the user home dir");
+    return SFTPFilePath (path, userHomeDir->nDirs ());
   }
-
-  return SFTPFilePath (path, userHomeDir->nDirs ());
 }
 
-/*const SFTPFilePath& SFTPFilePath::operator= 
-  (const SFTPFilePath& fp)
+CoreSSHPath::CoreSSHPath (const std::wstring& _path)
+: Path (get_standard_form (_path))
 {
-  path = fp.path;
-  
-}*/
+  isRelative = !has_drive_letter ();
+}
 
+std::wstring CoreSSHPath::get_standard_form 
+   (const std::wstring& coresshPath)
+{
+  if (coresshPath.length () < 1 || coresshPath[0] != L'\\')
+      throw Path::InvalidPath
+        (coresshPath, L" coressh path must starts with '\\'");
+
+  return coresshPath.substr (1, coresshPath.length () - 1);
+}
 
 Path operator+ (const Path& prefix, const Path& suffix)
 {
