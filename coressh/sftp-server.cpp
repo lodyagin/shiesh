@@ -72,17 +72,6 @@ protected:
   bool last_was_ch;
 };
 
-class TolowerFunc 
-  : public std::unary_function<wchar_t, wchar_t>
-{
-public:
-  TolowerFunc (const std::locale& _loc) : loc (_loc) {}
-  wchar_t operator () (wchar_t c) const 
-  { return std::tolower (c, Path::loc); }
-protected:
-  std::locale loc;
-};
-
 // common part of constructors
 void Path::init (const std::wstring& pathStr)
 {
@@ -93,13 +82,6 @@ void Path::init (const std::wstring& pathStr)
   // Can contain ':' only in the position 1
   if (pathStr.find (L':', 2) != std::wstring::npos)
     throw InvalidPath (pathStr, L" found ':' in a path");
-
-  // Make lower case
-  std::wstring lowPathStr (pathStr);
-  std::transform (
-    pathStr.begin (), pathStr.end (), lowPathStr.begin (),
-    TolowerFunc (loc)
-    );
 
   // Check passed path
 
@@ -427,11 +409,34 @@ Path operator+ (const Path& prefix, const Path& suffix)
   return res;
 }
 
+static bool
+char_equal_ignore_case (wchar_t a, wchar_t b) 
+{
+  return std::tolower (a, Path::loc)
+    == std::tolower (b, Path::loc);
+}
+
+static bool 
+is_equal_ignore_case (const std::wstring& a, const std::wstring& b) 
+{
+  return std::equal (
+    a.begin (), a.end (),
+    b.begin (), 
+    char_equal_ignore_case);
+}
+
+// it ignore case
 bool operator== (const Path& a, const Path& b)
 {
-  return a.isRelative == b.isRelative
-    && a.drive == b.drive
-    && a.path == b.path;
+  if (a.isRelative == b.isRelative
+      && a.drive == b.drive)
+  {
+    return std::equal (
+      a.path.begin (), a.path.end (),
+      b.path.begin (), 
+      is_equal_ignore_case);
+  }
+  else return false;
 }
 
 bool operator!= (const Path& a, const Path& b)
