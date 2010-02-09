@@ -34,6 +34,9 @@
   init ();
 }*/
 
+// Use the default locale for case conversion
+const std::locale Path::loc;
+
 Path::Path 
   (const std::wstring& _path/*, 
    bool _endWithSlash*/
@@ -69,6 +72,17 @@ protected:
   bool last_was_ch;
 };
 
+class TolowerFunc 
+  : public std::unary_function<wchar_t, wchar_t>
+{
+public:
+  TolowerFunc (const std::locale& _loc) : loc (_loc) {}
+  wchar_t operator () (wchar_t c) const 
+  { return std::tolower (c, Path::loc); }
+protected:
+  std::locale loc;
+};
+
 // common part of constructors
 void Path::init (const std::wstring& pathStr)
 {
@@ -79,6 +93,13 @@ void Path::init (const std::wstring& pathStr)
   // Can contain ':' only in the position 1
   if (pathStr.find (L':', 2) != std::wstring::npos)
     throw InvalidPath (pathStr, L" found ':' in a path");
+
+  // Make lower case
+  std::wstring lowPathStr (pathStr);
+  std::transform (
+    pathStr.begin (), pathStr.end (), lowPathStr.begin (),
+    TolowerFunc (loc)
+    );
 
   // Check passed path
 
@@ -113,8 +134,6 @@ void Path::init (const std::wstring& pathStr)
 // from string to list of directories
 void Path::parse_path (const std::wstring& pathStr)
 {
-  static const std::locale loc; 
-
   std::wstring::size_type from = 0;
 
   bool firstIsDrive = has_drive_letter ();
@@ -902,7 +921,7 @@ void SFTP::process_open(void)
        NULL, //FIXME ACL
        creationDisposition,
        //names in different registry are different //UT
-       FILE_FLAG_POSIX_SEMANTICS,
+       FILE_ATTRIBUTE_NORMAL,
        // TODO make performance experiments with FILE_FLAG_RANDOM_ACCESS , 
        // FILE_FLAG_SEQUENTIAL_SCAN
        NULL
@@ -1423,7 +1442,7 @@ void SFTP::process_opendir(void)
        // this request is for open only existing directory
        OPEN_EXISTING, 
        //names in different registry are different //UT
-       FILE_FLAG_POSIX_SEMANTICS | FILE_FLAG_BACKUP_SEMANTICS, 
+       FILE_FLAG_BACKUP_SEMANTICS, 
           // the last option is for obtain a directory handle ( MSDN )
        // TODO make performance experiments with FILE_FLAG_RANDOM_ACCESS , 
        // FILE_FLAG_SEQUENTIAL_SCAN

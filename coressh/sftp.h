@@ -132,6 +132,9 @@ public:
     (const std::wstring& _path/*, 
      bool _endWithSlash*/);
 
+  // Used locale
+  static const std::locale loc; 
+
   // can contain drive letter only in a case of absolute path
   std::wstring to_string () const;
   std::wstring to_string (bool endWithSlash) const;
