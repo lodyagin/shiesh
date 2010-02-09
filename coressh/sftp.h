@@ -154,9 +154,9 @@ public:
   unsigned int nDirs () const { return path.size (); }
 
   // Return a new path constructed from
-  // the first n dirst of this path
+  // the first n dirs of this path
   // n <= nDirs () 
-  Path n_first_dirs (unsigned int n) const;
+  Path n_first_dirs (unsigned n) const;
 
   // remove '.' and '..'
   // return false if some '..' are still
@@ -218,7 +218,16 @@ public:
   std::wstring get_for_call () const;
   std::wstring get_mask_for_dir_search () const;
 
-  //const SFTPFilePath& operator= (const SFTPFilePath&);
+  unsigned get_n_user_home_pos () const
+  { return nUserHomePos; }
+
+  // Return a new path constructed from
+  // the first n dirs of this path
+  // n <= nDirs () 
+  SFTPFilePath n_first_dirs (unsigned n) const
+  { 
+    return SFTPFilePath (Path::n_first_dirs (n), nUserHomePos); 
+  }
 
 protected:
   SFTPFilePath 
@@ -373,6 +382,11 @@ protected:
   };
 
   /* messages - send */
+
+  // Create directory with all subdirectories
+  bool create_directory_path 
+    (const SFTPFilePath& path, 
+     LPSECURITY_ATTRIBUTES lpSecurity);
 
   void send_msg(Buffer *m);
   const char * status_to_message(u_int32_t status);

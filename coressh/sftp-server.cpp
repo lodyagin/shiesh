@@ -751,6 +751,34 @@ int SFTP::get_handle(void)
 	return val;
 }
 
+bool SFTP::create_directory_path 
+  (const SFTPFilePath&   path, 
+   LPSECURITY_ATTRIBUTES lpSecurity
+   )
+{
+	WIN32_FILE_ATTRIBUTE_DATA st;
+  for (unsigned k = path.get_n_user_home_pos () + 1; 
+       k <= path.nDirs (); 
+       k++
+       )
+  {
+    SFTPFilePath p2 = path.n_first_dirs (k);
+    if (!::GetFileAttributesExW 
+          (p2.get_for_call ().c_str (),
+           GetFileExInfoStandard,
+           &st)
+       )
+    {
+      if (!::CreateDirectoryW 
+           (p2.get_for_call ().c_str (), lpSecurity)
+           )
+           return false;
+    }
+  }
+  return true;
+}
+
+
 /* send replies */
 
 void SFTP::send_msg(Buffer *m)
@@ -1611,8 +1639,15 @@ void SFTP::process_mkdir(void)
 
   const SFTPFilePath path = pathFact.create_path (utf8_name);
   BOOL res = ::CreateDirectory (path.get_for_call ().c_str (), NULL);
+  int err = ::GetLastError ();
+  if (err == ERROR_PATH_NOT_FOUND)
+  {
+    res = create_directory_path (path, NULL);
+    if (!res) err = ::GetLastError ();
+  }
+
   status = (!res) 
-     ? errno_to_portable(::GetLastError ()) 
+     ? errno_to_portable(err) 
      : SSH2_FX_OK;
 
 	send_status(id, status);
