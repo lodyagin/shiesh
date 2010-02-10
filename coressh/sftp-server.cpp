@@ -24,6 +24,11 @@
 #include "SShutdown.h"
 #include <locale>
 
+#define MATT_PATHES
+#undef DREAMWEAVER_BUG
+#undef NO_COLON_IN_DRIVE
+#define PREPEND_SLASH_TO_CLIENT
+
 /*   Path   */
 
 //TODO UT
@@ -95,10 +100,12 @@ void Path::init (const std::wstring& pathStr)
     || pathStr.length () >= 3 && has_drive_letter () 
         && pathStr[2] == L'\\');
 
+#ifdef MATT_PATHES
   // Absolute path is accepted only with a drive
   if (!isRelative && !has_drive_letter ())
     throw InvalidPath 
       (pathStr, L" absolute path must contain a drive letter");
+#endif
 
 #if 0 
   if (isRelative && path.length () > MAX_PATH)
@@ -204,7 +211,18 @@ std::wstring Path::to_string_generic (wchar_t separator) const
 
 std::wstring Path::unix_form () const
 {
+#ifdef MATT_PATHES
+#ifndef PREPEND_SLASH_TO_CLIENT
   return to_string_generic (L'/');
+#else
+  return L'/' + to_string_generic (L'/');
+#endif
+#else
+  Path p2 = *this;
+  p2.drive = L'?';
+  p2.isRelative = false;
+  return L'/' + to_string_generic (L'/');
+#endif
 }
 
 bool Path::is_root_dir () const 
@@ -276,13 +294,21 @@ SFTPFilePath::SFTPFilePath
 std::wstring SFTPFilePath::get_for_call () const
 {
   assert (!isRelative);
+#ifndef DREAMWEAVER_BUG
   return longPrefix + to_string ();
+#else
+  return longPrefix + L"c:\\" + to_string ();
+#endif
 }
 
 std::wstring SFTPFilePath::get_mask_for_dir_search() const
 {
   assert (!isRelative);
+#ifndef DREAMWEAVER_BUG
   return longPrefix + to_string (true) + L'*';  
+#else
+  return longPrefix + L"c:\\" + to_string (true) + L'*';
+#endif
 }
 
 /*   SFTPFilePathFactory   */
@@ -326,12 +352,17 @@ SFTPFilePath SFTPFilePathFactory::create_path
   std::remove_if 
     (pathStr.begin (), pathStr.end (), RemoveRepetition (L'\\'));
 
+#ifdef MATT_PATHES
+  // prepend with "\"
   const std::wstring pathStr2 = 
     (pathStr.length () == 0 || pathStr[0] != L'\\')
      ? L'\\' + pathStr : pathStr;
 
   CoreSSHPath path (pathStr2);
-  
+#else
+  Path path (pathStr);
+#endif
+
   if (!path.normalize ())
     throw Path::InvalidPath
       (path.to_string (),
@@ -1692,6 +1723,7 @@ void SFTP::process_realpath(void)
 	  attrib_clear(&s.attrib);
     s.name = s.long_name = xstrdup 
       (toUTF8 (path.unix_form ()).c_str ());
+    verbose("realpath calculated is \"%s\"", s.name);
 	  send_names(id, 1, &s);
   }
   catch (Path::InvalidPath&)
