@@ -8,25 +8,33 @@ The subsystem, as per RFC 4254
 #include "User.h"
 #include "BusyThreadWriteBuffer.h"
 #include "BusyThreadReadBuffer.h"
+#include "Repository.h"
 
 using namespace coressh;
 
+struct SubsystemPars;
+
 class Subsystem : public SThread
 {
+  friend Repository<Subsystem, SubsystemPars>;
+
 public:
+  std::string universal_object_id;
+protected:
   Subsystem 
-    (User *const _pw, 
+    (const std::string &objectId,
+     User *const _pw, 
      BusyThreadWriteBuffer<Buffer>* in,
      BusyThreadReadBuffer<Buffer>* out
      )
-    : pw (_pw), fromChannel (in), toChannel (out)
+    : universal_object_id (objectId),
+      pw (_pw), fromChannel (in), toChannel (out)
   {
     assert (_pw);
   }
 
   ~Subsystem(void);
 
-protected:
   User * const pw;
   BusyThreadWriteBuffer<Buffer>* fromChannel;
   BusyThreadReadBuffer<Buffer>* toChannel;

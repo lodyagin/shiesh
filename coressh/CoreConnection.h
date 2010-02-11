@@ -14,6 +14,10 @@
 #include "ServerMainDispatcher.h"
 #include "ChannelPars.h"
 #include "SessionPars.h"
+#include "Subsystem.h"
+#include "SubsystemPars.h"
+#include "ThreadWithSubthreads.h"
+#include "zlib.h"
 
 using namespace coressh;
 
@@ -22,9 +26,13 @@ struct CoreConnectionPars;
 class KexDispatcher;
 
 class CoreConnection 
-  : public RConnection, 
+  : public RConnection 
+      <ThreadWithSubthreads<Subsystem, SubsystemPars>>, 
+      // It means: a CoreConnection thread 
+      // produces Session threads
+
     public ChannelRepository, //TODO (public)
-    protected SessionRepository
+    public SessionRepository
 {
   friend CoreConnectionPars;
   friend Dispatcher;

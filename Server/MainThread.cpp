@@ -16,21 +16,20 @@ void MainThread::run ()
     new SensitiveData;
 
   WSADATA wsaData;
-  SOCKET listen_socket = 0;
 
   sSocketCheckWithMsg
     (::WSAStartup (MAKEWORD (2, 2), &wsaData) == 0,
       "WSAStartup failed");
   {
     // Create the listening socket
-    RListeningSocket listen_socket 
-      (RServerSocketAddress (22),
-       500);  //TODO
+    RListeningSocket<CoreConnectionFactory> 
+    listen_socket (RServerSocketAddress (22),
+         500);  //TODO
 
-    CoreConnectionFactory cf;
+    CoreConnectionFactory cf (this); 
+    // use this thread as parent of the connected threads
 
-    listen_socket.listen 
-      (ConnectionFactory::instance ());
+    listen_socket.listen (cf);
     // the function returns on the 
     // current thread stop request
   }

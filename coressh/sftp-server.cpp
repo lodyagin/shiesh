@@ -576,11 +576,12 @@ get_attrib(Buffer& buf)
 }
 
 SFTP::SFTP 
-  (User *const _pw, 
+  (const std::string &objectId,
+   User *const _pw, 
    BusyThreadWriteBuffer<Buffer>* in,
    BusyThreadReadBuffer<Buffer>* out
    )
-: Subsystem (_pw, in, out),
+: Subsystem (objectId, _pw, in, out),
   pathFact (_pw)
 {
   buffer_init (&iqueue);
@@ -1997,9 +1998,8 @@ void SFTP::run ()
     // wait until an input message arrived
     inputMsg = fromChannel->get (&inputMsgLen);
 
-    if (inputMsgLen == 0) {
-			debug("read eof");
-			sftp_server_cleanup_exit(0);
+    if (inputMsg == 0) {
+			return; // exit the thread
 		} 
     else 
     {
@@ -2018,3 +2018,4 @@ void SFTP::run ()
     // FIXME no backpressure at all (see OpenSSH)
 	}
 }
+

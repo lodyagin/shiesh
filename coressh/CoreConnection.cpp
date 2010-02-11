@@ -3,6 +3,7 @@
 #include "ConnectionFactory.h"
 #include "SShutdown.h"
 #include "CoreConnection.h"
+#include "CoreConnectionPars.h"
 #include "compat.h"
 #include "mac.h"
 #include "misc.h"
@@ -136,7 +137,16 @@ CoreConnection::CoreConnection
    RConnectedSocket* cs,
    const std::string& objId
    )
-   : RConnection (repo, cs, objId),
+   : RConnection 
+      (repo, 
+       cs, 
+       objId, 
+       5// each connection can produce 
+       // no more than 5 subthreads
+       // TODO check on all levels (SThread)
+       ), 
+       
+
    //ChannelRepository (),
    //SessionRepository (), // --//--
 
@@ -216,13 +226,14 @@ void CoreConnection::run ()
 {
   try
   {
+    // FIXME stop thread processing
     coressh::sshd_exchange_identification 
       (*get_socket (),
        server_version_string,
        client_version_string);
 
-    do_ssh2_kex();
-    do_authentication2 (authctxt);
+    do_ssh2_kex(); // FIXME stop thread processing
+    do_authentication2 (authctxt); //FIXME stop thread proc.
     logit ("User authenticated, start the session");
 
     server_loop ();
@@ -247,11 +258,11 @@ void CoreConnection::run ()
        << socket->get_peer_address().get_ip () << ':'
        << socket->get_peer_address().get_port()
        );
-    ((ConnectionRepository*)repository)->delete_object 
+    ((Repository<CoreConnection, CoreConnectionPars>*)repository)->delete_object 
       (this, false); // false means not to delete this
     throw;
   }
-  ((ConnectionRepository*)repository)->delete_object 
+  ((Repository<CoreConnection, CoreConnectionPars>*)repository)->delete_object 
     (this, false); // false means not to delete this
 }
 
@@ -2387,7 +2398,10 @@ void CoreConnection::server_loop ()
   size_t nChannelEvents;
   DWORD socketEvents = 0;
 
-  eventArray[0] = socket->get_event_object ();
+  // the thread stop event
+  eventArray[0] = SThread::current ().get_stop_event ().evt ();
+  // the socket event
+  eventArray[1] = socket->get_event_object ();
 
   if (!srvDispatcher)
   {
@@ -2395,11 +2409,11 @@ void CoreConnection::server_loop ()
     //FIXME check alloc
   }
 
-  long roundNum = 0;
+  //long roundNum = 0;
   for (;;)
   {
-    roundNum++;
 #if 0
+    roundNum++;
     debug
       ("server_loop: round %ld | input = %d ^ output = %d",
       roundNum, 
@@ -2429,9 +2443,9 @@ void CoreConnection::server_loop ()
 
     // Fill the event array with the all channel data ready events
     fill_event_array 
-      (eventArray + 1, 
-       chanNums + 1,
-       WSA_MAXIMUM_WAIT_EVENTS - 1,
+      (eventArray + 2, 
+       chanNums + 2,
+       WSA_MAXIMUM_WAIT_EVENTS - 2,
        &nChannelEvents
        );
     //FIXME add event of channel creation to the bunch!
@@ -2439,10 +2453,10 @@ void CoreConnection::server_loop ()
     //debug ("server_loop: start waiting %d events", 
     //       (int) nChannelEvents + 1);
 		wait_until_can_do_something
-      (eventArray, nChannelEvents + 1, 0, signalled);
+      (eventArray, nChannelEvents + 2, 0, signalled);
 
-    if (SThread::current ().is_stop_requested ())         
-      break; // FIXME add stop event into the wait set
+    if (signalled[0]) // the thread stop requested         
+      break; 
 
 		//FIXME collect_children();
 		if (!rekeying) {
@@ -2480,7 +2494,7 @@ void CoreConnection::server_loop ()
     }
 #endif
 
-    if (signalled[0])
+    if (signalled[1])
       socketEvents = socket->get_events ();
     else
       socketEvents = 0;

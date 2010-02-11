@@ -2,8 +2,9 @@
 #include "CoreConnectionPars.h"
 #include "CoreConnection.h"
 
-RConnection* CoreConnectionPars::create_derivation
-  (const ConnectionRepository::ObjectCreationInfo& info) const
+CoreConnection* 
+CoreConnectionPars::create_derivation
+  (const Repository<CoreConnection, CoreConnectionPars>::ObjectCreationInfo& info) const
 {
   assert (socket);
   return new CoreConnection 

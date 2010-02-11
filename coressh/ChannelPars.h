@@ -6,7 +6,8 @@
 
 struct ChannelPars;
 
-class ChannelRepository : public Repository<Channel, ChannelPars> 
+class ChannelRepository 
+  : public Repository<Channel, ChannelPars> 
 {
 public:
   enum {MAX_NUM_OF_CHANNELS = WSA_MAXIMUM_WAIT_EVENTS - 1};

@@ -255,18 +255,20 @@ protected:
   SFTPFilePath* userHomeDir;
 };
 
+struct SubsystemPars;
+
 class SFTP : public Subsystem
 {
-public:
+  friend SubsystemPars;
+protected:
   SFTP   
-    (User *const _pw, 
+    (const std::string &objectId,
+     User *const _pw, 
      BusyThreadWriteBuffer<Buffer>* in,
      BusyThreadReadBuffer<Buffer>* out
      );
 
   ~SFTP ();
-
-protected:
 
   Buffer iqueue;
   //Buffer oqueue;
@@ -453,3 +455,4 @@ protected:
   void run ();
 
 };
+

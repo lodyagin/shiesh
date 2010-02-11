@@ -17,8 +17,9 @@ Session::Session
      authctxt (authCtxt),
      pw (authCtxt->pw),
      chanid (channelId),
-     connection (con)/*,
+     connection (con),/*,
      channel (chan)*/
+     subsystem (0)
 {
   assert (connection);
 
@@ -34,6 +35,7 @@ Session::Session
 
 Session::~Session(void)
 {
+  // FIXME where delete subsystem?
 }
 
 int
@@ -90,28 +92,40 @@ Session::session_subsystem_req ()
 {
 	u_int len = 0;
 	char *subsys = 0;
-  Subsystem* s = 0;
 
   assert (connection);
+  assert (subsystem == 0); //TODO check in no debug also
 
   subsys = connection->packet_get_string(&len);
 	packet_check_eom(connection);
 	logit("subsystem request for %.100s", subsys);
 
-  if (strcmp (subsys, "sftp") == 0)
-  {
-    s = new SFTP (pw, &channel->fromChannel, &channel->toChannel);
-    s->start (); // TODO stop ()
-  }
+  SubsystemPars pars;
+  pars.pw = pw;
+  pars.inBuffer = &channel->fromChannel;
+  pars.outBuffer = &channel->toChannel;
+  pars.subsystemName = subsys;
 
-	if (!s)
+  subsystem = 0;
+  try
+  {
+    subsystem = connection->create_subthread (pars);
+    subsystem->start (); // TODO stop ()
+    channel->open (CHAN_SES_WINDOW_DEFAULT); 
+  }
+  catch (InvalidObjectParameters&)
+  {
 		logit("subsystem request for %.100s failed, subsystem not found",
 		    subsys);
-  else
-    channel->open (CHAN_SES_WINDOW_DEFAULT); 
-
+  }
+  catch (...)
+  {
+  	xfree(subsys);
+    throw; // TODO free strings from buffer 
+           // everywere on exceptions
+  }
 	xfree(subsys);
-	return s != 0;
+	return subsystem != 0;
 }
 
 

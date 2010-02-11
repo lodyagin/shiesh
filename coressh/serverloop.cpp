@@ -288,7 +288,7 @@ CoreConnection::wait_until_can_do_something
     Channel* c = ChannelRepository::get_object_by_id (1);
     if (c)
     {
-      descendingSignalled = signalled[1] = 
+      descendingSignalled = signalled[2] = //FIXME
         buffer_len (&c->descending) > 0
         && c->is_complete_packet_in_descending ();
 
@@ -299,7 +299,7 @@ CoreConnection::wait_until_can_do_something
       // But we shouldn't do it very often, thus prepeare all for wait
       if (c->get_local_window () < c->get_local_maxpacket ())
       {
-          signalled[1] = true;
+          signalled[2] = true;
           timeout = MAX (timeout, 5000);
       }
     }
@@ -308,10 +308,10 @@ CoreConnection::wait_until_can_do_something
   if (!socket->wait_fd_write ()
     && buffer_len(&output) > 0) // can write
   {
-    signalled[0] = true;
+    signalled[1] = true;
   }
   
-  if (!(descendingSignalled || signalled[0])) 
+  if (!(descendingSignalled || signalled[1])) 
     // no events were found to this moment
   {
     //waitResult = //::WSAWaitForMultipleEvents
@@ -342,7 +342,7 @@ CoreConnection::wait_until_can_do_something
     signalled[eventNum] = true;
     //debug ("wait_until_can_do_something: event %d is signalled",
     //  (int) eventNum);
-    if (eventNum == 0) ::WSAResetEvent (eventArray[eventNum]);
+    if (eventNum == 1) ::WSAResetEvent (eventArray[eventNum]);
       // for channel messages do reset in BusyThreadReadBuffer
       // after no data in buffer
     arrayOffset = eventNum + 1;
