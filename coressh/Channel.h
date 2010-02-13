@@ -59,9 +59,35 @@ public:
     return local_maxpacket;
   }
 
+  u_int get_remote_window () const
+  {
+    return remote_window;
+  }
+
+  u_int get_remote_maxpacket () const
+  {
+    return remote_maxpacket;
+  }
+
   void remote_window_adjust (u_int adjust)
   {
     remote_window += adjust;
+  }
+
+  u_int get_ascending_size () const
+  {
+    return buffer_len (&ascending);
+  };
+
+  u_int get_descending_size () const
+  {
+    return buffer_len (&descending);
+  };
+
+  // see CHAN_RBUF in OpenSSH
+  bool check_ascending_chan_rbuf ()
+  {
+    return buffer_check_alloc (&ascending, 16 * 1024);
   }
 
   void open (u_int window_max);
@@ -115,9 +141,6 @@ protected:
     CoreConnection* connection
     );
 
-  // the attached session (if any) or NULL
-  //Session* session;
-  
 public:
   // from channel to subsystem
   BusyThreadWriteBuffer<Buffer> fromChannel; 
@@ -135,13 +158,10 @@ public:
   }
 
 protected:
+  // States & flags
+  bool eofRcvd;
+
  	int     remote_id;	/* channel identifier for remote peer */
-	//int     flags;		/* close sent/rcvd */
-	//int     rfd;		/* read fd */
-	//int     wfd;		/* write fd */
-	//int     efd;		/* extended fd */
-	//int     sock;		/* sock fd */
-	//int     ctl_fd;		/* control fd (client sharing) */
 	//int     isatty;		/* rfd is a tty */
 	//int     wfd_isatty;	/* wfd is a tty */
 	//int	client_tty;	/* (client) TTY has been requested */
@@ -187,6 +207,8 @@ protected:
   CoreConnection* con;
 
   int channel_check_window();
+
+  void rcvd_ieof ();
 
 private:
 

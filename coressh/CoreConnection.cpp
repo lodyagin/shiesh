@@ -187,7 +187,8 @@ CoreConnection::CoreConnection
    srvDispatcher (0),
    xxx_kex (0),
    no_more_sessions (0),
-   connection_closed (false)
+   connection_closed (false),
+   subsystemTerminated (false) // automatic reset
 {
   for (int i = 0; i < PROPOSAL_MAX; i++)
     myproposal[i] = def_proposal[i];
@@ -264,6 +265,16 @@ void CoreConnection::run ()
   }
   ((Repository<CoreConnection, CoreConnectionPars>*)repository)->delete_object 
     (this, false); // false means not to delete this
+}
+
+void CoreConnection::stop ()
+{
+  ThreadWithSubthreads<Subsystem, SubsystemPars>::
+    for_each 
+      (std::mem_fun_ref (&Subsystem::terminate));
+  // Parent
+  ThreadWithSubthreads<Subsystem, SubsystemPars>::
+    stop ();
 }
 
 void CoreConnection::datafellows (int df)
@@ -2402,6 +2413,8 @@ void CoreConnection::server_loop ()
   eventArray[0] = SThread::current ().get_stop_event ().evt ();
   // the socket event
   eventArray[1] = socket->get_event_object ();
+  // the subsystem termination event
+  eventArray[2] = subsystemTerminated.evt ();
 
   if (!srvDispatcher)
   {
@@ -2442,23 +2455,38 @@ void CoreConnection::server_loop ()
         all_channels_output_poll ();
 
     // Fill the event array with the all channel data ready events
-    fill_event_array 
-      (eventArray + 2, 
-       chanNums + 2,
-       WSA_MAXIMUM_WAIT_EVENTS - 2,
-       &nChannelEvents
-       );
+    if (!rekeying)
+      fill_event_array 
+        (eventArray + 3, 
+         chanNums + 3,
+         WSA_MAXIMUM_WAIT_EVENTS - 3,
+         &nChannelEvents
+         );
+    else
+      nChannelEvents = 0;
     //FIXME add event of channel creation to the bunch!
 
     //debug ("server_loop: start waiting %d events", 
     //       (int) nChannelEvents + 1);
 		wait_until_can_do_something
-      (eventArray, nChannelEvents + 2, 0, signalled);
+      (eventArray, nChannelEvents + 3, 0, signalled);
 
     if (signalled[0]) // the thread stop requested         
       break; 
 
-		//FIXME collect_children();
+		//collect_children(); // search terminated subthreads
+    {
+      // Get the list of terminated threads
+      std::list<int> terminated;
+      ThreadWithSubthreads::get_object_ids_by_state
+        (std::back_inserter (terminated),
+         SThread::terminatedState
+         );
+
+      if (terminated.size () > 0)
+        ::xShuttingDown (L"test termination");
+    }
+
 		if (!rekeying) {
 
       // [toChannel]   -> [ascending]
@@ -2576,6 +2604,26 @@ CoreConnection::channel_input_data
 	packet_check_eom(this);
 }
 
+void 
+CoreConnection::channel_input_eof 
+  (int type, u_int32_t seq, void *ctxt)
+{
+	int id;
+	char *data;
+	u_int data_len;
+	Channel *c = 0;
+
+	/* Get the channel number and verify it. */
+	id = packet_get_int();
+  packet_check_eom (this);
+  c = ChannelRepository::get_object_by_id (id);
+	if (c == NULL)
+		packet_disconnect
+      ("Received ieof for nonexistent channel %d.", id);
+
+  c->rcvd_ieof ();
+}
+
 void CoreConnection::all_channels_output_poll ()
 {
   // FIXME
@@ -2617,5 +2665,6 @@ void CoreConnection::channel_input_window_adjust
 #endif
 	c->remote_window_adjust (adjust);
 }
+
 
 

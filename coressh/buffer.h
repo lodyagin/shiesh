@@ -33,7 +33,7 @@ void	 buffer_init(Buffer *);
 void	 buffer_clear(Buffer *);
 void	 buffer_free(Buffer *);
 
-u_int	 buffer_len(Buffer *);
+u_int	 buffer_len(const Buffer *);
 void	*buffer_ptr(Buffer *);
 
 void	 buffer_append(Buffer *, const void *, u_int);

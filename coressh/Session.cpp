@@ -105,6 +105,8 @@ Session::session_subsystem_req ()
   pars.inBuffer = &channel->fromChannel;
   pars.outBuffer = &channel->toChannel;
   pars.subsystemName = subsys;
+  pars.subsystemTerminated = &connection->subsystemTerminated; 
+    //TODO unsafe pointer
 
   subsystem = 0;
   try

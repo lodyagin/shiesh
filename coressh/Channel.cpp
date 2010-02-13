@@ -86,7 +86,8 @@ Channel::Channel
   single_connection (0),
   ctype (channelType),
   con (connection)/*,
-  datagram (0)*/
+  datagram (0)*/,
+  eofRcvd (false)
 {
   buffer_init(&ascending);
   buffer_init(&descending);
@@ -384,5 +385,24 @@ void Channel::channel_post_open()
 	//channel_handle_ctl(c, readset, writeset);
 
   channel_check_window ();
+}
+
+void Channel::rcvd_ieof ()
+{
+  eofRcvd = true;
+  if (currentOutputState == outputOpenState)
+  {
+    // FIXME state object, move
+    currentOutputState = outputWaitDrainState; 
+    
+    if (buffer_len(&descending) == 0)
+    {
+      // FIXME need to check an extended data activity
+      fromChannel.put_eof ();  
+      currentOutputState = outputClosedState; //FIXME
+        // TODO ensure the logic - it can be some data
+        // in the fromChannel yet, is it a problem?
+    }
+  }
 }
 

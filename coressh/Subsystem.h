@@ -20,14 +20,25 @@ class Subsystem : public SThread
 
 public:
   std::string universal_object_id;
+
+  void terminate ()
+  {
+    LOG4CXX_WARN
+      (Logging::Root (),
+       L"The subsystem ... is aborted, data loss!");
+    fromChannel->put_eof ();
+  }
+
 protected:
   Subsystem 
     (const std::string &objectId,
      User *const _pw, 
      BusyThreadWriteBuffer<Buffer>* in,
-     BusyThreadReadBuffer<Buffer>* out
+     BusyThreadReadBuffer<Buffer>* out,
+     SEvent* terminatedSignal
      )
-    : universal_object_id (objectId),
+    : SThread (terminatedSignal),
+      universal_object_id (objectId),
       pw (_pw), fromChannel (in), toChannel (out)
   {
     assert (_pw);

@@ -43,8 +43,12 @@ ServerMainDispatcher::ServerMainDispatcher(CoreConnection* con)
 
 void ServerMainDispatcher::kexinit_msg (int, u_int32_t, void *) 
 { error ("ignored kexinig msg"); }
-void ServerMainDispatcher::channel_close_msg (int, u_int32_t, void *) 
-{ error ("ignored channel close msg"); }
+
+void ServerMainDispatcher::channel_close_msg 
+  (int type, u_int32_t seq, void *ctxt) 
+{ 
+  error ("ignored channel closd msg"); 
+}
 
 void ServerMainDispatcher::channel_data_msg 
   (int type, u_int32_t seq, void *ctxt) 
@@ -52,8 +56,11 @@ void ServerMainDispatcher::channel_data_msg
   connection->channel_input_data (type, seq, ctxt);
 }
 
-void ServerMainDispatcher::channel_eof_msg (int, u_int32_t, void *) 
-{  error ("ignored channel eof msg"); }
+void ServerMainDispatcher::channel_eof_msg
+  (int type, u_int32_t seq, void *ctxt) 
+{
+  connection->channel_input_eof (type, seq, ctxt);
+}
 
 void ServerMainDispatcher::channel_extended_data_msg (int, u_int32_t, void *){  error ("ignored channel extended data msg"); }
 
@@ -93,7 +100,7 @@ void ServerMainDispatcher::channel_success_msg (int, u_int32_t, void *)
 { error ("ignored channel success msg"); }
 
 void ServerMainDispatcher::channel_failure_msg (int, u_int32_t, void *) 
-{ error ("ignored channel success msg"); }
+{ error ("ignored channel failure msg"); }
 
 void ServerMainDispatcher::request_success_msg (int, u_int32_t, void *) 
 { error ("ignored request success msg"); }

@@ -245,8 +245,6 @@ CoreConnection::wait_until_can_do_something
   u_int timeout = (max_time_milliseconds != 0) 
          ? max_time_milliseconds : WSA_INFINITE;
 
-      //FIXME! channel_not_very_much_buffered_data condition !
-
 	/*int client_alive_scheduled = 0;
 	int program_alive_scheduled = 0;*/
 
@@ -266,9 +264,7 @@ CoreConnection::wait_until_can_do_something
 	}
 #endif
 
-	/* Allocate and update select() masks for channel descriptors. */
-  // It is not used in coreSSH
-	//channel_prepare_select(readsetp, writesetp, maxfdp, nallocp, 0);
+      //FIXME! channel_not_very_much_buffered_data condition !
 
 	//notify_prepare(*readsetp); //notify pipe
 
@@ -844,6 +840,9 @@ CoreConnection::server_input_channel_req
     success = Session::session_input_channel_req 
       (this, c, rtype);
   }
+
+  // FIXME implement other types of request
+  // Some request should be ignored without failure.
 
 	if (reply) 
   {

@@ -579,9 +579,11 @@ SFTP::SFTP
   (const std::string &objectId,
    User *const _pw, 
    BusyThreadWriteBuffer<Buffer>* in,
-   BusyThreadReadBuffer<Buffer>* out
+   BusyThreadReadBuffer<Buffer>* out,
+   SEvent* terminatedSignal
    )
-: Subsystem (objectId, _pw, in, out),
+: Subsystem 
+    (objectId, _pw, in, out, terminatedSignal),
   pathFact (_pw)
 {
   buffer_init (&iqueue);
@@ -957,6 +959,12 @@ void SFTP::process_open(void)
 	  utf8_name = (char*) get_string(NULL);
 	  pflags = get_int();		/* portable flags */
 	  debug3("request %u: open flags %d", id, pflags);
+
+#ifdef _DEBUG
+    if (strcmp (utf8_name, "/2stop_sftp_subsystem") == 0)
+      sftp_server_cleanup_exit (0);
+#endif
+
     a = get_attrib(this->iqueue);
 	  //mode = (a.flags & SSH2_FILEXFER_ATTR_PERMISSIONS) ? a->perm : 0666; //FIXME
 
@@ -1007,6 +1015,12 @@ void SFTP::process_open(void)
 		  }
 	  }
   }
+#ifdef _DEBUG
+  catch (::XShuttingDown&)
+  {
+    throw;
+  }
+#endif
   catch (Path::InvalidPath&)
   {
     //logit 
@@ -1977,7 +1991,6 @@ void SFTP::process(void)
 void
 SFTP::sftp_server_cleanup_exit(int i)
 {
-  cleanup_exit(1);
 	if (pw != NULL) {
 		//handle_log_exit();
 		logit("session closed for local user %s",
@@ -1998,7 +2011,21 @@ void SFTP::run ()
     // wait until an input message arrived
     inputMsg = fromChannel->get (&inputMsgLen);
 
-    if (inputMsg == 0) {
+    if (inputMsgLen == 0) {
+      assert (fromChannel->n_msgs_in_the_buffer () == 0);
+
+      if (fromChannel->n_msgs_in_the_buffer () != 0)
+      {
+        LOG4CXX_ERROR 
+          (Logging::Root (),
+          L"Program error: EOF received but the input buffer"
+          L" contains more data to process. The SFTP session"
+          L" will not be closed (resource leak).");
+        continue;
+      }
+
+
+      // the buffer should be empty
 			return; // exit the thread
 		} 
     else 

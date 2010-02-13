@@ -265,7 +265,8 @@ protected:
     (const std::string &objectId,
      User *const _pw, 
      BusyThreadWriteBuffer<Buffer>* in,
-     BusyThreadReadBuffer<Buffer>* out
+     BusyThreadReadBuffer<Buffer>* out,
+     SEvent* terminatedSignal
      );
 
   ~SFTP ();
@@ -454,5 +455,11 @@ protected:
   // Overrides
   void run ();
 
+  // Overrides
+  // disable thread stopping, 
+  // should flush all buffers.
+  // Use BusyThreadWriteBuffer::put_eof ()
+  // for flushing buffers and terminating SFTP thread.
+  void stop () { }
 };
 

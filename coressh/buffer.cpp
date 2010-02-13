@@ -153,7 +153,7 @@ buffer_check_alloc(Buffer *buffer, u_int len)
 /* Returns the number of bytes of data in the buffer. */
 
 u_int
-buffer_len(Buffer *buffer)
+buffer_len(const Buffer *buffer)
 {
 	return buffer->end - buffer->offset;
 }

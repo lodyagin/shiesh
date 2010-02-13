@@ -51,6 +51,9 @@ public:
 
   void run ();
 
+  // Overrides
+  void stop ();
+
   void datafellows (int df);
   int datafellows () const;
 
@@ -79,6 +82,9 @@ public:
   void   packet_disconnect(const char *fmt,...);
 
   /* end of packets interface */
+
+  // TODO move somewhere
+  SEvent subsystemTerminated;
 
 protected:
   Arc4Random arc4rand;
@@ -396,6 +402,9 @@ private:
     (const ChannelPars& chPars);
 
   void channel_input_data
+    (int type, u_int32_t seq, void *ctxt);
+
+  void channel_input_eof
     (int type, u_int32_t seq, void *ctxt);
 
  /* end of channels & sessions */

@@ -10,7 +10,8 @@ Subsystem* SubsystemPars::create_derivation
 {
   if (subsystemName == "sftp")
     return new SFTP 
-      (info.objectId, pw, inBuffer, outBuffer);
+      (info.objectId, pw, inBuffer, outBuffer,
+       subsystemTerminated);
 
   throw InvalidObjectParameters ();
 }

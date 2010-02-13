@@ -28,12 +28,25 @@ void ChannelRepository::fill_event_array
         if (mapSize >= eventsMaxSize)
           break; // TODO silent break ?
 
-        events[mapSize] = c->get_data_ready_event ();
-        chanNums[mapSize] = i;
-        ++ mapSize;
+        // FIXME channel_garbage_collect () ?
+        if (c->inputStateIs ("open")
+            && c->get_remote_window () > 0
+            && c->get_ascending_size () < c->get_remote_window ()
+            && c->check_ascending_chan_rbuf ()
+            ) //UT
+            // FIXME the same conditions to block writing
+            // in "toChannel"
+        {
+          events[mapSize] = c->get_data_ready_event ();
+          chanNums[mapSize] = i;
+          ++ mapSize;
+        }
       }
    }
   *eventsSize = mapSize;
+
+  // FIXME extended stream somewhere 
+  // (see channel_pre_open in OpenSSH)
 }
 
 

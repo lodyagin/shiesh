@@ -13,10 +13,13 @@ struct SubsystemPars
   BusyThreadWriteBuffer<Buffer>* inBuffer;
   BusyThreadReadBuffer<Buffer>* outBuffer;
   std::string subsystemName;
+  SEvent* subsystemTerminated;
 
   SubsystemPars() 
-    : pw (0), inBuffer (0), outBuffer (0)
+    : pw (0), inBuffer (0), outBuffer (0),
+     subsystemTerminated (0)
   {}
+
   virtual ~SubsystemPars () {}
 
   virtual Subsystem* create_derivation 
