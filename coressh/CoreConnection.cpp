@@ -2703,5 +2703,74 @@ void CoreConnection::channel_input_window_adjust
 	c->remote_window_adjust (adjust);
 }
 
+void
+CoreConnection::server_input_global_request
+  (int type, u_int32_t seq, void *ctxt)
+{
+	char *rtype;
+	int want_reply;
+	bool success = false;
+
+	rtype = packet_get_string(NULL);
+	want_reply = packet_get_char();
+	debug("server_input_global_request: rtype %s want_reply %d", rtype, want_reply);
+
+#if 0
+  /* -R style forwarding */
+	if (strcmp(rtype, "tcpip-forward") == 0) {
+		struct passwd *pw;
+		char *listen_address;
+		u_short listen_port;
+
+		pw = the_authctxt->pw;
+		if (pw == NULL || !the_authctxt->valid)
+			fatal("server_input_global_request: no/invalid user");
+		listen_address = packet_get_string(NULL);
+		listen_port = (u_short)packet_get_int();
+		debug("server_input_global_request: tcpip-forward listen %s port %d",
+		    listen_address, listen_port);
+
+		/* check permissions */
+		if (!options.allow_tcp_forwarding ||
+		    no_port_forwarding_flag
+#ifndef NO_IPPORT_RESERVED_CONCEPT
+		    || (listen_port < IPPORT_RESERVED && pw->pw_uid != 0)
+#endif
+		    ) {
+			success = 0;
+			packet_send_debug("Server has disabled port forwarding.");
+		} else {
+			/* Start listening on the port */
+			success = channel_setup_remote_fwd_listener(
+			    listen_address, listen_port, options.gateway_ports);
+		}
+		xfree(listen_address);
+	} else if (strcmp(rtype, "cancel-tcpip-forward") == 0) {
+		char *cancel_address;
+		u_short cancel_port;
+
+		cancel_address = packet_get_string(NULL);
+		cancel_port = (u_short)packet_get_int();
+		debug("%s: cancel-tcpip-forward addr %s port %d", __func__,
+		    cancel_address, cancel_port);
+
+		success = channel_cancel_rport_listener(cancel_address,
+		    cancel_port);
+		xfree(cancel_address);
+	} else if (strcmp(rtype, "no-more-sessions@openssh.com") == 0) {
+		no_more_sessions = 1;
+		success = 1;
+	}
+#endif
+
+	if (want_reply) {
+		packet_start(success ?
+		    SSH2_MSG_REQUEST_SUCCESS : SSH2_MSG_REQUEST_FAILURE);
+		packet_send();
+		packet_write_wait();
+	}
+	xfree(rtype);
+}
+
 
 

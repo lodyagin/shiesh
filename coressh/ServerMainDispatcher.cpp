@@ -93,7 +93,7 @@ void ServerMainDispatcher::channel_window_adjust_msg
 void ServerMainDispatcher::global_request_msg 
   (int type, u_int32_t seq, void *ctxt) 
 {  
-  error ("ignored global request msg"); 
+  connection->server_input_global_request (type, seq, ctxt); 
 }
 
 void ServerMainDispatcher::channel_success_msg (int, u_int32_t, void *) 
