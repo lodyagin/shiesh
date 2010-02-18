@@ -39,7 +39,7 @@ void	*buffer_ptr(Buffer *);
 void	 buffer_append(Buffer *, const void *, u_int);
 void	*buffer_append_space(Buffer *, u_int);
 
-int	 buffer_check_alloc(Buffer *, u_int);
+bool	 buffer_check_alloc(Buffer *, u_int);
 
 void	 buffer_get(Buffer *, void *, u_int);
 

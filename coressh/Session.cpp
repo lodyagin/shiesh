@@ -5,6 +5,7 @@
 #include "CoreConnection.h"
 #include "packet.h"
 #include "SFTP.h"
+#include "Subsystem.h"
 
 Session::Session
   (const std::string& objId,
@@ -35,7 +36,6 @@ Session::Session
 
 Session::~Session(void)
 {
-  // FIXME where delete subsystem?
 }
 
 int
@@ -106,6 +106,7 @@ Session::session_subsystem_req ()
   pars.outBuffer = &channel->toChannel;
   pars.subsystemName = subsys;
   pars.subsystemTerminated = &connection->subsystemTerminated; 
+  pars.session = this;
     //TODO unsafe pointer
 
   subsystem = 0;
@@ -130,5 +131,50 @@ Session::session_subsystem_req ()
 	return subsystem != 0;
 }
 
+void Session::session_exit_message (int status)
+{
+	debug
+    ("session_exit_message: session %d channel %d",
+	   (int) self, (int) chanid);
+
+	channel->channel_request_start("exit-status", 0);
+	channel->con->packet_put_int(status);
+	channel->con->packet_send();
+
+	/* disconnect channel */
+	debug("session_exit_message: release channel %d", chanid);
+
+	/*
+	 * Adjust cleanup callback attachment to send close messages when
+	 * the channel gets EOF. The session will be then be closed
+	 * by session_close_by_channel when the childs close their fds.
+	 */
+	channel->do_close = true;
+
+	/*
+	 * emulate a write failure with 'chan_write_failed', nobody will be
+	 * interested in data we write.
+	 * Note that we must not call 'chan_read_failed', since there could
+	 * be some more data waiting in the pipe.
+	 */
+  // CHANNEL STATES <6>
+  channel->currentOutputState = channel->outputClosedState;
+  channel->currentInputState = channel->inputWaitDrainState;
+}
+
+void Session::stop () 
+{
+  if (subsystem) subsystem->stop (); 
+}
+
+void Session::wait () 
+{
+  if (subsystem) subsystem->wait (); 
+}
+
+bool Session::is_running () 
+{
+  return (subsystem) ? subsystem->is_running () : false; 
+}
 
 

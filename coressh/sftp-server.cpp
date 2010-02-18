@@ -580,10 +580,12 @@ SFTP::SFTP
    User *const _pw, 
    BusyThreadWriteBuffer<Buffer>* in,
    BusyThreadReadBuffer<Buffer>* out,
-   SEvent* terminatedSignal
+   SEvent* terminatedSignal,
+   Session* session
    )
 : Subsystem 
-    (objectId, _pw, in, out, terminatedSignal),
+    (objectId, _pw, in, out, terminatedSignal,
+     session),
   pathFact (_pw)
 {
   buffer_init (&iqueue);

@@ -133,7 +133,7 @@ restart:
  * Check whether an allocation of 'len' will fit in the buffer
  * This must follow the same math as buffer_append_space
  */
-int
+bool
 buffer_check_alloc(Buffer *buffer, u_int len)
 {
 	if (buffer->offset == buffer->end) {

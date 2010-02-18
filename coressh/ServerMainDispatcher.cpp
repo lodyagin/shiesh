@@ -47,7 +47,7 @@ void ServerMainDispatcher::kexinit_msg (int, u_int32_t, void *)
 void ServerMainDispatcher::channel_close_msg 
   (int type, u_int32_t seq, void *ctxt) 
 { 
-  error ("ignored channel closd msg"); 
+  connection->channel_input_oclose (type, seq, ctxt);
 }
 
 void ServerMainDispatcher::channel_data_msg 

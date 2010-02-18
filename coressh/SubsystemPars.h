@@ -1,6 +1,7 @@
 #pragma once
 #include "Subsystem.h"
 #include "ThreadRepository.h"
+#include "ThreadWithSubthreads.h"
 #include "ChannelPars.h"
 #include "User.h"
 #include "BusyThreadWriteBuffer.h"
@@ -14,6 +15,7 @@ struct SubsystemPars
   BusyThreadReadBuffer<Buffer>* outBuffer;
   std::string subsystemName;
   SEvent* subsystemTerminated;
+  Session* session;
 
   SubsystemPars() 
     : pw (0), inBuffer (0), outBuffer (0),
@@ -26,3 +28,5 @@ struct SubsystemPars
     (const Repository<Subsystem, SubsystemPars>::ObjectCreationInfo&) const;
 };
 
+typedef ThreadWithSubthreads<Subsystem, SubsystemPars>
+  OverSubsystemThread;

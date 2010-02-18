@@ -266,7 +266,8 @@ protected:
      User *const _pw, 
      BusyThreadWriteBuffer<Buffer>* in,
      BusyThreadReadBuffer<Buffer>* out,
-     SEvent* terminatedSignal
+     SEvent* terminatedSignal,
+     Session* _session
      );
 
   ~SFTP ();

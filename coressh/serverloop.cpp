@@ -217,19 +217,6 @@ client_alive_check(void)
 		logit("Timeout, client not responding.");
 		cleanup_exit(255);
 	}
-
-	/*
-	 * send a bogus global/channel request with "wantreply",
-	 * we should get back a failure
-	 */
-	if ((channel_id = channel_find_open()) == -1) {
-		packet_start(SSH2_MSG_GLOBAL_REQUEST);
-		packet_put_cstring("keepalive@openssh.com");
-		packet_put_char(1);	/* boolean: want reply */
-	} else {
-		channel_request_start(channel_id, "keepalive@openssh.com", 1);
-	}
-	packet_send();
 }
 #endif
 
@@ -278,13 +265,12 @@ CoreConnection::wait_until_can_do_something
 
   memset (signalled, 0, nEvents * sizeof (bool));
 
-  // FIXME channel_pre_xxx processing must be added
   bool descendingSignalled = false;
   {
     Channel* c = ChannelRepository::get_object_by_id (1);
     if (c)
     {
-      descendingSignalled = signalled[2] = //FIXME
+      descendingSignalled = signalled[3] = //FIXME
         buffer_len (&c->descending) > 0
         && c->is_complete_packet_in_descending ();
 
@@ -295,7 +281,7 @@ CoreConnection::wait_until_can_do_something
       // But we shouldn't do it very often, thus prepeare all for wait
       if (c->get_local_window () < c->get_local_maxpacket ())
       {
-          signalled[2] = true;
+          signalled[3] = true;
           timeout = MAX (timeout, 5000);
       }
     }
@@ -338,7 +324,8 @@ CoreConnection::wait_until_can_do_something
     signalled[eventNum] = true;
     //debug ("wait_until_can_do_something: event %d is signalled",
     //  (int) eventNum);
-    if (eventNum == 1) ::WSAResetEvent (eventArray[eventNum]);
+    if (eventNum == 1 || eventNum == 2) 
+      ::WSAResetEvent (eventArray[eventNum]);
       // for channel messages do reset in BusyThreadReadBuffer
       // after no data in buffer
     arrayOffset = eventNum + 1;
@@ -395,257 +382,6 @@ CoreConnection::process_output(/*long networkEvents*/)
 	//if (networkEvents & FD_WRITE)
 		packet_write_poll();
 }
-
-#if 0
-/*
- * Wait until all buffered output has been sent to the client.
- * This is used when the program terminates.
- */
-static void
-drain_output(void)
-{
-	/* Send any buffered stdout data to the client. */
-	if (buffer_len(&stdout_buffer) > 0) {
-		packet_start(SSH_SMSG_STDOUT_DATA);
-		packet_put_string(buffer_ptr(&stdout_buffer),
-				  buffer_len(&stdout_buffer));
-		packet_send();
-		/* Update the count of sent bytes. */
-		stdout_bytes += buffer_len(&stdout_buffer);
-	}
-	/* Send any buffered stderr data to the client. */
-	if (buffer_len(&stderr_buffer) > 0) {
-		packet_start(SSH_SMSG_STDERR_DATA);
-		packet_put_string(buffer_ptr(&stderr_buffer),
-				  buffer_len(&stderr_buffer));
-		packet_send();
-		/* Update the count of sent bytes. */
-		stderr_bytes += buffer_len(&stderr_buffer);
-	}
-	/* Wait until all buffered data has been written to the client. */
-	packet_write_wait();
-}
-
-static void
-collect_children(void)
-{
-	pid_t pid;
-	sigset_t oset, nset;
-	int status;
-
-	/* block SIGCHLD while we check for dead children */
-	sigemptyset(&nset);
-	sigaddset(&nset, SIGCHLD);
-	sigprocmask(SIG_BLOCK, &nset, &oset);
-	if (child_terminated) {
-		debug("Received SIGCHLD.");
-		while ((pid = waitpid(-1, &status, WNOHANG)) > 0 ||
-		    (pid < 0 && errno == EINTR))
-			if (pid > 0)
-				session_close_by_pid(pid, status);
-		child_terminated = 0;
-	}
-	sigprocmask(SIG_SETMASK, &oset, NULL);
-}
-
-void
-server_loop2(Authctxt *authctxt)
-{
-	fd_set *readset = NULL, *writeset = NULL;
-	int rekeying = 0, max_fd, nalloc = 0;
-
-	debug("Entering interactive session for SSH2.");
-
-	mysignal(SIGCHLD, sigchld_handler);
-	child_terminated = 0;
-	connection_in = packet_get_connection_in();
-	connection_out = packet_get_connection_out();
-
-	if (!use_privsep) {
-		signal(SIGTERM, sigterm_handler);
-		signal(SIGINT, sigterm_handler);
-		signal(SIGQUIT, sigterm_handler);
-	}
-
-	notify_setup();
-
-	max_fd = MAX(connection_in, connection_out);
-	max_fd = MAX(max_fd, notify_pipe[0]);
-
-	server_init_dispatch();
-
-	for (;;) {
-		process_buffered_input_packets();
-
-		rekeying = (xxx_kex != NULL && !xxx_kex->done);
-
-		if (!rekeying && packet_not_very_much_data_to_write())
-			channel_output_poll();
-		wait_until_can_do_something(&readset, &writeset, &max_fd,
-		    &nalloc, 0);
-
-		if (received_sigterm) {
-			logit("Exiting on signal %d", received_sigterm);
-			/* Clean up sessions, utmp, etc. */
-			cleanup_exit(255);
-		}
-
-		collect_children();
-		if (!rekeying) {
-			channel_after_select(readset, writeset);
-			if (packet_need_rekeying()) {
-				debug("need rekeying");
-				xxx_kex->done = 0;
-				kex_send_kexinit(xxx_kex);
-			}
-		}
-		process_input(readset);
-		if (connection_closed)
-			break;
-		process_output(writeset);
-	}
-	collect_children();
-
-	if (readset)
-		xfree(readset);
-	if (writeset)
-		xfree(writeset);
-
-	/* free all channels, no more reads and writes */
-	channel_free_all();
-
-	/* free remaining sessions, e.g. remove wtmp entries */
-	session_destroy_all(NULL);
-}
-
-static void
-server_input_keep_alive(int type, u_int32_t seq, void *ctxt)
-{
-	debug("Got %d/%u for keepalive", type, seq);
-	/*
-	 * reset timeout, since we got a sane answer from the client.
-	 * even if this was generated by something other than
-	 * the bogus CHANNEL_REQUEST we send for keepalives.
-	 */
-	keep_alive_timeouts = 0;
-}
-
-static void
-server_input_stdin_data(int type, u_int32_t seq, void *ctxt)
-{
-	char *data;
-	u_int data_len;
-
-	/* Stdin data from the client.  Append it to the buffer. */
-	/* Ignore any data if the client has closed stdin. */
-	if (fdin == -1)
-		return;
-	data = packet_get_string(&data_len);
-	packet_check_eom();
-	buffer_append(&stdin_buffer, data, data_len);
-	memset(data, 0, data_len);
-	xfree(data);
-}
-
-static void
-server_input_eof(int type, u_int32_t seq, void *ctxt)
-{
-	/*
-	 * Eof from the client.  The stdin descriptor to the
-	 * program will be closed when all buffered data has
-	 * drained.
-	 */
-	debug("EOF received for stdin.");
-	packet_check_eom();
-	stdin_eof = 1;
-}
-
-static void
-server_input_window_size(int type, u_int32_t seq, void *ctxt)
-{
-	u_int row = packet_get_int();
-	u_int col = packet_get_int();
-	u_int xpixel = packet_get_int();
-	u_int ypixel = packet_get_int();
-
-	debug("Window change received.");
-	packet_check_eom();
-	if (fdin != -1)
-		pty_change_window_size(fdin, row, col, xpixel, ypixel);
-}
-
-static Channel *
-server_request_direct_tcpip(void)
-{
-	Channel *c;
-	char *target, *originator;
-	int target_port, originator_port;
-
-	target = packet_get_string(NULL);
-	target_port = packet_get_int();
-	originator = packet_get_string(NULL);
-	originator_port = packet_get_int();
-	packet_check_eom();
-
-	debug("server_request_direct_tcpip: originator %s port %d, target %s "
-	    "port %d", originator, originator_port, target, target_port);
-
-	/* XXX check permission */
-	c = channel_connect_to(target, target_port,
-	    "direct-tcpip", "direct-tcpip");
-
-	xfree(originator);
-	xfree(target);
-
-	return c;
-}
-
-static Channel *
-server_request_tun(void)
-{
-	Channel *c = NULL;
-	int mode, tun;
-	int sock;
-
-	mode = packet_get_int();
-	switch (mode) {
-	case SSH_TUNMODE_POINTOPOINT:
-	case SSH_TUNMODE_ETHERNET:
-		break;
-	default:
-		packet_send_debug("Unsupported tunnel device mode.");
-		return NULL;
-	}
-	if ((options.permit_tun & mode) == 0) {
-		packet_send_debug("Server has rejected tunnel device "
-		    "forwarding");
-		return NULL;
-	}
-
-	tun = packet_get_int();
-	if (forced_tun_device != -1) {
-		if (tun != SSH_TUNID_ANY && forced_tun_device != tun)
-			goto done;
-		tun = forced_tun_device;
-	}
-	sock = tun_open(tun, mode);
-	if (sock < 0)
-		goto done;
-	c = channel_new("tun", SSH_CHANNEL_OPEN, sock, sock, -1,
-	    CHAN_TCP_WINDOW_DEFAULT, CHAN_TCP_PACKET_DEFAULT, 0, "tun", 1);
-	c->datagram = 1;
-#if defined(SSH_TUN_FILTER)
-	if (mode == SSH_TUNMODE_POINTOPOINT)
-		channel_register_filter(c->self, sys_tun_infilter,
-		    sys_tun_outfilter, NULL, NULL);
-#endif
-
- done:
-	if (c == NULL)
-		packet_send_debug("Failed to open the tunnel device.");
-	return c;
-}
-#endif
 
 Channel *
 CoreConnection::server_request_session 

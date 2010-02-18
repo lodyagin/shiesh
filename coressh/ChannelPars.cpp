@@ -28,10 +28,10 @@ void ChannelRepository::fill_event_array
         if (mapSize >= eventsMaxSize)
           break; // TODO silent break ?
 
-        // FIXME channel_garbage_collect () ?
         if (c->inputStateIs ("open")
             && c->get_remote_window () > 0
-            && c->get_ascending_size () < c->get_remote_window ()
+            && c->get_ascending_size () 
+                 < c->get_remote_window ()
             && c->check_ascending_chan_rbuf ()
             ) //UT
             // FIXME the same conditions to block writing
@@ -41,6 +41,19 @@ void ChannelRepository::fill_event_array
           chanNums[mapSize] = i;
           ++ mapSize;
         }
+
+        // CHANNEL STATES <1>
+        if (c->outputStateIs ("waitDrain"))
+        {
+          if (buffer_len (&c->descending) == 0)
+          {
+            c->fromChannel.put_eof ();  
+            c->currentOutputState = c->outputClosedState;
+            c->currentInputState = c->inputWaitDrainState;
+          }
+        }
+
+        c->garbage_collect ();
       }
    }
   *eventsSize = mapSize;

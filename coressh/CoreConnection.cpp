@@ -188,7 +188,8 @@ CoreConnection::CoreConnection
    xxx_kex (0),
    no_more_sessions (0),
    connection_closed (false),
-   subsystemTerminated (false) // automatic reset
+   subsystemTerminated (true) // manual reset
+                     // (in wait_until_can_do_something)
 {
   for (int i = 0; i < PROPOSAL_MAX; i++)
     myproposal[i] = def_proposal[i];
@@ -259,10 +260,12 @@ void CoreConnection::run ()
        << socket->get_peer_address().get_ip () << ':'
        << socket->get_peer_address().get_port()
        );
+    // FIXME no channels/sessions/subsystem cleanup
     ((Repository<CoreConnection, CoreConnectionPars>*)repository)->delete_object 
       (this, false); // false means not to delete this
     throw;
   }
+  // FIXME no channels/sessions/subsystem cleanup
   ((Repository<CoreConnection, CoreConnectionPars>*)repository)->delete_object 
     (this, false); // false means not to delete this
 }
@@ -1120,15 +1123,8 @@ CoreConnection::packet_read_seqnr(u_int32_t *seqnr_p)
 	for (;;) {
 		/* Try to read a packet from the buffer. */
 		type = packet_read_poll_seqnr(seqnr_p);
-		/*if (!compat20 && (
-		    type == SSH_SMSG_SUCCESS
-		    || type == SSH_SMSG_FAILURE
-		    || type == SSH_CMSG_EOF
-		    || type == SSH_CMSG_EXIT_CONFIRMATION))
-			packet_check_eom();*/
 		/* If we got a packet, return it. */
 		if (type != SSH_MSG_NONE) {
-			//xfree(setp);
 			return type;
 		}
 		/*
@@ -1229,28 +1225,7 @@ CoreConnection::packet_read_poll_seqnr(u_int32_t *seqnr_p)
 			default:
 				return type;
 			}
-		} /*else {
-			type = packet_read_poll1();
-			switch (type) {
-			case SSH_MSG_IGNORE:
-				break;
-			case SSH_MSG_DEBUG:
-				msg = packet_get_string(NULL);
-				debug("Remote: %.900s", msg);
-				xfree(msg);
-				break;
-			case SSH_MSG_DISCONNECT:
-				msg = packet_get_string(NULL);
-				logit("Received disconnect from %s: %.400s",
-				    get_remote_ipaddr(), msg);
-				cleanup_exit(255);
-				break;
-			default:
-				if (type)
-					DBG(debug("received packet type %d", type));
-				return type;
-			}
-		}*/
+		}
 	}
 }
 
@@ -2398,6 +2373,22 @@ CoreConnection::packet_write_poll(void)
 	}
 }
 
+class SendExitMsg 
+  : public std::unary_function<int, void>
+{
+public:
+  SendExitMsg (CoreConnection& _con) : con (_con) {}
+  void operator () (int subsystemId)
+  {
+    Subsystem *s = con.OverSubsystemThread::
+      get_object_by_id (subsystemId);
+    if (s) 
+      s->get_session () -> session_exit_message (0);
+  }
+protected:
+  CoreConnection& con;
+};
+
 void CoreConnection::server_loop ()
 {
   HANDLE eventArray[WSA_MAXIMUM_WAIT_EVENTS] = {0};
@@ -2456,6 +2447,7 @@ void CoreConnection::server_loop ()
 
     // Fill the event array with the all channel data ready events
     if (!rekeying)
+      // pre handlers are here
       fill_event_array 
         (eventArray + 3, 
          chanNums + 3,
@@ -2474,17 +2466,20 @@ void CoreConnection::server_loop ()
     if (signalled[0]) // the thread stop requested         
       break; 
 
-		//collect_children(); // search terminated subthreads
+		// search terminated subthreads (collect_children)
+    if (signalled[2])
     {
-      // Get the list of terminated threads
+      // Get the list of terminated threads (subsystems)
       std::list<int> terminated;
       ThreadWithSubthreads::get_object_ids_by_state
         (std::back_inserter (terminated),
          SThread::terminatedState
          );
 
-      if (terminated.size () > 0)
-        ::xShuttingDown (L"test termination");
+      // Send exit message
+      std::for_each 
+        (terminated.begin (), terminated.end (),
+         SendExitMsg (*this));
     }
 
 		if (!rekeying) {
@@ -2492,9 +2487,8 @@ void CoreConnection::server_loop ()
       // [toChannel]   -> [ascending]
       // [fromChannel] <- [descending]
 
-			//FIXME posthandlers
-      // channel_after_select(readset, writeset);
-      all_channel_post_open ();
+      // posthandlers are here
+      all_channel_post_open (); 
 
 			if (packet_need_rekeying()) {
 				debug("need rekeying"); //UT rekeying
@@ -2609,8 +2603,6 @@ CoreConnection::channel_input_eof
   (int type, u_int32_t seq, void *ctxt)
 {
 	int id;
-	char *data;
-	u_int data_len;
 	Channel *c = 0;
 
 	/* Get the channel number and verify it. */
@@ -2622,6 +2614,51 @@ CoreConnection::channel_input_eof
       ("Received ieof for nonexistent channel %d.", id);
 
   c->rcvd_ieof ();
+}
+
+void 
+CoreConnection::channel_input_oclose
+  (int type, u_int32_t seq, void *ctxt)
+{
+	const int id = packet_get_int();
+	Channel *c = ChannelRepository::get_object_by_id (id);
+
+	packet_check_eom (this);
+	if (c == NULL)
+		packet_disconnect
+      ("Received oclose for nonexistent channel %d.", id);
+
+	debug2("channel %d: rcvd close", c->self);
+	
+  if (c->closeRcvd)
+		error
+      ("channel %d: protocol error: close rcvd twice", 
+       c->self
+       );
+
+	c->closeRcvd = true;
+  if (c->channelStateIs("larval")) 
+  {
+		/* tear down larval channels immediately */
+    c->currentOutputState = c->outputClosedState;
+    c->currentInputState = c->inputClosedState;
+		return;
+	}
+
+  // CHANNEL STATES <4>
+
+  if (c->outputStateIs ("open"))
+    c->currentOutputState = c->outputWaitDrainState;
+
+	if (c->inputStateIs ("open")) 
+  {
+    c->currentInputState = c->inputClosedState;
+  }
+  else if (c->inputStateIs ("waitDrain"))
+  {
+    c->sendEOF ();
+    c->currentInputState = c->inputClosedState;
+  }
 }
 
 void CoreConnection::all_channels_output_poll ()

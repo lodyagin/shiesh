@@ -8,6 +8,7 @@
 #include "Logging.h"
 #include "BusyThreadReadBuffer.h"
 #include "BusyThreadWriteBuffer.h"
+#include "Repository.h"
 
 /* default window/packet sizes for tcp/x11-fwd-channel */
 #define CHAN_SES_PACKET_DEFAULT	(32*1024)
@@ -20,11 +21,16 @@ using namespace coressh;
 struct SessionChannelPars;
 
 class CoreConnection;
+struct ChannelPars;
+class ChannelRepository;
 
 class Channel : public SNotCopyable
 {
   friend SessionChannelPars;
   friend CoreConnection; //TODO
+  friend Session; //TODO
+  friend Repository<Channel, ChannelPars>;
+  friend ChannelRepository;
   
 public:
   // check currentChanState
@@ -38,9 +44,6 @@ public:
   const int self;		
 
   const std::string ctype;		/* type */
-
-  virtual ~Channel(void);
-
 
   // The selectors
 
@@ -98,7 +101,18 @@ public:
   // it can be send to "subsystem process"
   bool is_complete_packet_in_descending ();
 
+  // true if size of descending + fromChannel
+  // buffers > 0
+  //bool hasDescendingData () const;
+
+  // true if size of ascending + toChannel
+  // buffers > 0
+  bool hasAscendingData () const;
+
 protected:
+
+  virtual ~Channel(void);
+  bool chan_is_dead (bool do_send);
 
   /* -- States */
 
@@ -122,6 +136,7 @@ protected:
   //FIXME initializing
 
   static const State2Idx allInputStates[];
+  static const State2Idx allOutputStates[];
   static const StateTransition allInputTrans[];
   static const StateTransition allOutputTrans[];
   static const State2Idx allChanStates[];
@@ -158,8 +173,14 @@ public:
   }
 
 protected:
+
+  void sendEOF ();
+
   // States & flags
   bool eofRcvd;
+  bool eofSent;
+  bool closeRcvd;
+  bool closeSent;
 
  	int     remote_id;	/* channel identifier for remote peer */
 	//int     isatty;		/* rfd is a tty */
@@ -206,9 +227,19 @@ protected:
 
   CoreConnection* con;
 
+  // if true then our party will send CLOSE first
+  bool do_close;
+
   int channel_check_window();
 
+  void channel_request_start
+    (char *service, int wantconfirm);
+
   void rcvd_ieof ();
+
+  void garbage_collect ();
+
+  void session_close_by_channel (Session* session);
 
 private:
 

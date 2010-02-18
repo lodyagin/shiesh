@@ -9,6 +9,7 @@ The subsystem, as per RFC 4254
 #include "BusyThreadWriteBuffer.h"
 #include "BusyThreadReadBuffer.h"
 #include "Repository.h"
+#include "Session.h"
 
 using namespace coressh;
 
@@ -29,19 +30,26 @@ public:
     fromChannel->put_eof ();
   }
 
+  Session* get_session ()
+  {
+    return session;
+  }
 protected:
   Subsystem 
     (const std::string &objectId,
      User *const _pw, 
      BusyThreadWriteBuffer<Buffer>* in,
      BusyThreadReadBuffer<Buffer>* out,
-     SEvent* terminatedSignal
+     SEvent* terminatedSignal,
+     Session* _session
      )
     : SThread (terminatedSignal),
       universal_object_id (objectId),
-      pw (_pw), fromChannel (in), toChannel (out)
+      pw (_pw), fromChannel (in), toChannel (out),
+      session (_session)
   {
-    assert (_pw);
+    assert (pw);
+    assert (session);
   }
 
   ~Subsystem(void);
@@ -49,4 +57,5 @@ protected:
   User * const pw;
   BusyThreadWriteBuffer<Buffer>* fromChannel;
   BusyThreadReadBuffer<Buffer>* toChannel;
+  Session* session;
 };

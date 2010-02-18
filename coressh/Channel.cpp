@@ -10,7 +10,16 @@ Logging Channel::log ("Channel");
 const State2Idx Channel::allInputStates[] =
 {
   {1, "open"},
-  {2, "waitDrain"},
+  {2, "waitDrain"}, // wait ascending -> 0, toChannel -> 0,
+                    // and subsystem termination
+  {3, "closed"},
+  {0, 0}
+};
+
+const State2Idx Channel::allOutputStates[] =
+{
+  {1, "open"},
+  {2, "waitDrain"}, // wait descending -> 0
   {3, "closed"},
   {0, 0}
 };
@@ -87,7 +96,11 @@ Channel::Channel
   ctype (channelType),
   con (connection)/*,
   datagram (0)*/,
-  eofRcvd (false)
+  eofRcvd (false),
+  eofSent (false),
+  closeRcvd (false),
+  closeSent (false),
+  do_close (false)
 {
   buffer_init(&ascending);
   buffer_init(&descending);
@@ -110,7 +123,7 @@ void Channel::initializeStates ()
 {
   inputStateMap = new StateMap (allInputStates, allInputTrans);
   // the same state set as for input
-  outputStateMap = new StateMap (allInputStates, allOutputTrans);
+  outputStateMap = new StateMap (allOutputStates, allOutputTrans);
   channelStateMap = new StateMap (allChanStates, allChanTrans);
 
   inputOpenState = inputStateMap->create_state ("open");
@@ -218,8 +231,9 @@ void Channel::channel_output_poll ()
 
 	/* Get the amount of buffered data for this channel. */
 	if ((inputStateIs ("open")  ||
-	    inputStateIs ("waitDrain")) &&
-	    (len = buffer_len(&ascending)) > 0) {
+	     inputStateIs ("waitDrain")) &&
+	    (len = buffer_len(&ascending)) > 0) 
+  {
 #if 0 //FIXME
 		if (c->datagram) {
 			if (len > 0) {
@@ -255,20 +269,24 @@ void Channel::channel_output_poll ()
 			remote_window -= len;
 		}
 	} 
-#if 0 //FIXME
-  else if (c->istate == CHAN_INPUT_WAIT_DRAIN) {
+
+  // CHANNEL STATES <2>
+  if (inputStateIs ("waitDrain") && !hasAscendingData ()) 
+  {
 		/*
 		 * input-buffer is empty and read-socket shutdown:
 		 * tell peer, that we will not send more data: send IEOF.
-		 * hack for extended data: delay EOF if EFD still in use.
+		 * // FIXME hack for extended data: delay EOF if EFD still in use.
 		 */
+#if 0 // FIXME
 		if (CHANNEL_EFD_INPUT_ACTIVE(c))
 			debug2("channel %d: ibuf_empty delayed efd %d/(%d)",
 			    c->self, c->efd, buffer_len(&c->extended));
 		else
-			chan_ibuf_empty(c);
-	}
 #endif
+			if (!eofSent) sendEOF ();
+      currentInputState = inputClosedState;
+	}
 
 #if 0 // FIXME
 	/* Send extended data, i.e. stderr */
@@ -385,24 +403,149 @@ void Channel::channel_post_open()
 	//channel_handle_ctl(c, readset, writeset);
 
   channel_check_window ();
+
+  garbage_collect ();
 }
 
 void Channel::rcvd_ieof ()
 {
   eofRcvd = true;
+
+  // CHANNEL STATES <3>
   if (currentOutputState == outputOpenState)
   {
     // FIXME state object, move
     currentOutputState = outputWaitDrainState; 
     
+    // CHANNEL STATES <1b>
     if (buffer_len(&descending) == 0)
     {
       // FIXME need to check an extended data activity
       fromChannel.put_eof ();  
-      currentOutputState = outputClosedState; //FIXME
-        // TODO ensure the logic - it can be some data
-        // in the fromChannel yet, is it a problem?
+      currentOutputState = outputClosedState;
+      currentInputState = inputWaitDrainState;
     }
   }
+}
+
+void Channel::sendEOF ()
+{
+	con->packet_start(SSH2_MSG_CHANNEL_EOF);
+	con->packet_put_int(remote_id);
+	con->packet_send();
+	eofSent = true;
+}
+
+bool Channel::chan_is_dead (bool do_send)
+{
+  // CHANNEL STATES <5>
+  if (!inputStateIs ("closed") 
+      || !outputStateIs ("closed")
+      )
+    return false;
+
+#if 0
+	if ((datafellows & SSH_BUG_EXTEOF) &&
+	    c->extended_usage == CHAN_EXTENDED_WRITE &&
+	    c->efd != -1 &&
+	    buffer_len(&c->extended) > 0) {
+		debug2("channel %d: active efd: %d len %d",
+		    c->self, c->efd, buffer_len(&c->extended));
+		return 0;
+	}
+#endif 
+
+	if (!closeSent) 
+  {
+		if (do_send)
+    {
+  		con->packet_start (SSH2_MSG_CHANNEL_CLOSE);
+      con->packet_put_int (remote_id);
+      con->packet_send();
+      closeSent = true;
+		} 
+    else 
+    {
+			/* channel would be dead if we sent a close */
+			if (closeRcvd) {
+				debug2("channel %d: almost dead", (int) self);
+				return true;
+			}
+		}
+	}
+	if (closeSent && closeRcvd) 
+  {
+		debug2("channel %d: is dead", (int) self);
+		return true;
+	}
+	return false;
+}
+
+void Channel::garbage_collect ()
+{
+  Session* session = con->get_session_by_channel (self);
+  // TODO exceptions
+	if (session) 
+  {
+		if (!chan_is_dead(do_close)) 
+      return; // close msg is not received yet
+
+		session_close_by_channel (session);
+	}
+	if (!chan_is_dead(true))
+		return;
+
+	debug2("channel %d: garbage collecting", self);
+  con->stop ();
+  con->ChannelRepository::delete_object (this, true);
+}
+
+void Channel::session_close_by_channel (Session* session)
+{
+  assert (session);
+  if (session->subsystem)
+  {
+    con->OverSubsystemThread::delete_object 
+      (session->subsystem, true);
+    session->subsystem = 0;
+  }
+
+  if (session)
+  {
+    con->SessionRepository::delete_object
+      (session, true);
+    session = 0;
+  }
+}
+
+void Channel::channel_request_start
+  (char *service, int wantconfirm)
+{
+  assert (service);
+
+	debug2
+    ("channel %d: request %s confirm %d", 
+     (int) self, service, wantconfirm);
+	con->packet_start(SSH2_MSG_CHANNEL_REQUEST);
+	con->packet_put_int(remote_id);
+	con->packet_put_cstring(service);
+	con->packet_put_char(wantconfirm);
+}
+
+bool Channel::hasAscendingData () const
+{
+  if ( buffer_len (&ascending) != 0
+      || toChannel.n_msgs_in_the_buffer () > 0
+      )
+      return true;
+
+  Session* session = con->get_session_by_channel (self);
+  if (session && session->subsystem)
+  {
+    return !SThread::ThreadState::state_is 
+      (*session->subsystem, 
+       session->subsystem->terminatedState);       
+  }
+  return false;
 }
 

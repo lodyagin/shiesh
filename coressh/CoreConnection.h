@@ -39,10 +39,9 @@ class CoreConnection
   friend KexDispatcher;
   friend AuthDispatcher;
   friend ServerMainDispatcher;
+  friend Repository<CoreConnection, CoreConnectionPars>;
 
 public:
-  ~CoreConnection ();
-
   static CoreConnection& current ()
   {
     return dynamic_cast <CoreConnection&>
@@ -87,6 +86,8 @@ public:
   SEvent subsystemTerminated;
 
 protected:
+  ~CoreConnection ();
+
   Arc4Random arc4rand;
 
   CoreConnection 
@@ -405,6 +406,9 @@ private:
     (int type, u_int32_t seq, void *ctxt);
 
   void channel_input_eof
+    (int type, u_int32_t seq, void *ctxt);
+
+  void channel_input_oclose
     (int type, u_int32_t seq, void *ctxt);
 
  /* end of channels & sessions */
