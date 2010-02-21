@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Logging.h"
+
 #define DISPATCH_MIN	0
 #define DISPATCH_MAX	255
 
@@ -8,6 +10,8 @@ class CoreConnection;
 class Dispatcher
 {
 public:
+  static Logging log;
+  
   enum {
 	  DISPATCH_BLOCK,
 	  DISPATCH_NONBLOCK
@@ -39,6 +43,8 @@ public:
 
   // Called when msg should be ignored
   virtual void ignored_msg (int, u_int32_t, void *);
+
+  static std::vector<std::string> msgNames;
 
 protected:
 

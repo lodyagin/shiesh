@@ -602,6 +602,9 @@ CoreConnection::packet_start(u_char type)
 	int len;
 
 	DBG(debug("packet_start[%d]", type));
+  LOG4STRM_DEBUG
+    (Dispatcher::log.GetLogger (),
+    oss_ << "<.  " << Dispatcher::msgNames.at (type));
 	len = compat20 ? 6 : 9;
 	memset(buf, 0, len - 1);
 	buf[len - 1] = type;
