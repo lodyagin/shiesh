@@ -13,7 +13,7 @@ class MainThread :
 public:
   static MainThread* create ()
   {
-    return new MainThread (1); // max 1 connection
+    return new MainThread (500); // max 500 connections
   }
 
 protected:

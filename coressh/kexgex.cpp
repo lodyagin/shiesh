@@ -51,7 +51,7 @@ kexgex_hash(
     u_char **hash, u_int *hashlen)
 {
 	Buffer b;
-	static u_char digest[EVP_MAX_MD_SIZE];
+	u_char* digest = new u_char[EVP_MAX_MD_SIZE]; // FIXME memory leak, check alloc
 	EVP_MD_CTX md;
 
 	buffer_init(&b);

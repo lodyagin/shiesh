@@ -151,7 +151,7 @@ protected:
 
   /* Key exch interface */
 
-  Kex	*kex_setup(char *[PROPOSAL_MAX]);
+  Kex	*kex_setup(const char *[PROPOSAL_MAX]);
   void	 kex_finish(Kex *);
 
   void	 kex_send_kexinit(Kex *);
@@ -356,12 +356,12 @@ private:
   /* end of compress module data */
 
   /* kex data and private functions */
-  char *myproposal[PROPOSAL_MAX];
+  const char *myproposal[PROPOSAL_MAX];
 
   char ** kex_buf2prop
     (Buffer *raw, int *first_kex_follows);
   void kex_prop_free(char **proposal);
-  void kex_prop2buf(Buffer *b, char *proposal[PROPOSAL_MAX]);
+  void kex_prop2buf(Buffer *b, const char *proposal[PROPOSAL_MAX]);
   //void kex_protocol_error(int type, u_int32_t seq, void *ctxt);
   //void kex_reset_dispatch(void);
   u_char *derive_key(Kex *kex, int id, u_int need, u_char *hash, u_int hashlen,
@@ -442,6 +442,10 @@ private:
 
   void all_channels_output_poll ();
   void all_channel_post_open ();
+
+  u_int poll2_packet_length;
+  int send2_rekeying;
+  int pd_disconnecting;
 
 };
 

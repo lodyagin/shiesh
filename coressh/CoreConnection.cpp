@@ -50,7 +50,7 @@
 #define	KEX_DEFAULT_LANG	""
 
 
-static char *def_proposal[PROPOSAL_MAX] = {
+const static char *const def_proposal[PROPOSAL_MAX] = {
 	KEX_DEFAULT_KEX,
 	KEX_DEFAULT_PK_ALG,
 	KEX_DEFAULT_ENCRYPT,
@@ -188,8 +188,11 @@ CoreConnection::CoreConnection
    xxx_kex (0),
    no_more_sessions (0),
    connection_closed (false),
-   subsystemTerminated (true) // manual reset
+   subsystemTerminated (true), // manual reset
                      // (in wait_until_can_do_something)
+   poll2_packet_length (0),
+   send2_rekeying (0),
+   pd_disconnecting (0)
 {
   for (int i = 0; i < PROPOSAL_MAX; i++)
     myproposal[i] = def_proposal[i];
@@ -295,7 +298,7 @@ int CoreConnection::datafellows () const
 int
 CoreConnection::packet_read_poll2(u_int32_t *seqnr_p)
 {
-	static u_int packet_length = 0; //FIXME!!
+  u_char macbuf_storage[EVP_MAX_MD_SIZE];
 	u_int padlen, need;
 	u_char *macbuf, *cp, type;
 	u_int maclen, block_size;
@@ -311,7 +314,7 @@ CoreConnection::packet_read_poll2(u_int32_t *seqnr_p)
 	maclen = mac && mac->enabled ? mac->mac_len : 0;
 	block_size = enc ? enc->block_size : 8;
 
-	if (packet_length == 0) {
+	if (poll2_packet_length == 0) {
 		/*
 		 * check if input size is less than the cipher block size,
 		 * decrypt first block and extract length of incoming packet
@@ -327,25 +330,25 @@ CoreConnection::packet_read_poll2(u_int32_t *seqnr_p)
 		   block_size
        );
 		cp = (u_char*) buffer_ptr(&incoming_packet);
-		packet_length = get_u32(cp);
-		if (packet_length < 1 + 4 || packet_length > 256 * 1024) {
+		poll2_packet_length = get_u32(cp);
+		if (poll2_packet_length < 1 + 4 || poll2_packet_length > 256 * 1024) {
 #ifdef PACKET_DEBUG
 			buffer_dump(&incoming_packet);
 #endif
 			packet_disconnect("Bad packet length %-10u",
-			    packet_length);
+			    poll2_packet_length);
 		}
-		DBG(debug("input: packet len %u", packet_length+4));
+		DBG(debug("input: packet len %u", poll2_packet_length+4));
 		buffer_consume(&input, block_size);
 	}
 	/* we have a partial packet of block_size bytes */
-	need = 4 + packet_length - block_size;
+	need = 4 + poll2_packet_length - block_size;
 	DBG(debug("partial packet %d, need %d, maclen %d", block_size,
 	    need, maclen));
 	if (need % block_size != 0) {
 		logit("padding error: need %d block %d mod %d",
 		    need, block_size, need % block_size);
-		packet_disconnect("Bad packet length %-10u", packet_length);
+		packet_disconnect("Bad packet length %-10u", poll2_packet_length);
 	}
 	/*
 	 * check if the entire packet has been received and
@@ -370,9 +373,12 @@ CoreConnection::packet_read_poll2(u_int32_t *seqnr_p)
 	 * increment sequence number for incoming packet
 	 */
 	if (mac && mac->enabled) {
-		macbuf = mac_compute(mac, p_read.seqnr,
-		    (u_char*) buffer_ptr(&incoming_packet),
-		    buffer_len(&incoming_packet));
+		macbuf = mac_compute
+      (mac, 
+       p_read.seqnr,
+		   (u_char*) buffer_ptr(&incoming_packet),
+		   buffer_len(&incoming_packet),
+       macbuf_storage);
 		if (memcmp(macbuf, buffer_ptr(&input), mac->mac_len) != 0)
 			packet_disconnect("Corrupted MAC on input.");
 		DBG(debug("MAC #%d ok", p_read.seqnr));
@@ -385,8 +391,8 @@ CoreConnection::packet_read_poll2(u_int32_t *seqnr_p)
 	if (++p_read.packets == 0)
 		if (!(datafellows () & SSH_BUG_NOREKEY))
 			fatal("XXX too many packets with same key");
-	p_read.blocks += (packet_length + 4) / block_size;
-	p_read.bytes += packet_length + 4;
+	p_read.blocks += (poll2_packet_length + 4) / block_size;
+	p_read.bytes += poll2_packet_length + 4;
 
 	/* get padlen */
 	cp = (u_char*) buffer_ptr(&incoming_packet);
@@ -425,7 +431,7 @@ CoreConnection::packet_read_poll2(u_int32_t *seqnr_p)
 	buffer_dump(&incoming_packet);
 #endif
 	/* reset for next packet */
-	packet_length = 0;
+	poll2_packet_length = 0;
 	return type;
 }
 
@@ -848,6 +854,7 @@ CoreConnection::packet_enable_delayed_compress(void)
 void
 CoreConnection::packet_send2_wrapped(void)
 {
+  u_char macbuf_storage[EVP_MAX_MD_SIZE];
 	u_char type, *cp, *macbuf = NULL;
 	u_char padlen, pad;
 	u_int packet_length = 0;
@@ -930,7 +937,7 @@ CoreConnection::packet_send2_wrapped(void)
 	if (mac && mac->enabled) {
 		macbuf = mac_compute(mac, p_send.seqnr,
 		    (u_char*) buffer_ptr(&outgoing_packet),
-		    buffer_len(&outgoing_packet));
+		    buffer_len(&outgoing_packet), macbuf_storage);
 		DBG(debug("done calc MAC out #%d", p_send.seqnr));
 	}
 	/* encrypt packet and append to output buffer. */
@@ -963,7 +970,6 @@ CoreConnection::packet_send2_wrapped(void)
 void
 CoreConnection::packet_send2(void)
 {
-	static int rekeying = 0;
 	struct packet *p;
 	u_char type, *cp;
 
@@ -971,7 +977,7 @@ CoreConnection::packet_send2(void)
 	type = cp[5];
 
 	/* during rekeying we can only send key exchange messages */
-	if (rekeying) {
+	if (send2_rekeying) {
 		if (!((type >= SSH2_MSG_TRANSPORT_MIN) &&
 		    (type <= SSH2_MSG_TRANSPORT_MAX))) {
 			debug("enqueue packet: %u", type);
@@ -986,13 +992,13 @@ CoreConnection::packet_send2(void)
 
 	/* rekeying starts with sending KEXINIT */
 	if (type == SSH2_MSG_KEXINIT)
-		rekeying = 1;
+		send2_rekeying = 1;
 
 	packet_send2_wrapped();
 
 	/* after a NEWKEYS message we can send the complete queue */
 	if (type == SSH2_MSG_NEWKEYS) {
-		rekeying = 0;
+		send2_rekeying = 0;
 		while ((p = TAILQ_FIRST(&outgoing))) {
 			type = p->type;
 			debug("dequeue packet: %u", type);
@@ -1257,11 +1263,10 @@ CoreConnection::packet_disconnect(const char *fmt,...)
 {
 	char buf[1024];
 	va_list args;
-	static int disconnecting = 0;
 
-	if (disconnecting)	/* Guard against recursive invocations. */
+	if (pd_disconnecting)	/* Guard against recursive invocations. */
 		fatal("packet_disconnect called recursively.");
-	disconnecting = 1;
+	pd_disconnecting = 1;
 
 	/*
 	 * Format the message.  Note that the caller must make sure the
@@ -1861,7 +1866,8 @@ CoreConnection::kex_get_newkeys(int mode)
 
 /* put algorithm proposal into buffer */
 void
-CoreConnection::kex_prop2buf(Buffer *b, char *proposal[PROPOSAL_MAX])
+CoreConnection::kex_prop2buf
+  (Buffer *b, const char *proposal[PROPOSAL_MAX])
 {
 	u_int i;
 
@@ -1920,7 +1926,8 @@ CoreConnection::kex_prop_free(char **proposal)
 }
 
 Kex *
-CoreConnection::kex_setup(char *proposal[PROPOSAL_MAX])
+CoreConnection::kex_setup
+  (const char *proposal[PROPOSAL_MAX])
 {
 	Kex *kex;
 
@@ -2219,10 +2226,10 @@ CoreConnection::choose_hostkeyalg(Kex *k, char *client, char *server)
 int
 CoreConnection::proposals_match(char *my[PROPOSAL_MAX], char *peer[PROPOSAL_MAX])
 {
-	static int check[] = {
+	const static int check[] = {
 		PROPOSAL_KEX_ALGS, PROPOSAL_SERVER_HOST_KEY_ALGS, -1
 	};
-	int *idx;
+	const int *idx;
 	char *p;
 
 	for (idx = &check[0]; *idx != -1; idx++) {

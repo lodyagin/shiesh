@@ -54,7 +54,7 @@ void
 compat_datafellows(const char *version)
 {
 	int i;
-	static struct {
+	const static struct {
 		char	*pat;
 		int	bugs;
 	} check[] = {
@@ -201,8 +201,8 @@ proto_spec(const char *spec)
 	return ret;
 }
 
-char *
-compat_cipher_proposal(char *cipher_prop)
+const char *
+compat_cipher_proposal(const char *cipher_prop)
 {
 	Buffer b;
 	char *orig_prop, *fix_ciphers;

@@ -107,9 +107,9 @@ mac_init(Mac *mac)
 }
 
 u_char *
-mac_compute(Mac *mac, u_int32_t seqno, u_char *data, int datalen)
+mac_compute(Mac *mac, u_int32_t seqno, u_char *data, int datalen, u_char m[EVP_MAX_MD_SIZE])
 {
-	static u_char m[EVP_MAX_MD_SIZE];
+	//static u_char m[EVP_MAX_MD_SIZE];
 	u_char b[4], nonce[8];
 
 	if (mac->mac_len > sizeof(m))

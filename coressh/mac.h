@@ -32,7 +32,15 @@ namespace coressh {
 int	 mac_valid(const char *);
 int	 mac_setup(Mac *, char *);
 int	 mac_init(Mac *);
-u_char	*mac_compute(Mac *, u_int32_t, u_char *, int);
+
+u_char	*mac_compute
+  (Mac *, 
+   u_int32_t, 
+   u_char *, 
+   int, 
+   u_char m[EVP_MAX_MD_SIZE]
+   );
+
 void	 mac_clear(Mac *);
 
 }

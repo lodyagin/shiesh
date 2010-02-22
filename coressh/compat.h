@@ -64,7 +64,7 @@ namespace coressh {
 //void     enable_compat20(void);
 void     compat_datafellows(const char *);
 int	 proto_spec(const char *);
-char	*compat_cipher_proposal(char *);
+const char	*compat_cipher_proposal(const char *);
 
 extern const int compat13;
 extern const int compat20;

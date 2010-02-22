@@ -542,10 +542,10 @@ flags_from_portable(int pflags)
 	return flags;
 }
 
-static const char *
+static std::string
 string_from_portable(int pflags)
 {
-	static char ret[128];
+	char ret[128];
 
 	*ret = '\0';
 

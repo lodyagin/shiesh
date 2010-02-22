@@ -10,7 +10,7 @@ struct MsgInfo
   unsigned code;
 };
 
-static MsgInfo msgInfoArr[] =
+const static MsgInfo msgInfoArr[] =
 {
   {"MSG_NONE",				0},
   {"MSG_DISCONNECT",				1},
