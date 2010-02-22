@@ -496,7 +496,6 @@ void Channel::garbage_collect ()
 		return;
 
 	debug2("channel %d: garbage collecting", self);
-  con->stop ();
   con->ChannelRepository::delete_object (this, true);
 }
 
