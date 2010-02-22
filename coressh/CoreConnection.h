@@ -239,6 +239,14 @@ protected:
 
 private:
 
+  enum {
+    StopEvt = 0,
+    SocketEvt = 1,
+    SubsystemTermEvt = 2,
+    FirstDescendingEvt = 3
+  };
+
+
   /* packets */
 
   /* session identifier (ssh2)*/
@@ -436,3 +444,4 @@ private:
   void all_channel_post_open ();
 
 };
+

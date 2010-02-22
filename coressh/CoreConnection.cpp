@@ -2404,11 +2404,14 @@ void CoreConnection::server_loop ()
   DWORD socketEvents = 0;
 
   // the thread stop event
-  eventArray[0] = SThread::current ().get_stop_event ().evt ();
+  eventArray[StopEvt] = SThread::current ()
+    .get_stop_event ().evt ();
+
   // the socket event
-  eventArray[1] = socket->get_event_object ();
+  eventArray[SocketEvt] = socket->get_event_object ();
+
   // the subsystem termination event
-  eventArray[2] = subsystemTerminated.evt ();
+  eventArray[SubsystemTermEvt] = subsystemTerminated.evt ();
 
   if (!srvDispatcher)
   {
@@ -2452,9 +2455,9 @@ void CoreConnection::server_loop ()
     if (!rekeying)
       // pre handlers are here
       fill_event_array 
-        (eventArray + 3, 
-         chanNums + 3,
-         WSA_MAXIMUM_WAIT_EVENTS - 3,
+        (eventArray + FirstDescendingEvt, 
+         chanNums + FirstDescendingEvt,
+         WSA_MAXIMUM_WAIT_EVENTS - FirstDescendingEvt,
          &nChannelEvents
          );
     else
@@ -2464,13 +2467,16 @@ void CoreConnection::server_loop ()
     //debug ("server_loop: start waiting %d events", 
     //       (int) nChannelEvents + 1);
 		wait_until_can_do_something
-      (eventArray, nChannelEvents + 3, 0, signalled);
+      (eventArray, 
+       nChannelEvents + FirstDescendingEvt, 
+       0, signalled);
 
-    if (signalled[0]) // the thread stop requested         
+    if (signalled[StopEvt]) 
+      // the thread stop requested         
       break; 
 
 		// search terminated subthreads (collect_children)
-    if (signalled[2])
+    if (signalled[SubsystemTermEvt])
     {
       // Get the list of terminated threads (subsystems)
       std::list<int> terminated;
@@ -2491,7 +2497,7 @@ void CoreConnection::server_loop ()
       // [fromChannel] <- [descending]
 
       // posthandlers are here
-      all_channel_post_open (); 
+      all_channel_post_open (); // FIXME selection
 
 			if (packet_need_rekeying()) {
 				debug("need rekeying"); //UT rekeying
@@ -2500,26 +2506,7 @@ void CoreConnection::server_loop ()
 			}
 		}
 
-#if 0 //TODO signalled[] are not used
-    // TODO change the constant for sessions interactive
-    // which needs an interactive response
-    if (!rekeying && buffer_len (&output) < 128 * 1024) 
-    {  // process channel data 
-      for (int i = 1; i < nChannelEvents + 1; i++)
-      {
-        if (signalled[i]) // Data from channel
-        { // it is a channel event
-          Channel* c = ChannelRepository::get_object_by_id 
-            (chanNums[i]);
-          assert (c);
-          // buffer Channel::toChannel -> buffer Channel::ascending
-          if (c) c->channel_output_poll ();
-        }
-      }
-    }
-#endif
-
-    if (signalled[1])
+    if (signalled[SocketEvt])
       socketEvents = socket->get_events ();
     else
       socketEvents = 0;
@@ -2666,22 +2653,18 @@ CoreConnection::channel_input_oclose
 
 void CoreConnection::all_channels_output_poll ()
 {
-  // FIXME
-  Channel* c = ChannelRepository::get_object_by_id (1);
-  if (c)
-  {
-    c->channel_output_poll ();
-  }
+  ChannelRepository::for_each 
+    (std::mem_fun_ref_t<void, Channel> 
+      (&Channel::channel_output_poll)
+     );
 }
 
 void CoreConnection::all_channel_post_open ()
 {
-  // FIXME
-  Channel* c = ChannelRepository::get_object_by_id (1);
-  if (c)
-  {
-    c->channel_post_open ();
-  }
+  ChannelRepository::for_each 
+    (std::mem_fun_ref_t<void, Channel> 
+      (&Channel::channel_post_open)
+     );
 }
 
 void CoreConnection::channel_input_window_adjust

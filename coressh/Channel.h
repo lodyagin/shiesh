@@ -172,6 +172,10 @@ public:
     return toChannel.dataReady.evt ();
   }
 
+  // it is public for access from functors
+  Buffer ascending;  // ^
+  Buffer descending; // V
+
 protected:
 
   void sendEOF ();
@@ -252,9 +256,6 @@ private:
   UniversalState currentInputState;
   UniversalState currentOutputState;
   UniversalState currentChanState;
-
-  Buffer ascending;  // ^
-  Buffer descending; // V
 
   void put_raw_data (void* data, u_int data_len);
   void channel_post_open();
