@@ -467,6 +467,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PTY.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SensitiveData.cpp"
 				>
 			</File>
@@ -557,6 +561,18 @@
 			<File
 				RelativePath=".\SubsystemPars.cpp"
 				>
+			</File>
+			<File
+				RelativePath=".\ttymodes.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\umac.cpp"
@@ -705,6 +721,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PTY.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SensitiveData.h"
 				>
 			</File>
@@ -754,6 +774,14 @@
 			</File>
 			<File
 				RelativePath=".\SubsystemPars.h"
+				>
+			</File>
+			<File
+				RelativePath=".\termios.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ttymodes.h"
 				>
 			</File>
 			<File

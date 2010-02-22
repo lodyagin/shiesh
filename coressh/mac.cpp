@@ -107,14 +107,20 @@ mac_init(Mac *mac)
 }
 
 u_char *
-mac_compute(Mac *mac, u_int32_t seqno, u_char *data, int datalen, u_char m[EVP_MAX_MD_SIZE])
+mac_compute
+  (Mac *mac, 
+   u_int32_t seqno, 
+   u_char *data, 
+   int datalen, 
+   u_char *m,
+   size_t m_size
+   )
 {
-	//static u_char m[EVP_MAX_MD_SIZE];
 	u_char b[4], nonce[8];
 
-	if (mac->mac_len > sizeof(m))
+	if (mac->mac_len > m_size)
 		fatal("mac_compute: mac too long %u %lu",
-		    mac->mac_len, (u_long)sizeof(m));
+		    mac->mac_len, (u_long) m_size);
 
 	switch (mac->type) {
 	case SSH_EVP:

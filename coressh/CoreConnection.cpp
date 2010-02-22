@@ -378,7 +378,9 @@ CoreConnection::packet_read_poll2(u_int32_t *seqnr_p)
        p_read.seqnr,
 		   (u_char*) buffer_ptr(&incoming_packet),
 		   buffer_len(&incoming_packet),
-       macbuf_storage);
+       macbuf_storage,
+       sizeof (macbuf_storage)
+       );
 		if (memcmp(macbuf, buffer_ptr(&input), mac->mac_len) != 0)
 			packet_disconnect("Corrupted MAC on input.");
 		DBG(debug("MAC #%d ok", p_read.seqnr));
@@ -935,9 +937,14 @@ CoreConnection::packet_send2_wrapped(void)
 
 	/* compute MAC over seqnr and packet(length fields, payload, padding) */
 	if (mac && mac->enabled) {
-		macbuf = mac_compute(mac, p_send.seqnr,
-		    (u_char*) buffer_ptr(&outgoing_packet),
-		    buffer_len(&outgoing_packet), macbuf_storage);
+		macbuf = mac_compute
+      (mac, 
+       p_send.seqnr,
+		   (u_char*) buffer_ptr(&outgoing_packet),
+		   buffer_len(&outgoing_packet), 
+       macbuf_storage,
+       sizeof (macbuf_storage)
+       );
 		DBG(debug("done calc MAC out #%d", p_send.seqnr));
 	}
 	/* encrypt packet and append to output buffer. */

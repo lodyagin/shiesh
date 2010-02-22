@@ -38,7 +38,8 @@ u_char	*mac_compute
    u_int32_t, 
    u_char *, 
    int, 
-   u_char m[EVP_MAX_MD_SIZE]
+   u_char* m,
+   size_t m_size
    );
 
 void	 mac_clear(Mac *);

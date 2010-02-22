@@ -6,6 +6,9 @@
 #include "packet.h"
 #include "SFTP.h"
 #include "Subsystem.h"
+#include "PTY.h"
+
+//#define ENABLE_PTY
 
 Session::Session
   (const std::string& objId,
@@ -62,13 +65,19 @@ Session::session_input_channel_req
 			success = session_shell_req(s);
 		} else if (strcmp(rtype, "exec") == 0) {
 			success = session_exec_req(s);
-		} else if (strcmp(rtype, "pty-req") == 0) {
-			success = session_pty_req(s);
-		} else if (strcmp(rtype, "x11-req") == 0) {
+		} else*/ 
+#ifdef ENABLE_PTY
+    if (strcmp(rtype, "pty-req") == 0) 
+    {
+      PTY pty (c->con);
+			success = pty.session_pty_req();
+		} else
+#endif
+    /*else if (strcmp(rtype, "x11-req") == 0) {
 			success = session_x11_req(s);
 		} else if (strcmp(rtype, "auth-agent-req@openssh.com") == 0) {
 			success = session_auth_agent_req(s);
-		} else */ 
+		}*/
     if (strcmp(rtype, "subsystem") == 0) 
     {
 			success = s->session_subsystem_req ();
