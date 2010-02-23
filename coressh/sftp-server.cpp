@@ -51,32 +51,6 @@ Path::Path
   init (_path);
 }
 
-class RemoveRepetition : 
-  public std::unary_function<wchar_t, bool>
-{
-public:
-  RemoveRepetition (wchar_t _ch) 
-    : ch (_ch), last_was_ch (false) {}
-  bool operator () (wchar_t c)
-  {
-    if (c == ch)
-    {
-      if (last_was_ch) 
-        return true; // remove
-      else
-        last_was_ch = true;
-    }
-    else
-    {
-      last_was_ch = false;
-    }
-    return false;
-  }
-protected:
-  wchar_t ch;
-  bool last_was_ch;
-};
-
 // common part of constructors
 void Path::init (const std::wstring& pathStr)
 {
@@ -349,18 +323,35 @@ SFTPFilePath SFTPFilePathFactory::create_path
   std::replace (pathStr.begin (), pathStr.end (), L'/', L'\\');
 
   // replace a sequence of '\\' with a single '\\'
-  std::remove_if 
-    (pathStr.begin (), pathStr.end (), RemoveRepetition (L'\\'));
+  std::wstring pathStrRem (pathStr);
+  bool last_was_slash = false;
+  std::wstring::size_type j = 0;
+  for (std::wstring::size_type i = 0; i < pathStr.length (); i++)
+  {
+    if (pathStr[i] == L'\\')
+    {
+      if (last_was_slash)
+        continue;
+      else
+         last_was_slash = true;
+    }
+    else
+    {
+      last_was_slash = false;
+    }
+    pathStrRem[j++] = pathStr[i];
+  }
+  pathStrRem.resize (j);
 
 #ifdef MATT_PATHES
   // prepend with "\"
   const std::wstring pathStr2 = 
-    (pathStr.length () == 0 || pathStr[0] != L'\\')
-     ? L'\\' + pathStr : pathStr;
+    (pathStrRem.length () == 0 || pathStrRem[0] != L'\\')
+     ? L'\\' + pathStrRem : pathStrRem;
 
   CoreSSHPath path (pathStr2);
 #else
-  Path path (pathStr);
+  Path path (pathStrRem);
 #endif
 
   if (!path.normalize ())
