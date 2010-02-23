@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Options.h"
 
-const std::string Options::version ("1.2d1");
+const std::string Options::version ("1.1d14");
 const std::string Options::progName ("CoreSSH");
 
 const std::string 

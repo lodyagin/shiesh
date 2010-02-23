@@ -441,10 +441,12 @@ char_equal_ignore_case (wchar_t a, wchar_t b)
 static bool 
 is_equal_ignore_case (const std::wstring& a, const std::wstring& b) 
 {
-  return std::equal (
-    a.begin (), a.end (),
-    b.begin (), 
-    char_equal_ignore_case);
+  return a.length () == b.length ()
+    && std::equal 
+      (a.begin (), a.end (),
+       b.begin (), 
+       char_equal_ignore_case
+       );
 }
 
 // it ignore case
@@ -453,10 +455,12 @@ bool operator== (const Path& a, const Path& b)
   if (a.isRelative == b.isRelative
       && a.drive == b.drive)
   {
-    return std::equal (
-      a.path.begin (), a.path.end (),
-      b.path.begin (), 
-      is_equal_ignore_case);
+    return a.path.size () == b.path.size () 
+      && std::equal 
+        (a.path.begin (), a.path.end (),
+         b.path.begin (), 
+         is_equal_ignore_case
+         );
   }
   else return false;
 }
