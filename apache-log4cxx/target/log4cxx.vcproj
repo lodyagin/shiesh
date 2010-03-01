@@ -405,6 +405,136 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
+		<Configuration
+			Name="ReleaseDbg|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				AdditionalIncludeDirectories="..\src\main\include;..\..\apr\include;..\..\apr-util\include"
+				PreprocessorDefinitions="NDEBUG;_USRDLL;DLL_EXPORTS;LOG4CXX;APR_DECLARE_STATIC;APU_DECLARE_STATIC;WIN32"
+				MinimalRebuild="false"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="2"
+				UsePrecompiledHeader="0"
+				DebugInformationFormat="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="ReleaseDbg|x64"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="2"
+			CharacterSet="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				AdditionalIncludeDirectories="..\src\main\include;..\..\apr\include;..\..\apr-util\include"
+				PreprocessorDefinitions="NDEBUG;_USRDLL;DLL_EXPORTS;LOG4CXX;APR_DECLARE_STATIC;APU_DECLARE_STATIC;WIN32"
+				MinimalRebuild="false"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				UsePrecompiledHeader="0"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="ws2_32.lib Mswsock.lib"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -432,6 +562,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\andfilter.cpp"
@@ -446,6 +592,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -472,6 +634,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\appenderskeleton.cpp"
@@ -486,6 +664,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -512,6 +706,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\asyncappender.cpp"
@@ -526,6 +736,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -552,6 +778,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\bufferedwriter.cpp"
@@ -566,6 +808,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -592,6 +850,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\bytearrayoutputstream.cpp"
@@ -606,6 +880,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -632,6 +922,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\cacheddateformat.cpp"
@@ -646,6 +952,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -672,6 +994,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\charsetencoder.cpp"
@@ -686,6 +1024,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -712,6 +1066,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\classnamepatternconverter.cpp"
@@ -726,6 +1096,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -752,6 +1138,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\condition.cpp"
@@ -766,6 +1168,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -792,6 +1210,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\consoleappender.cpp"
@@ -806,6 +1240,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -832,6 +1282,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\dailyrollingfileappender.cpp"
@@ -846,6 +1312,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -872,6 +1354,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\datagramsocket.cpp"
@@ -886,6 +1384,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -912,6 +1426,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\dateformat.cpp"
@@ -926,6 +1456,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -952,6 +1498,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\datepatternconverter.cpp"
@@ -966,6 +1528,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -992,6 +1570,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\defaultloggerfactory.cpp"
@@ -1006,6 +1600,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1032,6 +1642,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\domconfigurator.cpp"
@@ -1046,6 +1672,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1072,6 +1714,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\fallbackerrorhandler.cpp"
@@ -1086,6 +1744,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1112,6 +1786,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\fileappender.cpp"
@@ -1126,6 +1816,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1152,6 +1858,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\fileinputstream.cpp"
@@ -1166,6 +1888,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1192,6 +1930,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\fileoutputstream.cpp"
@@ -1206,6 +1960,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1232,6 +2002,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\filewatchdog.cpp"
@@ -1246,6 +2032,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1272,6 +2074,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\filterbasedtriggeringpolicy.cpp"
@@ -1286,6 +2104,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1312,6 +2146,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\formattinginfo.cpp"
@@ -1326,6 +2176,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1352,6 +2218,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\gzcompressaction.cpp"
@@ -1366,6 +2248,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1392,6 +2290,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\htmllayout.cpp"
@@ -1406,6 +2320,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1432,6 +2362,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\inputstream.cpp"
@@ -1446,6 +2392,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1472,6 +2434,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\integer.cpp"
@@ -1486,6 +2464,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1512,6 +2506,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\layout.cpp"
@@ -1526,6 +2536,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1552,6 +2578,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\levelmatchfilter.cpp"
@@ -1566,6 +2608,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1592,6 +2650,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\levelrangefilter.cpp"
@@ -1606,6 +2680,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1632,6 +2722,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\lineseparatorpatternconverter.cpp"
@@ -1646,6 +2752,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1672,6 +2794,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\loader.cpp"
@@ -1686,6 +2824,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1712,6 +2866,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\locationinfo.cpp"
@@ -1726,6 +2896,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1752,6 +2938,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\loggermatchfilter.cpp"
@@ -1766,6 +2968,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1792,6 +3010,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\loggingevent.cpp"
@@ -1806,6 +3040,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1832,6 +3082,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\loglog.cpp"
@@ -1846,6 +3112,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1872,6 +3154,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\logstream.cpp"
@@ -1886,6 +3184,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1912,6 +3226,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\mdc.cpp"
@@ -1926,6 +3256,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1952,6 +3298,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\messagepatternconverter.cpp"
@@ -1966,6 +3328,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1992,6 +3370,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\mutex.cpp"
@@ -2006,6 +3400,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2032,6 +3442,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\namepatternconverter.cpp"
@@ -2046,6 +3472,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2072,6 +3514,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\ndcpatternconverter.cpp"
@@ -2086,6 +3544,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2112,6 +3586,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\objectimpl.cpp"
@@ -2126,6 +3616,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2152,6 +3658,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\objectptr.cpp"
@@ -2166,6 +3688,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2192,6 +3730,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\odbcappender.cpp"
@@ -2206,6 +3760,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2232,6 +3802,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\optionconverter.cpp"
@@ -2246,6 +3832,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2272,6 +3874,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\outputstream.cpp"
@@ -2286,6 +3904,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2312,6 +3946,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\patternconverter.cpp"
@@ -2326,6 +3976,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2352,6 +4018,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\patternparser.cpp"
@@ -2366,6 +4048,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2392,6 +4090,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\properties.cpp"
@@ -2406,6 +4120,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2432,6 +4162,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\propertyconfigurator.cpp"
@@ -2446,6 +4192,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2472,6 +4234,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\propertysetter.cpp"
@@ -2486,6 +4264,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2512,6 +4306,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\relativetimedateformat.cpp"
@@ -2526,6 +4336,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2552,6 +4378,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\resourcebundle.cpp"
@@ -2566,6 +4408,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2592,6 +4450,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\rollingpolicy.cpp"
@@ -2606,6 +4480,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2632,6 +4522,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\rolloverdescription.cpp"
@@ -2646,6 +4552,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2672,6 +4594,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\serversocket.cpp"
@@ -2686,6 +4624,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2712,6 +4666,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\simplelayout.cpp"
@@ -2726,6 +4696,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2752,6 +4738,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\smtpappender.cpp"
@@ -2766,6 +4768,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2792,6 +4810,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\socketappender.cpp"
@@ -2806,6 +4840,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2832,6 +4882,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\sockethubappender.cpp"
@@ -2846,6 +4912,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2872,6 +4954,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\strftimedateformat.cpp"
@@ -2886,6 +4984,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2912,6 +5026,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\stringmatchfilter.cpp"
@@ -2926,6 +5056,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2952,6 +5098,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\synchronized.cpp"
@@ -2966,6 +5128,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2992,6 +5170,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\syslogwriter.cpp"
@@ -3006,6 +5200,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3032,6 +5242,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\systemerrwriter.cpp"
@@ -3046,6 +5272,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3072,6 +5314,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\telnetappender.cpp"
@@ -3086,6 +5344,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3112,6 +5386,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\threadlocal.cpp"
@@ -3126,6 +5416,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3152,6 +5458,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\threadspecificdata.cpp"
@@ -3166,6 +5488,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3192,6 +5530,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\timebasedrollingpolicy.cpp"
@@ -3206,6 +5560,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3232,6 +5602,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\transcoder.cpp"
@@ -3246,6 +5632,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3272,6 +5674,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\triggeringpolicy.cpp"
@@ -3286,6 +5704,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3312,6 +5746,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\writer.cpp"
@@ -3326,6 +5776,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3352,6 +5818,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\xmllayout.cpp"
@@ -3366,6 +5848,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3392,6 +5890,22 @@
 						BasicRuntimeChecks="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\main\cpp\zipcompressaction.cpp"
@@ -3406,6 +5920,22 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BasicRuntimeChecks="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="ReleaseDbg|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"

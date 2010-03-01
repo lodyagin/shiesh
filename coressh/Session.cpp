@@ -6,9 +6,7 @@
 #include "packet.h"
 #include "SFTP.h"
 #include "Subsystem.h"
-#include "PTY.h"
-
-//#define ENABLE_PTY
+#include "PTYPars.h"
 
 Session::Session
   (const std::string& objId,
@@ -23,7 +21,9 @@ Session::Session
      chanid (channelId),
      connection (con),/*,
      channel (chan)*/
-     subsystem (0)
+     subsystem (0),
+     ptys (3), // no more than 3 pty request // TODO
+     subsParsFact (0)
 {
   assert (connection);
 
@@ -35,10 +35,19 @@ Session::Session
     fatal ("no user for session %d", (int) self);
 	debug("session_open: session %d: link with channel %d",
     (int) self, channel->self);
+
+  subsParsFact = new SubsystemParsFactory 
+    (pw, 
+     &channel->fromChannel, 
+     &channel->toChannel,
+     &con->subsystemTerminated,
+     this
+     ); // FIXME check alloc
 }
 
 Session::~Session(void)
 {
+  delete subsParsFact;
 }
 
 int
@@ -46,46 +55,62 @@ Session::session_input_channel_req
   (SessionRepository* repository, Channel *c, const char *rtype)
 {
 	int success = 0;
-	Session *s;
 
-  void * p = repository;
-	if ((s = repository->get_session_by_channel(c->self)) == NULL) {
-		logit("session_input_channel_req: no session %d req %.100s",
-		    (int) c->self, rtype);
-		return 0;
-	}
-	debug("session_input_channel_req: session %d req %s", s->self, rtype);
+  //void * p = repository;
+	debug("session_input_channel_req: session %d req %s", self, rtype);
 
 	/*
 	 * a session is in LARVAL state until a shell, a command
 	 * or a subsystem is executed
 	 */
-	if (c->channelStateIs ("larval")) {
-    /*if (strcmp(rtype, "shell") == 0) {
-			success = session_shell_req(s);
-		} else if (strcmp(rtype, "exec") == 0) {
-			success = session_exec_req(s);
-		} else*/ 
-#ifdef ENABLE_PTY
-    if (strcmp(rtype, "pty-req") == 0) 
+  bool processed = false;
+	if (c->channelStateIs ("larval")) 
+  {
+    ChannelRequestPars* pars = subsParsFact->
+      get_subsystem_by_name (rtype);
+    assert (pars);
+  
+    try
     {
-      PTY pty (c->con);
-			success = pty.session_pty_req();
-		} else
-#endif
-    /*else if (strcmp(rtype, "x11-req") == 0) {
-			success = session_x11_req(s);
-		} else if (strcmp(rtype, "auth-agent-req@openssh.com") == 0) {
-			success = session_auth_agent_req(s);
-		}*/
-    if (strcmp(rtype, "subsystem") == 0) 
+     SubsystemPars* subsystemPars = 0;
+      PTYPars* ptyPars = 0;
+      if ((subsystemPars = dynamic_cast<SubsystemPars*> 
+          (pars))
+          )
+      { // start thread if it needs thread
+        if (subsystem)
+          fatal ("Subsystem already initialized");
+
+        subsystem = connection->create_subthread 
+          (*subsystemPars);
+        if (subsystemPars->subsystemName == "sftp")
+          c->sftpChannel = true;
+        subsystem->start (); // TODO stop ()
+        channel->open (CHAN_SES_WINDOW_DEFAULT); 
+        processed = true;
+      }
+      else if ((ptyPars = dynamic_cast<PTYPars*> (pars)))
+      {
+          ptys.create_object (*ptyPars); // TODO several reqs?
+          processed = true;
+      }
+    }
+    catch (InvalidObjectParameters&) {}
+
+    if (!processed)      
     {
-			success = s->session_subsystem_req ();
-		} 
-    /* else if (strcmp(rtype, "env") == 0) {
-			success = session_env_req(s);
-		}*/
-	}
+      LOG4STRM_WARN
+        (Logging::Root (),
+        oss_ << "Unprocessed channel request: ";
+        pars->outString (oss_)
+        );
+    }
+    else
+      LOG4STRM_DEBUG
+        (Logging::Root (),
+         pars->outString (oss_));
+  }
+
   //FIXME
 	/*if (strcmp(rtype, "window-change") == 0) {
 		success = session_window_change_req(s);
@@ -93,51 +118,7 @@ Session::session_input_channel_req
 		success = session_break_req(s);
 	}*/
 
-	return success;
-}
-
-int
-Session::session_subsystem_req ()
-{
-	u_int len = 0;
-	char *subsys = 0;
-
-  assert (connection);
-  assert (subsystem == 0); //TODO check in no debug also
-
-  subsys = connection->packet_get_string(&len);
-	packet_check_eom(connection);
-	logit("subsystem request for %.100s", subsys);
-
-  SubsystemPars pars;
-  pars.pw = pw;
-  pars.inBuffer = &channel->fromChannel;
-  pars.outBuffer = &channel->toChannel;
-  pars.subsystemName = subsys;
-  pars.subsystemTerminated = &connection->subsystemTerminated; 
-  pars.session = this;
-    //TODO unsafe pointer
-
-  subsystem = 0;
-  try
-  {
-    subsystem = connection->create_subthread (pars);
-    subsystem->start (); // TODO stop ()
-    channel->open (CHAN_SES_WINDOW_DEFAULT); 
-  }
-  catch (InvalidObjectParameters&)
-  {
-		logit("subsystem request for %.100s failed, subsystem not found",
-		    subsys);
-  }
-  catch (...)
-  {
-  	xfree(subsys);
-    throw; // TODO free strings from buffer 
-           // everywere on exceptions
-  }
-	xfree(subsys);
-	return subsystem != 0;
+	return processed;
 }
 
 void Session::session_exit_message (int status)

@@ -33,20 +33,10 @@
 
 //TODO UT
 
-/*Path::Path (const std::wstring& _path)
-: path (_path)
-{
-  init ();
-}*/
-
 // Use the default locale for case conversion
 const std::locale Path::loc;
 
-Path::Path 
-  (const std::wstring& _path/*, 
-   bool _endWithSlash*/
-   )
-//: endWithSlash (_endWithSlash)
+Path::Path (const std::wstring& _path)
 {
   init (_path);
 }
@@ -2000,46 +1990,58 @@ SFTP::sftp_server_cleanup_exit(int i)
 
 void SFTP::run ()
 {
-  void* inputMsg;
+  void* inputMsg = 0;
   u_int32_t inputMsgLen;
 
-	for (;;) {
- 
-    // wait until an input message arrived
-    inputMsg = fromChannel->get (&inputMsgLen);
+  try
+  {
+	  for (;;) {
+   
+      // wait until an input message arrived
+      inputMsg = fromChannel->get 
+        (&inputMsgLen, 0, 0);
 
-    if (inputMsgLen == 0) {
-      assert (fromChannel->n_msgs_in_the_buffer () == 0);
+      if (inputMsgLen == 0) {
+        coressh::xfree (inputMsg); inputMsg = 0;
+        assert (fromChannel->n_msgs_in_the_buffer () == 0);
 
-      if (fromChannel->n_msgs_in_the_buffer () != 0)
+        if (fromChannel->n_msgs_in_the_buffer () != 0)
+        {
+          LOG4CXX_ERROR 
+            (Logging::Root (),
+            L"Program error: EOF received but the input buffer"
+            L" contains more data to process. The SFTP session"
+            L" will not be closed (resource leak).");
+          continue;
+        }
+
+
+        // the buffer should be empty
+			  return; // exit the thread
+		  } 
+      else 
       {
-        LOG4CXX_ERROR 
-          (Logging::Root (),
-          L"Program error: EOF received but the input buffer"
-          L" contains more data to process. The SFTP session"
-          L" will not be closed (resource leak).");
-        continue;
-      }
+        // copy to SFTP::iqueue
+			  buffer_put_string(&iqueue, inputMsg, inputMsgLen);
+        coressh::xfree (inputMsg); inputMsg = 0;
+		  }
 
+      /*
+		   * Process requests from client if we can fit the results
+		   * into the output buffer, otherwise stop processing input
+		   * and let the output queue drain.
+		   */
+      // FIXME check fitting in output buffer
+		  process();
 
-      // the buffer should be empty
-			return; // exit the thread
-		} 
-    else 
-    {
-      // copy to SFTP::iqueue
-			buffer_put_string(&iqueue, inputMsg, inputMsgLen);
-		}
-
-    /*
-		 * Process requests from client if we can fit the results
-		 * into the output buffer, otherwise stop processing input
-		 * and let the output queue drain.
-		 */
-    // FIXME check fitting in output buffer
-		process();
-
-    // FIXME no backpressure at all (see OpenSSH)
-	}
+      // FIXME no backpressure at all (see OpenSSH)
+	  }
+  }
+  catch (...)
+  {
+    if (inputMsg) 
+      coressh::xfree (inputMsg);
+    throw;
+  }
 }
 

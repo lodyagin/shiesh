@@ -255,11 +255,12 @@ protected:
   SFTPFilePath* userHomeDir;
 };
 
-struct SubsystemPars;
+class SFTPPars;
 
 class SFTP : public Subsystem
 {
   friend SubsystemPars;
+  friend SFTPPars;
 protected:
   SFTP   
     (const std::string &objectId,
@@ -273,7 +274,6 @@ protected:
   ~SFTP ();
 
   Buffer iqueue;
-  //Buffer oqueue;
 
   SFTPFilePathFactory pathFact;
 

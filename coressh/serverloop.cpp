@@ -157,7 +157,7 @@ CoreConnection::wait_until_can_do_something
           FALSE, /* wait any*/
           0,
           FALSE
-         )) != WSA_WAIT_TIMEOUT)
+         )) != WSA_WAIT_TIMEOUT) // FIXME check condition
   {
     const int eventNum = waitResult - WSA_WAIT_EVENT_0 + arrayOffset;
     
@@ -419,8 +419,13 @@ CoreConnection::server_input_channel_req
        && c->ctype == "session"
       )
   {
-    success = Session::session_input_channel_req 
-      (this, c, rtype);
+   	Session *s = get_session_by_channel(c->self);
+    if (!s)
+		  logit("session_input_channel_req: no session %d req %.100s",
+		    (int) c->self, rtype);
+    else
+      success = s->session_input_channel_req 
+        (this, c, rtype);
   }
 
   // FIXME implement other types of request

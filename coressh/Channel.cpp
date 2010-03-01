@@ -100,7 +100,8 @@ Channel::Channel
   eofSent (false),
   closeRcvd (false),
   closeSent (false),
-  do_close (false)
+  do_close (false),
+  sftpChannel (false)
 {
   buffer_init(&ascending);
   buffer_init(&descending);
@@ -348,6 +349,10 @@ void Channel::put_raw_data (void* data, u_int data_len)
 bool Channel::is_complete_packet_in_descending ()
 {
   u_int buf_len = buffer_len (&descending);
+
+  if (!sftpChannel && buf_len > 0) // TODO check other types
+    return true;
+
   if (buf_len < 5) return false;
 
   u_char* cp = (u_char*) buffer_ptr(&descending);
@@ -365,6 +370,9 @@ bool Channel::is_complete_packet_in_descending ()
 
 void Channel::channel_post_open()
 {
+  if (!channelStateIs ("open")) 
+    return; // TODO check the logic
+
 	/*if (c->delayed)
 		return;*/ // FIXME
 
@@ -376,8 +384,16 @@ void Channel::channel_post_open()
 	//channel_handle_wfd(c, readset, writeset);
   if (is_complete_packet_in_descending ())
   {
-    u_int msg_len = buffer_get_int (&descending);
-    // now point to sftp type field
+    u_int msg_len = 0;
+    if (sftpChannel) // TODO need generic schema
+    {
+      msg_len = buffer_get_int (&descending);
+      // now point to sftp type field
+    }
+    else
+    {
+      msg_len = buffer_len (&descending);
+    }
 
     // it decrease c->local_consumed on data already
     // on a "subsystem processor" part

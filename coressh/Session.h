@@ -3,6 +3,8 @@
 #include "User.h"
 #include "auth.h"
 #include "Repository.h"
+#include "SubsystemParsFactory.h"
+#include "PTYPars.h"
 
 using namespace coressh;
 
@@ -17,6 +19,7 @@ class Session
   friend SessionPars;
   friend Repository<Session, SessionPars>;
   friend Channel;
+  friend Subsystem;
 public:
   const std::string universal_object_id;
   const int self;
@@ -24,7 +27,7 @@ public:
   User* const pw;
   Authctxt* const authctxt;
 
-  static int session_input_channel_req
+  int session_input_channel_req
     (SessionRepository* repository, Channel *c, const char *rtype);
 
   void session_exit_message(int status);
@@ -38,6 +41,9 @@ public:
   Channel* get_channel ()
   { return channel; }
 
+  CoreConnection* con ()
+  { return connection; }
+
 protected:
   Session 
     (const std::string& objId,
@@ -47,11 +53,13 @@ protected:
 
   virtual ~Session(void);
 
-  int session_subsystem_req ();
-
   Channel* channel;
 
   CoreConnection* connection;
 
+  SubsystemParsFactory* subsParsFact;
+
   Subsystem* subsystem;
+
+  PTYRepository ptys;
 };

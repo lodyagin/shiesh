@@ -387,6 +387,129 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
+		<Configuration
+			Name="ReleaseDbg|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				AdditionalIncludeDirectories="..\..\apr\include;..\..\apr\include\arch;..\..\apr\include\arch\win32;..\..\apr\include\arch\unix"
+				PreprocessorDefinitions="NDEBUG;APR_DECLARE_STATIC;WIN32=1"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				UsePrecompiledHeader="0"
+				DebugInformationFormat="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="ReleaseDbg|x64"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				AdditionalIncludeDirectories="..\..\apr\include;..\..\apr\include\arch;..\..\apr\include\arch\win32;..\..\apr\include\arch\unix"
+				PreprocessorDefinitions="NDEBUG;APR_DECLARE_STATIC;WIN32=1"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				UsePrecompiledHeader="0"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -673,19 +796,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\apr\include\arch\unix\apr_arch_dso.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\apr\include\arch\win32\apr_arch_dso.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\apr\include\arch\unix\apr_arch_file_io.h"
+				RelativePath="..\..\apr\include\arch\unix\apr_arch_dso.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\apr\include\arch\win32\apr_arch_file_io.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\apr\include\arch\unix\apr_arch_file_io.h"
 				>
 			</File>
 			<File
@@ -705,19 +828,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\apr\include\arch\unix\apr_arch_misc.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\apr\include\arch\win32\apr_arch_misc.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\apr\include\arch\unix\apr_arch_networkio.h"
+				RelativePath="..\..\apr\include\arch\unix\apr_arch_misc.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\apr\include\arch\win32\apr_arch_networkio.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\apr\include\arch\unix\apr_arch_networkio.h"
 				>
 			</File>
 			<File
@@ -737,15 +860,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\apr\include\arch\unix\apr_arch_thread_cond.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\apr\include\arch\win32\apr_arch_thread_cond.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\apr\include\arch\unix\apr_arch_thread_mutex.h"
+				RelativePath="..\..\apr\include\arch\unix\apr_arch_thread_cond.h"
 				>
 			</File>
 			<File
@@ -753,11 +872,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\apr\include\arch\unix\apr_arch_thread_rwlock.h"
+				RelativePath="..\..\apr\include\arch\unix\apr_arch_thread_mutex.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\apr\include\arch\win32\apr_arch_thread_rwlock.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\apr\include\arch\unix\apr_arch_thread_rwlock.h"
 				>
 			</File>
 			<File

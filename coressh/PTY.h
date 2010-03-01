@@ -1,15 +1,25 @@
 #pragma once
+#include "Repository.h"
+#include "ChannelRequest.h"
 
-#include "CoreConnection.h"
+class PTY;
+class PTYPars;
+class CoreConnection;
 
-class PTY
+class PTY : public ChannelRequest
 {
-public:
-  PTY (CoreConnection* _con);
-  virtual ~PTY(void);
-  bool session_pty_req ();
+  friend PTYPars;
+  friend Repository<PTY, PTYPars>;
 protected:
-  void tty_parse_modes(/*int fd,*/ int *n_bytes_ptr);
+  PTY (const std::string &objectId);
+  virtual ~PTY(void);
 
-  CoreConnection* con;
+  static void tty_parse_modes
+    (CoreConnection* con, int *n_bytes_ptr);
+
+  u_int col;
+  u_int row;
+  u_int xpixel;
+  u_int ypixel;
+  std::string term;
 };

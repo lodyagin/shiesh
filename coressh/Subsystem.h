@@ -9,18 +9,20 @@ The subsystem, as per RFC 4254
 #include "BusyThreadWriteBuffer.h"
 #include "BusyThreadReadBuffer.h"
 #include "Repository.h"
-#include "Session.h"
+#include "ChannelRequest.h"
 
 using namespace coressh;
 
-struct SubsystemPars;
+class SubsystemPars;
+class Session;
 
-class Subsystem : public SThread
+class Subsystem 
+  : public SThread,
+    public ChannelRequest
 {
   friend Repository<Subsystem, SubsystemPars>;
 
 public:
-  std::string universal_object_id;
 
   void terminate ()
   {
@@ -34,6 +36,12 @@ public:
   {
     return session;
   }
+
+  /*CoreConnection* con () 
+  { 
+    return session->connection; 
+  }*/
+
 protected:
   Subsystem 
     (const std::string &objectId,
@@ -44,7 +52,7 @@ protected:
      Session* _session
      )
     : SThread (terminatedSignal),
-      universal_object_id (objectId),
+      ChannelRequest (objectId),
       pw (_pw), fromChannel (in), toChannel (out),
       session (_session)
   {

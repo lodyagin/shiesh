@@ -178,6 +178,8 @@ public:
 
 protected:
 
+  bool sftpChannel;
+
   void sendEOF ();
 
   // States & flags

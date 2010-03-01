@@ -49,6 +49,7 @@
 #include "compat.h"
 #include "buffer.h"
 #include "termios.h"
+#include "CoreConnection.h"
 
 #define TTY_OP_END		0
 /*
@@ -347,7 +348,11 @@ end:
  * Decodes terminal modes for the terminal referenced by fd in a portable
  * manner from a packet being read.
  */
-void PTY::tty_parse_modes(/*int fd,*/ int *n_bytes_ptr)
+void PTY::tty_parse_modes
+  (/*int fd,*/
+   CoreConnection* con,
+   int *n_bytes_ptr
+   )
 {
 	struct termios tio;
 	int opcode, baud;
