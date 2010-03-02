@@ -11,7 +11,7 @@ Shell::Shell
    )
 : Subsystem 
     (objectId, _pw, in, out, 
-     terminatedSignal, session
+     terminatedSignal, _session
      ),
   childInWr (INVALID_HANDLE_VALUE),
   stdoutPipe (0)
@@ -71,29 +71,69 @@ void Shell::run ()
 
       if (inputMsg)
       {
-        const wchar_t endln[] = L"\r\n";
+        char buf[80];
+        int pos = 0;
+
+        for (unsigned i = 0; i < inputMsgLen; i++)
+        {
+          if (pos >= sizeof (buf) - 1)
+          {
+            DWORD nBytesWritten = 0;
+            sWinCheck 
+              (::WriteFile 
+                (childInWr,
+                 buf,
+                 pos,
+                 &nBytesWritten,
+                 0)
+               );
+            if (nBytesWritten != pos)
+              THROW_EXCEPTION 
+                (SException, 
+                 L"Not all information is written."
+                 );
+            pos = 0;
+          }
+
+          char c = ((char*) inputMsg) [i];
+          if (c != 13)
+            buf[pos++] = c;
+          else
+          {
+            buf[pos++] = 13;
+            buf[pos++] = 10;
+            DWORD nBytesWritten = 0;
+            sWinCheck 
+              (::WriteFile 
+                (childInWr,
+                 buf,
+                 pos,
+                 &nBytesWritten,
+                 0)
+               );
+            if (nBytesWritten != pos)
+              THROW_EXCEPTION 
+                (SException, 
+                 L"Not all information is written."
+                 );
+            sWinCheck (::FlushFileBuffers (childInWr));
+            pos = 0;
+          }
+          toChannel->put ((char*) inputMsg + i, 1);
+        }
+
+        coressh::xfree (inputMsg); inputMsg = 0;
+
         DWORD nBytesWritten = 0;
-        DWORD nBytesWritten2 = 0;
         sWinCheck 
           (::WriteFile 
             (childInWr,
-             inputMsg,
-             inputMsgLen,
+             buf,
+             pos,
              &nBytesWritten,
              0)
            );
-        coressh::xfree (inputMsg); inputMsg = 0;
-        sWinCheck 
-          (::WriteFile 
-            (childInWr,
-             endln,
-             sizeof (endln),
-             &nBytesWritten2,
-             0)
-           );
-        sWinCheck (::FlushFileBuffers (childInWr));
-
-        if (nBytesWritten != inputMsgLen)
+        if (nBytesWritten != pos)
           THROW_EXCEPTION 
             (SException, 
              L"Not all information is written."
@@ -105,7 +145,7 @@ void Shell::run ()
         stdoutPipe->CompleteRead (&nBytesRed);
         if (nBytesRed > 0)
         {
-          toChannel->put (&ascendingBuf, nBytesRed);
+          toChannel->put (ascendingBuf, nBytesRed);
         }
       }
     }
@@ -159,11 +199,11 @@ void Shell::start ()
   siStartInfo.hStdOutput = 
     stdoutPipe->get_client_handle ();
   siStartInfo.hStdInput = childInRd;
-  siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
+  siStartInfo.dwFlags = STARTF_USESTDHANDLES;
 
   // Create the child process. 
 
-  TCHAR szCmdline[]=TEXT("test_cmd"); 
+  TCHAR szCmdline[]=TEXT("cmd"); 
   sWinCheck
     (CreateProcess
       (NULL, 

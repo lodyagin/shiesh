@@ -378,7 +378,8 @@ void Channel::channel_post_open()
 
 	//channel_handle_rfd(c, readset, writeset);
   {
-    toChannel.get (&ascending); // put full size message in ascending
+    toChannel.get (&ascending, sftpChannel); 
+      // put full size message in ascending
   }
  
 	//channel_handle_wfd(c, readset, writeset);
