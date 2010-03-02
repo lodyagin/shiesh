@@ -338,7 +338,7 @@
 				Name="VCCLCompilerTool"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories=".;..\SNTLib;&quot;..\Concurrenc++&quot;;..\coressh;&quot;..\apache-log4cxx\src\main\include&quot;;..\openssl\inc32;..\zlib"
-				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE,LOG4CXX_STATIC;UNICODE;_UNICODE"
+				PreprocessorDefinitions="WIN32,NDEBUG,_CONSOLE,UNICODE;_UNICODE"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"

@@ -59,7 +59,7 @@ void Shell::run ()
           LOG4CXX_ERROR 
             (Logging::Root (),
             L"Program error: EOF received but the input buffer"
-            L" contains more data to process. The SFTP session"
+            L" contains more data to process. The Shell session"
             L" will not be closed (resource leak).");
           continue;
         }

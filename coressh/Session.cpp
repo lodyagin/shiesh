@@ -66,13 +66,14 @@ Session::session_input_channel_req
   bool processed = false;
 	if (c->channelStateIs ("larval")) 
   {
-    ChannelRequestPars* pars = subsParsFact->
-      get_subsystem_by_name (rtype);
-    assert (pars);
-  
+    ChannelRequestPars* pars = 0;
     try
     {
-     SubsystemPars* subsystemPars = 0;
+      pars = subsParsFact-> get_subsystem_by_name 
+        (rtype);
+      assert (pars);
+    
+      SubsystemPars* subsystemPars = 0;
       PTYPars* ptyPars = 0;
       if ((subsystemPars = dynamic_cast<SubsystemPars*> 
           (pars))
@@ -102,10 +103,10 @@ Session::session_input_channel_req
       LOG4STRM_WARN
         (Logging::Root (),
         oss_ << "Unprocessed channel request: ";
-        pars->outString (oss_)
+        if (pars) pars->outString (oss_); else oss_ << rtype;
         );
     }
-    else
+    else if (pars)
       LOG4STRM_DEBUG
         (Logging::Root (),
          pars->outString (oss_));
