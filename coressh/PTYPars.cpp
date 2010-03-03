@@ -17,7 +17,8 @@ PTY* PTYPars::create_derivation
    ObjectCreationInfo& info
    ) const
 {
-  return new PTY (info.objectId);
+  return new PTY 
+    (info.objectId, term, col, row);
 }
 
 void PTYPars::read_from_packet (CoreConnection* con)

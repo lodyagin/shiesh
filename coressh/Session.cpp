@@ -97,6 +97,7 @@ Session::session_input_channel_req
       }
     }
     catch (InvalidObjectParameters&) {}
+    catch (SException&) {}
 
     if (!processed)      
     {

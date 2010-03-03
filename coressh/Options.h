@@ -19,5 +19,8 @@ public:
 
   // TODO change to number in time interval
   int get_max_login_attempts () const;
+
+  const std::wstring
+  get_terminfo_db_path () const;
 };
 
