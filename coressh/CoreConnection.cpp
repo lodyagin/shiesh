@@ -145,10 +145,6 @@ CoreConnection::CoreConnection
        // no more than 5 subthreads
        // TODO check on all levels (SThread)
        ), 
-       
-
-   //ChannelRepository (),
-   //SessionRepository (), // --//--
 
    aDatafellows (0),
    packets_initialized (false),
@@ -186,7 +182,6 @@ CoreConnection::CoreConnection
    authDispatcher (0),
    srvDispatcher (0),
    xxx_kex (0),
-   no_more_sessions (0),
    connection_closed (false),
    subsystemTerminated (true), // manual reset
                      // (in wait_until_can_do_something)
@@ -263,12 +258,13 @@ void CoreConnection::run ()
        << socket->get_peer_address().get_ip () << ':'
        << socket->get_peer_address().get_port()
        );
-    // FIXME no channels/sessions/subsystem cleanup
+    // FIXME no channels/subsystem cleanup
+
     ((Repository<CoreConnection, CoreConnectionPars>*)repository)->delete_object 
       (this, false); // false means not to delete this
     throw;
   }
-  // FIXME no channels/sessions/subsystem cleanup
+  // FIXME no channels/subsystem cleanup
   ((Repository<CoreConnection, CoreConnectionPars>*)repository)->delete_object 
     (this, false); // false means not to delete this
 }
@@ -1206,41 +1202,38 @@ CoreConnection::packet_read_poll_seqnr(u_int32_t *seqnr_p)
 	char *msg;
 
 	for (;;) {
-		if (true /*compat20*/) {
-
-      type = packet_read_poll2(seqnr_p);
-			if (type) {
-				keep_alive_timeouts = 0;
-				DBG(debug("received packet type %d", type));
-			}
-			switch (type) {
-			case SSH2_MSG_IGNORE:
-				debug3("Received SSH2_MSG_IGNORE");
-				break;
-			case SSH2_MSG_DEBUG:
-				packet_get_char();
-				msg = (char*) packet_get_string(NULL);
-				debug("Remote: %.900s", msg);
-				xfree(msg);
-				msg = (char*) packet_get_string(NULL);
-				xfree(msg);
-				break;
-			case SSH2_MSG_DISCONNECT:
-				reason = packet_get_int();
-				msg = (char*) packet_get_string(NULL);
-				logit("Received disconnect from %s: %u: %.400s",
-				    get_remote_ipaddr(), reason, msg);
-				xfree(msg);
-				cleanup_exit(255);
-				break;
-			case SSH2_MSG_UNIMPLEMENTED:
-				seqnr = packet_get_int();
-				debug("Received SSH2_MSG_UNIMPLEMENTED for %u",
-				    seqnr);
-				break;
-			default:
-				return type;
-			}
+    type = packet_read_poll2(seqnr_p);
+		if (type) {
+			keep_alive_timeouts = 0;
+			DBG(debug("received packet type %d", type));
+		}
+		switch (type) {
+		case SSH2_MSG_IGNORE:
+			debug3("Received SSH2_MSG_IGNORE");
+			break;
+		case SSH2_MSG_DEBUG:
+			packet_get_char();
+			msg = (char*) packet_get_string(NULL);
+			debug("Remote: %.900s", msg);
+			xfree(msg);
+			msg = (char*) packet_get_string(NULL);
+			xfree(msg);
+			break;
+		case SSH2_MSG_DISCONNECT:
+			reason = packet_get_int();
+			msg = (char*) packet_get_string(NULL);
+			logit("Received disconnect from %s: %u: %.400s",
+			    get_remote_ipaddr(), reason, msg);
+			xfree(msg);
+			cleanup_exit(255);
+			break;
+		case SSH2_MSG_UNIMPLEMENTED:
+			seqnr = packet_get_int();
+			debug("Received SSH2_MSG_UNIMPLEMENTED for %u",
+			    seqnr);
+			break;
+		default:
+			return type;
 		}
 	}
 }
@@ -2400,7 +2393,7 @@ public:
     Subsystem *s = con.OverSubsystemThread::
       get_object_by_id (subsystemId);
     if (s) 
-      s->get_session () -> session_exit_message (0);
+      s->get_channel()->subproc_terminated_notify();
   }
 protected:
   CoreConnection& con;
@@ -2462,8 +2455,8 @@ void CoreConnection::server_loop ()
     // FIXME test rekeying
 
     // [ascending] -> [output]
-    if (!rekeying && buffer_len (&output) < 128 * 1024)
-        all_channels_output_poll ();
+    if (!rekeying) // FIXME see OpenSSH packet_not_very_much_data_to_write
+        all_channels_output_poll (); 
 
     // Fill the event array with the all channel data ready events
     if (!rekeying)
@@ -2511,7 +2504,7 @@ void CoreConnection::server_loop ()
       // [fromChannel] <- [descending]
 
       // posthandlers are here
-      all_channel_post_open (); // FIXME selection
+      all_channel_post (); // FIXME selection
 
 			if (packet_need_rekeying()) {
 				debug("need rekeying"); //UT rekeying
@@ -2595,8 +2588,6 @@ CoreConnection::channel_input_data
 	}
 	c->local_window -= data_len;
 
-  //   if (false /*c->datagram*/)
-	//else
   // put raw data into the descending buffer
   c->put_raw_data (data, data_len);
 	packet_check_eom(this);
@@ -2673,11 +2664,11 @@ void CoreConnection::all_channels_output_poll ()
      );
 }
 
-void CoreConnection::all_channel_post_open ()
+void CoreConnection::all_channel_post ()
 {
   ChannelRepository::for_each 
     (std::mem_fun_ref_t<void, Channel> 
-      (&Channel::channel_post_open)
+      (&Channel::channel_post)
      );
 }
 
@@ -2757,10 +2748,7 @@ CoreConnection::server_input_global_request
 		success = channel_cancel_rport_listener(cancel_address,
 		    cancel_port);
 		xfree(cancel_address);
-	} else if (strcmp(rtype, "no-more-sessions@openssh.com") == 0) {
-		no_more_sessions = 1;
-		success = 1;
-	}
+	} 
 #endif
 
 	if (want_reply) {

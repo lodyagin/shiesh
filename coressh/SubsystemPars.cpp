@@ -16,7 +16,7 @@ Subsystem* SubsystemPars::create_derivation
        inBuffer,
        outBuffer,
        subsystemTerminated,
-       session
+       channel
        );
 
   throw InvalidObjectParameters ();

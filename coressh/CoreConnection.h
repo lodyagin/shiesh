@@ -13,7 +13,7 @@
 #include "AuthDispatcher.h"
 #include "ServerMainDispatcher.h"
 #include "ChannelPars.h"
-#include "SessionPars.h"
+//#include "SessionPars.h"
 #include "Subsystem.h"
 #include "SubsystemPars.h"
 #include "ThreadWithSubthreads.h"
@@ -31,8 +31,8 @@ class CoreConnection
       // It means: a CoreConnection thread 
       // produces Session threads
 
-    public ChannelRepository, //TODO (public)
-    public SessionRepository
+    public ChannelRepository //TODO (public)
+    //public SessionRepository
 {
   friend CoreConnectionPars;
   friend Dispatcher;
@@ -84,6 +84,12 @@ public:
 
   // TODO move somewhere
   SEvent subsystemTerminated;
+
+  const Authctxt* get_authctxt () const
+  {
+    assert (authctxt);
+    return authctxt;
+  }
 
 protected:
   ~CoreConnection ();
@@ -409,11 +415,6 @@ private:
 
   /* channels & sessions */
 
-  int no_more_sessions ; /* Disallow further sessions. */
-
-  Channel* server_request_session 
-    (const ChannelPars& chPars);
-
   void channel_input_data
     (int type, u_int32_t seq, void *ctxt);
 
@@ -441,7 +442,7 @@ private:
   bool lastSendBlocks;
 
   void all_channels_output_poll ();
-  void all_channel_post_open ();
+  void all_channel_post ();
 
   u_int poll2_packet_length;
   int send2_rekeying;

@@ -241,13 +241,11 @@ size_t CKeyboard::DecodeKey
 
     // Find the longest match in the keymap.
     size_t matchedSize = 0;
-    //const string::const_iterator sfirst (is.ipos());
     for (keymap_t::size_type i = 0; i < m_Keymap.size(); ++ i) {
         const CTerminfo::capout_t ks = m_Keymap[i];
         const size_t kss = strlen (ks);
         if (kss > inBufSize || kss < matchedSize)
             continue;
-        //const string::const_iterator slast (is.ipos() + kss);
         if (::strncmp (p, ks, kss) == 0) {
             kv = i + kv_First;
             matchedSize = kss;

@@ -12,7 +12,7 @@ Subsystem* ShellPars::create_derivation
      inBuffer,
      outBuffer,
      subsystemTerminated,
-     session
+     channel
      );
 }
 

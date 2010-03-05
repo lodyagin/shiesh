@@ -8,7 +8,7 @@
 
 using namespace coressh;
 
-class Session;
+class SessionChannel;
 
 class SubsystemParsFactory
 {
@@ -18,7 +18,7 @@ public:
      BusyThreadWriteBuffer<Buffer>* _in,
      BusyThreadReadBuffer<Buffer>* _out,
      SEvent* _terminatedSignal,
-     Session* _session
+     SessionChannel* _channel
      );
 
   ChannelRequestPars* get_subsystem_by_name
@@ -29,5 +29,5 @@ protected:
   BusyThreadWriteBuffer<Buffer>* in;
   BusyThreadReadBuffer<Buffer>* out;
   SEvent* terminatedSignal;
-  Session* session;
+  SessionChannel* channel;
 };

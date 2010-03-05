@@ -566,11 +566,11 @@ SFTP::SFTP
    BusyThreadWriteBuffer<Buffer>* in,
    BusyThreadReadBuffer<Buffer>* out,
    SEvent* terminatedSignal,
-   Session* session
+   SessionChannel* _channel
    )
 : Subsystem 
     (objectId, _pw, in, out, terminatedSignal,
-     session),
+     channel),
   pathFact (_pw)
 {
   buffer_init (&iqueue);
@@ -724,10 +724,12 @@ bool SFTP::handle_close(int handle)
 	bool ret = false;
 
 	if (handle_is_ok(handle, HANDLE_FILE)) {
-    ret = (bool) ::CloseHandle (handles[handle].fileHandle);
+    ret = ::CloseHandle (handles[handle].fileHandle)
+      == TRUE;
 		handle_unused(handle);
 	} else if (handle_is_ok(handle, HANDLE_DIR)) {
-    ret = (bool) ::CloseHandle (handles[handle].dirp);
+    ret = ::CloseHandle (handles[handle].dirp)
+      == TRUE;
 		handle_unused(handle);
 	} else {
     ::SetLastError (ERROR_FILE_NOT_FOUND);

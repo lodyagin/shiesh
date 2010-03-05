@@ -268,7 +268,7 @@ protected:
      BusyThreadWriteBuffer<Buffer>* in,
      BusyThreadReadBuffer<Buffer>* out,
      SEvent* terminatedSignal,
-     Session* _session
+     SessionChannel* _channel
      );
 
   ~SFTP ();

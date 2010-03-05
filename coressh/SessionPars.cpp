@@ -2,6 +2,7 @@
 #include "SessionPars.h"
 #include "Session.h"
 
+#if 0
 Session* SessionRepository::get_session_by_channel 
   (int chanid)
 { 
@@ -19,6 +20,7 @@ Session* SessionRepository::get_session_by_channel
   }
 	return NULL;
 }
+#endif 
 
 Session* SessionPars::create_derivation 
     (const SessionRepository::ObjectCreationInfo& info) const
@@ -26,6 +28,6 @@ Session* SessionPars::create_derivation
   return new Session
     (info.objectId,
      authctxt,
-     chanid,
+     channel,
      connection);
 }

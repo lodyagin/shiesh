@@ -1,0 +1,50 @@
+#pragma once
+#include "Subsystem.h"
+#include "ThreadRepository.h"
+#include "ThreadWithSubthreads.h"
+#include "ChannelPars.h"
+#include "User.h"
+#include "BusyThreadWriteBuffer.h"
+#include "BusyThreadReadBuffer.h"
+#include "buffer.h"
+#include "HasStringView.h"
+
+class CoreConnection;
+
+class SubsystemPars : public HasStringView
+{
+public:
+  User * pw;
+  BusyThreadWriteBuffer<Buffer>* inBuffer;
+  BusyThreadReadBuffer<Buffer>* outBuffer;
+  SEvent* subsystemTerminated;
+  Session* session;
+
+  SubsystemPars(const char* _name) 
+    : pw (0), inBuffer (0), outBuffer (0),
+     subsystemTerminated (0), name (_name)
+  {}
+
+  virtual ~SubsystemPars () {}
+
+  virtual Subsystem* create_derivation 
+    (const Repository<Subsystem, SubsystemPars>::ObjectCreationInfo&) const = 0;
+
+  // read some parameters from packet
+  virtual void read_from_packet 
+    (CoreConnection* con) = 0;
+
+  // is separate thread needed for this subsystem
+  virtual bool need_thread () const = 0;
+
+  // Overrides
+  void outString (std::ostream& out) const
+  {
+    out << name;
+  }
+
+  const std::string name; // i.e., "pty-req"
+};
+
+typedef ThreadWithSubthreads<Subsystem, SubsystemPars>
+  OverSubsystemThread;

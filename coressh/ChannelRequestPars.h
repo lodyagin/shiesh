@@ -22,7 +22,6 @@ public:
 
   const std::string name; // i.e., "pty-req"
 
-//protected:
   virtual void read_from_packet 
     (CoreConnection* con) = 0;
 };

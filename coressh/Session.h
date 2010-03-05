@@ -8,37 +8,38 @@
 
 using namespace coressh;
 
-struct SessionPars;
+//struct SessionPars;
 class Subsystem;
 class Channel;
+class SessionChannel;
 class CoreConnection;
-class SessionRepository;
 
 class Session
 {
+#if 0
   friend SessionPars;
   friend Repository<Session, SessionPars>;
-  friend Channel;
+  friend SessionChannel;
   friend Subsystem;
 public:
   const std::string universal_object_id;
   const int self;
-  const int chanid; // TODO the same as channel->self
+  //const int chanid; // TODO the same as channel->self
   User* const pw;
   Authctxt* const authctxt;
 
-  int session_input_channel_req
-    (SessionRepository* repository, Channel *c, const char *rtype);
-
-  void session_exit_message(int status);
-
+  /*int session_input_channel_req
+    (Repository<Session, SessionPars>* repository,
+     Channel *c, 
+     const char *rtype
+     );*/
 
   // Thread delegates
   void stop ();
   void wait ();
   bool is_running ();
 
-  Channel* get_channel ()
+  SessionChannel* get_channel ()
   { return channel; }
 
   CoreConnection* con ()
@@ -48,12 +49,12 @@ protected:
   Session 
     (const std::string& objId,
      Authctxt* autchCtxt,
-     int channelId,
+     SessionChannel* chan,
      CoreConnection* con);
 
   virtual ~Session(void);
 
-  Channel* channel;
+  SessionChannel* channel;
 
   CoreConnection* connection;
 
@@ -62,4 +63,5 @@ protected:
   Subsystem* subsystem;
 
   PTYRepository ptys;
+#endif
 };

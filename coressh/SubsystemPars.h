@@ -18,12 +18,12 @@ public:
   BusyThreadWriteBuffer<Buffer>* inBuffer;
   BusyThreadReadBuffer<Buffer>* outBuffer;
   SEvent* subsystemTerminated;
-  Session* session;
+  SessionChannel* channel;
 
-  SubsystemPars (/*CoreConnection* con*/)
-    : ChannelRequestPars ("subsystem"/*, con*/),
+  SubsystemPars ()
+    : ChannelRequestPars ("subsystem"),
      pw (0), inBuffer (0), outBuffer (0),
-     subsystemTerminated (0)
+     subsystemTerminated (0), channel (0)
   {}
 
   ~SubsystemPars () {}

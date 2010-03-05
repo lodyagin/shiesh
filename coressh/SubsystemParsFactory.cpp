@@ -11,18 +11,17 @@ SubsystemParsFactory::SubsystemParsFactory
    BusyThreadWriteBuffer<Buffer>* _in,
    BusyThreadReadBuffer<Buffer>* _out,
    SEvent* _terminatedSignal,
-   Session* _session
+   SessionChannel* _channel
    )
    : pw (_pw), in (_in), out (_out),
      terminatedSignal (_terminatedSignal),
-     session (_session)
+     channel (_channel)
 {
   assert (pw);
   assert (in);
   assert (out);
   assert (terminatedSignal);
-  assert (session);
-  assert (session->con ());
+  assert (channel);
 }
 
 ChannelRequestPars* 
@@ -31,7 +30,7 @@ SubsystemParsFactory::get_subsystem_by_name
 {
   ChannelRequestPars* pars = 0;
   std::string subsys;
-  CoreConnection* con = session->con ();
+  CoreConnection* con = channel->get_con ();
 
   if (strcmp (name, "pty-req") == 0)
     pars = new PTYPars (name); 
@@ -52,7 +51,7 @@ SubsystemParsFactory::get_subsystem_by_name
       sPars->inBuffer = in;
       sPars->outBuffer = out;
       sPars->subsystemTerminated = terminatedSignal;
-      sPars->session = session;
+      sPars->channel = channel;
     }
     return pars;
   }

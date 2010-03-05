@@ -10,11 +10,11 @@ The subsystem, as per RFC 4254
 #include "BusyThreadReadBuffer.h"
 #include "Repository.h"
 #include "ChannelRequest.h"
+#include "SessionChannel.h"
 
 using namespace coressh;
 
 class SubsystemPars;
-class Session;
 
 class Subsystem 
   : public SThread,
@@ -32,15 +32,10 @@ public:
     fromChannel->put_eof ();
   }
 
-  Session* get_session ()
+  SessionChannel* get_channel ()
   {
-    return session;
+    return channel;
   }
-
-  /*CoreConnection* con () 
-  { 
-    return session->connection; 
-  }*/
 
 protected:
   Subsystem 
@@ -49,15 +44,15 @@ protected:
      BusyThreadWriteBuffer<Buffer>* in,
      BusyThreadReadBuffer<Buffer>* out,
      SEvent* terminatedSignal,
-     Session* _session
+     SessionChannel* _channel
      )
     : SThread (terminatedSignal),
       ChannelRequest (objectId),
       pw (_pw), fromChannel (in), toChannel (out),
-      session (_session)
+      channel (_channel)
   {
     assert (pw);
-    assert (session);
+    assert (channel);
   }
 
   ~Subsystem(void);
@@ -65,5 +60,5 @@ protected:
   User * const pw;
   BusyThreadWriteBuffer<Buffer>* fromChannel;
   BusyThreadReadBuffer<Buffer>* toChannel;
-  Session* session;
+  SessionChannel* channel;
 };

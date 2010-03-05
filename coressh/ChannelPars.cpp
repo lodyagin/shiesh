@@ -1,13 +1,11 @@
 #include "StdAfx.h"
 #include "ChannelPars.h"
+#include "SessionChannel.h"
+#include "CoreConnection.h"
+#include "packet.h"
 
-/* default window/packet sizes for tcp/x11-fwd-channel */
-#define CHAN_SES_PACKET_DEFAULT	(32*1024)
-#define CHAN_SES_WINDOW_DEFAULT	(64*CHAN_SES_PACKET_DEFAULT)
-#define CHAN_TCP_PACKET_DEFAULT	(32*1024)
-#define CHAN_TCP_WINDOW_DEFAULT	(64*CHAN_TCP_PACKET_DEFAULT)
-#define CHAN_X11_PACKET_DEFAULT	(16*1024)
-#define CHAN_X11_WINDOW_DEFAULT	(4*CHAN_X11_PACKET_DEFAULT)
+//#define CHAN_TCP_PACKET_DEFAULT	(32*1024)
+//#define CHAN_TCP_WINDOW_DEFAULT	(64*CHAN_TCP_PACKET_DEFAULT)
 
 void ChannelRepository::fill_event_array 
   (HANDLE events[], 
@@ -30,9 +28,9 @@ void ChannelRepository::fill_event_array
 
         if (c->inputStateIs ("open")
             && c->get_remote_window () > 0
-            && c->get_ascending_size () 
+            && c->get_ascending_size ()  // FIXME can lock?
                  < c->get_remote_window ()
-            && c->check_ascending_chan_rbuf ()
+            && c->check_ascending_chan_rbuf () // FIXME can lock ?
             ) //UT
             // FIXME the same conditions to block writing
             // in "toChannel"
@@ -47,7 +45,7 @@ void ChannelRepository::fill_event_array
         {
           if (buffer_len (&c->descending) == 0)
           {
-            c->fromChannel.put_eof ();  
+            c->put_eof ();  
             c->currentOutputState = c->outputClosedState;
             c->currentInputState = c->inputWaitDrainState;
           }
@@ -63,20 +61,40 @@ void ChannelRepository::fill_event_array
 }
 
 
-Channel* SessionChannelPars::create_derivation
+Channel* ChannelPars::create_derivation
   (const ChannelRepository::ObjectCreationInfo& info) const
 {
-  Channel* c = new Channel
-    ("session",
-     info.objectId,
-     /*window size*/0,
-     CHAN_SES_PACKET_DEFAULT,
-     remote_name,
-     connection
-     );
+  Channel* c = 0;
+
+  if (ctype == "session")
+    c = new SessionChannel
+      ("session",
+       info.objectId,
+       /*window size*/0,
+       connection
+       );
+
+  if (!c) 
+    throw UnknownChannelType (ctype, remote_id);
+
   c->remote_id = remote_id;
   c->remote_window = rwindow;
   c->remote_maxpacket = rmaxpack;
 
   return c;
+}
+
+void ChannelPars::read_from_packet ()
+{
+	u_int len = 0;
+
+  char* str = connection->packet_get_string(&len);
+	ctype = str;
+  coressh::xfree (str);
+  remote_id = connection->packet_get_int();
+	rwindow = connection->packet_get_int();
+	rmaxpack = connection->packet_get_int();
+
+  if (ctype == "session")
+    packet_check_eom (connection);
 }

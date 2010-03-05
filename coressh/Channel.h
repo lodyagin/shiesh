@@ -10,15 +10,7 @@
 #include "BusyThreadWriteBuffer.h"
 #include "Repository.h"
 
-/* default window/packet sizes for tcp/x11-fwd-channel */
-#define CHAN_SES_PACKET_DEFAULT	(32*1024)
-#define CHAN_SES_WINDOW_DEFAULT	(64*CHAN_SES_PACKET_DEFAULT)
-#define CHAN_TCP_PACKET_DEFAULT	(32*1024)
-#define CHAN_TCP_WINDOW_DEFAULT	(64*CHAN_TCP_PACKET_DEFAULT)
-
 using namespace coressh;
-
-struct SessionChannelPars;
 
 class CoreConnection;
 struct ChannelPars;
@@ -26,13 +18,14 @@ class ChannelRepository;
 
 class Channel : public SNotCopyable
 {
-  friend SessionChannelPars;
   friend CoreConnection; //TODO
   friend Session; //TODO
   friend Repository<Channel, ChannelPars>;
   friend ChannelRepository;
+  friend ChannelPars;
   
 public:
+
   // check currentChanState
   bool channelStateIs (const char* stateName);
   bool outputStateIs (const char* stateName);
@@ -44,6 +37,17 @@ public:
   const int self;		
 
   const std::string ctype;		/* type */
+
+  virtual bool is_complete_packet_in_descending ()
+  {
+    return true;
+  }
+
+  // see CHAN_RBUF in OpenSSH
+  bool check_ascending_chan_rbuf ()
+  {
+    return buffer_check_alloc (&ascending, 16 * 1024);
+  }
 
   // The selectors
 
@@ -87,32 +91,30 @@ public:
     return buffer_len (&descending);
   };
 
-  // see CHAN_RBUF in OpenSSH
-  bool check_ascending_chan_rbuf ()
-  {
-    return buffer_check_alloc (&ascending, 16 * 1024);
-  }
-
-  void open (u_int window_max);
-
   void channel_output_poll ();
 
-  // descending has a complete packet
-  // it can be send to "subsystem process"
-  bool is_complete_packet_in_descending ();
+  virtual bool hasAscendingData () const = 0;
 
-  // true if size of descending + fromChannel
-  // buffers > 0
-  //bool hasDescendingData () const;
+  // Return the handle to the event
+  // of data appearence in the subproc. 
+  // to chaneel stream
+  virtual HANDLE get_data_ready_event () = 0;
 
-  // true if size of ascending + toChannel
-  // buffers > 0
-  bool hasAscendingData () const;
+  virtual void input_channel_req 
+    (u_int32_t seq, const char* rtype, int reply) = 0;
+
+  CoreConnection* get_con ()
+  {
+    assert (con);
+    return con;
+  }
 
 protected:
 
-  virtual ~Channel(void);
+  virtual ~Channel ();
   bool chan_is_dead (bool do_send);
+
+  void open (u_int window_max);
 
   /* -- States */
 
@@ -129,10 +131,8 @@ protected:
   static UniversalState outputClosedState;
 
   static UniversalState openChanState;
-  //static UniversalState closedState;
   static UniversalState larvalChanState;
-  //static UniversalState connectingState;
-  //static UniversalState zombieState; 
+  static UniversalState connectingState; //TODO only for ForwardChannel
   //FIXME initializing
 
   static const State2Idx allInputStates[];
@@ -152,33 +152,16 @@ protected:
     const std::string& channelId,
     u_int windowSize,
     u_int maxPacketSize,
-    const std::string& remoteName,
-    CoreConnection* connection
+    CoreConnection* connection,
+    UniversalState channelStartState
     );
 
 public:
-  // from channel to subsystem
-  BusyThreadWriteBuffer<Buffer> fromChannel; 
-
-  // from subsystem to channel
-  BusyThreadReadBuffer<Buffer> toChannel;   
-
-  //BusyThreadReadBuffer<Buffer> fromChannelExt;
-
-  // Return the handle to the event
-  // of data appearence in the toChannel (^) stream
-  HANDLE get_data_ready_event ()
-  {
-    return toChannel.dataReady.evt ();
-  }
-
   // it is public for access from functors
   Buffer ascending;  // ^
   Buffer descending; // V
 
 protected:
-
-  bool sftpChannel;
 
   void sendEOF ();
 
@@ -189,17 +172,8 @@ protected:
   bool closeSent;
 
  	int     remote_id;	/* channel identifier for remote peer */
-	//int     isatty;		/* rfd is a tty */
-	//int     wfd_isatty;	/* wfd is a tty */
-	//int	client_tty;	/* (client) TTY has been requested */
-	int     force_drain;	/* force close on iEOF */
-	//int     delayed;		/* fdset hack */
 
-  //	char    path[SSH_CHANNEL_PATH_LEN];
-		/* path for unix domain sockets, or host name for forwards */
-	//int     listening_port;	/* port being listened for forwards */
-	//int     host_port;	/* remote port to connect for forwards */
-  std::string remote_name;	/* remote hostname */
+  //? std::string remote_name;	/* remote hostname */
 
 	u_int	remote_window;
 	u_int	remote_maxpacket;
@@ -207,26 +181,6 @@ protected:
 	u_int	local_window_max;
 	u_int	local_consumed;
 	u_int	local_maxpacket;
-	//int     extended_usage;
-	int	single_connection;
-
-#if 0
-	/* callback */
-	channel_callback_fn	*open_confirm;
-	void			*open_confirm_ctx;
-	channel_callback_fn	*detach_user;
-	int			detach_close;
-	struct channel_confirms	status_confirms;
-
-	/* filter */
-	channel_infilter_fn	*input_filter;
-	channel_outfilter_fn	*output_filter;
-	void			*filter_ctx;
-	channel_filter_cleanup_fn *filter_cleanup;
-#endif
-
-	/* keep boundaries */
-	//int     		datagram;
 
 	/* non-blocking connect */
 	//struct channel_connect	connect_ctx;
@@ -243,23 +197,34 @@ protected:
 
   void rcvd_ieof ();
 
-  void garbage_collect ();
+  virtual void garbage_collect () = 0;
 
-  void session_close_by_channel (Session* session);
+  // notify session on subprocess termination
+  virtual void subproc_terminated_notify () = 0;
 
-private:
 
-  //void check_moving_to (const UniversalState& to);
+protected: // TODO need private
 
   void chan_state_move_to (const UniversalState& to);
-
-  static Logging log;
 
   UniversalState currentInputState;
   UniversalState currentOutputState;
   UniversalState currentChanState;
 
-  void put_raw_data (void* data, u_int data_len);
-  void channel_post_open();
+  // [subproc] <-> {ascending, descending}
+  void channel_post ();
+
+  void put_raw_data 
+    (void* data, u_int data_len);
+
+  virtual void subproc2ascending () = 0;
+  virtual void descending2subproc () = 0;
+
+  // Send EOF to a subprocess (or close a socket)
+  virtual void put_eof () = 0;
+
+private:
+
+  static Logging log;
 };
 

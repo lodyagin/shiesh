@@ -40,9 +40,10 @@
 #include "Channel.h"
 #include "ChannelPars.h"
 #include "Session.h"
-#include "SessionPars.h"
+//#include "SessionPars.h"
 #include "packet.h"
 #include "ssh2.h"
+#include "compat.h"
 
 class DescendingProbe : public std::unary_function<void, Channel&>
 {
@@ -229,99 +230,55 @@ CoreConnection::process_output(/*long networkEvents*/)
 		packet_write_poll();
 }
 
-Channel *
-CoreConnection::server_request_session 
-  (const ChannelPars& chPars)
-{
-	Channel *c;
-
-	debug("input_session_request");
-	packet_check_eom(this);
-
-	if (no_more_sessions) {
-		packet_disconnect("Possible attack: attempt to open a session "
-		    "after additional sessions disabled");
-	}
-
-  // create a channel
-  c = ChannelRepository::create_object (chPars);
-
-  // create a session associated with the channel
-  SessionPars sessPars;
-  sessPars.authctxt = authctxt;
-  sessPars.chanid = c->self;
-  sessPars.connection = this;
-  (void) SessionRepository::create_object (sessPars); 
-  //TODO session creation fail conditions from OpenSSH
-  //{
-	//	debug("session open failed, free channel %d", c->self);
-	//	channel_free(c);
-	//	return NULL;
-	//}
-
-  // FIXME: check this:
-	/*
-	 * A server session has no fd to read or write until a
-	 * CHANNEL_REQUEST for a shell is made, so we set the type to
-	 * SSH_CHANNEL_LARVAL.  Additionally, a callback for handling all
-	 * CHANNEL_REQUEST messages is registered.
-	 */
-
-	//channel_register_cleanup(c->self, session_close_by_channel, 0);
-	return c;
-}
-
 void 
 CoreConnection::server_input_channel_open
   (int type, u_int32_t seq, void *ctxt)
 {
 	Channel *c = NULL;
-	char *ctype;
-	//int rchan;
-	u_int /*rmaxpack, rwindow,*/ len;
-  SessionChannelPars chPars;
-
-	ctype = packet_get_string(&len);
-  chPars.remote_id = packet_get_int();
-	chPars.rwindow = packet_get_int();
-	chPars.rmaxpack = packet_get_int();
-  chPars.connection = this;
+  ChannelPars chPars (this);
+  chPars.read_from_packet ();
+  //chPars.authctxt = (Authctxt*) ctxt;
 
 	debug("server_input_channel_open: ctype %s rchan %d win %d max %d",
-	    ctype, 
+	    chPars.ctype.c_str (), 
       (int) chPars.remote_id, 
       (int) chPars.rwindow, 
       (int) chPars.rmaxpack
       );
-
-	if (strcmp(ctype, "session") == 0) {
-		c = server_request_session(chPars);
-	} 
-  /*else if (strcmp(ctype, "direct-tcpip") == 0) {
-		c = server_request_direct_tcpip();
-	} */
-	if (c != NULL) {
-		debug("server_input_channel_open: confirm %s", ctype);
-		// FIXME if (c->type != SSH_CHANNEL_CONNECTING) {
-			packet_start(SSH2_MSG_CHANNEL_OPEN_CONFIRMATION);
-			packet_put_int(c->get_remote_id ());
-			packet_put_int(c->self);
-			packet_put_int(c->get_local_window ());
-			packet_put_int(c->get_local_maxpacket ());
-			packet_send();
-		//}
-	/*} else {
-		debug("server_input_channel_open: failure %s", ctype);
-		packet_start(SSH2_MSG_CHANNEL_OPEN_FAILURE);
-		packet_put_int(rchan);
-		packet_put_int(SSH2_OPEN_ADMINISTRATIVELY_PROHIBITED);
-		if (!(datafellows & SSH_BUG_OPENFAILURE)) {
+  
+  try
+  {
+    c = ChannelRepository::create_object (chPars);
+  }
+  catch (ChannelPars::UnknownChannelType& uctException)
+  {
+		packet_start (SSH2_MSG_CHANNEL_OPEN_FAILURE);
+		packet_put_int (uctException.rchan);
+		packet_put_int (SSH2_OPEN_UNKNOWN_CHANNEL_TYPE);
+		if (!(datafellows () & SSH_BUG_OPENFAILURE)) {
 			packet_put_cstring("open failed");
 			packet_put_cstring("");
 		}
-		packet_send();*/
+		packet_send();
+  }
+
+	if (c != NULL) {
+		debug
+      ("server_input_channel_open: confirm %s", 
+       chPars.ctype.c_str ()
+       );
+		if (!c->channelStateIs ("connecting")) 
+    { // For forward channel wait for remote socket
+      // connection
+			packet_start
+        (SSH2_MSG_CHANNEL_OPEN_CONFIRMATION);
+			packet_put_int (c->get_remote_id ());
+			packet_put_int (c->self);
+			packet_put_int (c->get_local_window ());
+			packet_put_int (c->get_local_maxpacket ());
+			packet_send ();
+		}
 	}
-	xfree(ctype);
 }
 
 #if 0
@@ -377,9 +334,6 @@ server_input_global_request(int type, u_int32_t seq, void *ctxt)
 		success = channel_cancel_rport_listener(cancel_address,
 		    cancel_port);
 		xfree(cancel_address);
-	} else if (strcmp(rtype, "no-more-sessions@openssh.com") == 0) {
-		no_more_sessions = 1;
-		success = 1;
 	}
 	if (want_reply) {
 		packet_start(success ?
@@ -411,6 +365,10 @@ CoreConnection::server_input_channel_req
 		packet_disconnect("server_input_channel_req: "
 		    "unknown channel %d", id);
 	
+  c->input_channel_req (seq, rtype, reply);
+  coressh::xfree(rtype);
+
+#if 0
   if (
       (
        c->channelStateIs ("larval") ||
@@ -419,25 +377,22 @@ CoreConnection::server_input_channel_req
        && c->ctype == "session"
       )
   {
-   	Session *s = get_session_by_channel(c->self);
-    if (!s)
-		  logit("session_input_channel_req: no session %d req %.100s",
-		    (int) c->self, rtype);
-    else
+    SessionChannel* sc;
+    if (sc = dynamic_cast<SessionChannel*> (c))
+    {
       success = s->session_input_channel_req 
         (this, c, rtype);
+    }
+    else
+    {
+      logit("session_input_channel_req: no session %d req %.100s",
+        (int) c->self, rtype);
+    }
   }
 
   // FIXME implement other types of request
   // Some request should be ignored without failure.
 
-	if (reply) 
-  {
-		packet_start(success ?
-		    SSH2_MSG_CHANNEL_SUCCESS : SSH2_MSG_CHANNEL_FAILURE);
-		packet_put_int(c->get_remote_id ());
-		packet_send();
-	}
-	xfree(rtype);
+#endif
 }
 

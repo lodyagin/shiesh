@@ -256,7 +256,7 @@ ls_file
 
   SYSTEMTIME sysTime;
   const bool sysTimePresent = ::FileTimeToSystemTime 
-    (&st->ftLastWriteTime, &sysTime);
+    (&st->ftLastWriteTime, &sysTime) == TRUE;
 	struct tm time;
   if (sysTimePresent)
     time = wce_SYSTEMTIME2tm (&sysTime);

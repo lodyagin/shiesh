@@ -28,30 +28,43 @@ public:
 
 struct ChannelPars
 {
-  ChannelPars (const std::string& remName)
+  class UnknownChannelType 
+    : public SException
+  {
+  public:
+    UnknownChannelType 
+      (const std::string& ctype,
+       int _rchan
+       )
+      : SException 
+          (std::string ("Unknown channel type: ") 
+           + ctype
+           ),
+        rchan (_rchan)
+    {}
+
+    const int rchan; // remote channel id
+  };
+
+  ChannelPars 
+    (CoreConnection* con)
     : remote_id (-1), rwindow (0), rmaxpack (0),
-    remote_name (remName)
-  {}
+      connection (con)
+  {
+    assert (con);
+  }
 
   virtual ~ChannelPars () {}
 
-  std::string remote_name; // remote hostname
+  std::string ctype;
   int remote_id;  // peer's id of the channel
   u_int rwindow;  // peer's max window size
   u_int rmaxpack; // peer's max packet size
   CoreConnection* connection;
+  //Authctxt* authctxt;
 
   virtual Channel* create_derivation 
-    (const ChannelRepository::ObjectCreationInfo&) const = 0;
-};
-
-// For session type of channel
-struct SessionChannelPars : public ChannelPars
-{
-  SessionChannelPars ()
-    : ChannelPars ("server-session")
-  {}
-
-  Channel* create_derivation 
     (const ChannelRepository::ObjectCreationInfo&) const;
+
+  virtual void read_from_packet ();
 };
