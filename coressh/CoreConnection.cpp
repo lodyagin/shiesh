@@ -261,15 +261,8 @@ void CoreConnection::run ()
        << socket->get_peer_address().get_ip () << ':'
        << socket->get_peer_address().get_port()
        );
-    // FIXME no channels/subsystem cleanup
-
-    ((Repository<CoreConnection, CoreConnectionPars>*)repository)->delete_object 
-      (this, false); // false means not to delete this
     throw;
   }
-  // FIXME no channels/subsystem cleanup
-  ((Repository<CoreConnection, CoreConnectionPars>*)repository)->delete_object 
-    (this, false); // false means not to delete this
 }
 
 void CoreConnection::stop ()
