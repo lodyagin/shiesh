@@ -2,9 +2,9 @@
 #include "SubsystemParsFactory.h"
 #include "PTYPars.h"
 #include "ShellPars.h"
-#include "Session.h"
 #include "packet.h"
 #include "CoreConnection.h"
+#include "SessionChannel.h"
 
 SubsystemParsFactory::SubsystemParsFactory
   (User *const _pw, 

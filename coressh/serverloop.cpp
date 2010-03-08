@@ -39,8 +39,6 @@
 #include "CoreConnection.h"
 #include "Channel.h"
 #include "ChannelPars.h"
-#include "Session.h"
-//#include "SessionPars.h"
 #include "packet.h"
 #include "ssh2.h"
 #include "compat.h"

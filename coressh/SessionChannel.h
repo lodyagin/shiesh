@@ -1,6 +1,8 @@
 #pragma once
 #include "Channel.h"
 #include "Subsystem.h"
+#include "SubsystemParsFactory.h"
+#include "PTYPars.h"
 
 struct SessionChannelPars;
 

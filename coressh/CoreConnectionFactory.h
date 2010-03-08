@@ -1,6 +1,4 @@
 #pragma once
-#include "session.h"
-//#include "SessionPars.h"
 #include "ThreadWithSubthreads.h"
 #include "ConnectionFactory.h"
 #include "CoreConnection.h"
@@ -20,5 +18,5 @@ public:
 protected:
   CoreConnectionPars*
         create_connection_pars 
-          (RConnectedSocket* cs) const;
+          (RConnectedSocket* cs);
 };

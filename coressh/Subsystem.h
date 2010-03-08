@@ -10,11 +10,11 @@ The subsystem, as per RFC 4254
 #include "BusyThreadReadBuffer.h"
 #include "Repository.h"
 #include "ChannelRequest.h"
-#include "SessionChannel.h"
 
 using namespace coressh;
 
 class SubsystemPars;
+class SessionChannel;
 
 class Subsystem 
   : public SThread,

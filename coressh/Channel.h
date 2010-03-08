@@ -3,7 +3,6 @@
 #include "Buffer.h"
 #include "StateMap.h"
 #include "SNotCopyable.h"
-#include "Session.h"
 #include <string>
 #include "Logging.h"
 #include "BusyThreadReadBuffer.h"
@@ -19,7 +18,6 @@ class ChannelRepository;
 class Channel : public SNotCopyable
 {
   friend CoreConnection; //TODO
-  friend Session; //TODO
   friend Repository<Channel, ChannelPars>;
   friend ChannelRepository;
   friend ChannelPars;

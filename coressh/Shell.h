@@ -31,7 +31,7 @@ protected:
 
   void start ();
 
-  //Buffer iqueue;
+  HANDLE procHandle;
 
   HANDLE childInWr;
 
@@ -40,4 +40,6 @@ protected:
   NamedPipe* stdoutPipe;
 
   char ascendingBuf[80];
+
+  bool processExits;
 };

@@ -13,8 +13,10 @@ Shell::Shell
     (objectId, _pw, in, out, 
      terminatedSignal, _channel
      ),
+  procHandle (INVALID_HANDLE_VALUE),
   childInWr (INVALID_HANDLE_VALUE),
-  stdoutPipe (0)
+  stdoutPipe (0),
+  processExits (false)
 {
   //buffer_init (&iqueue);
   ZeroMemory
@@ -23,7 +25,10 @@ Shell::Shell
 
 Shell::~Shell ()
 {
-  //buffer_free (&iqueue);
+  if (procHandle != INVALID_HANDLE_VALUE)
+    ::CloseHandle (procHandle);
+  if (childInWr != INVALID_HANDLE_VALUE)
+    ::CloseHandle (childInWr);
   delete stdoutPipe;
 }
 
@@ -31,6 +36,11 @@ void Shell::run ()
 {
   void* inputMsg = 0;
   u_int32_t inputMsgLen;
+
+  HANDLE evts[2] = {
+    stdoutPipe->readingIsAvailable.evt (),
+    procHandle
+  };
 
   try
   {
@@ -42,12 +52,7 @@ void Shell::run ()
           (&ascendingBuf, sizeof (ascendingBuf));
 
       // wait until an input message arrived
-      HANDLE readEvt = 
-        stdoutPipe->readingIsAvailable.evt ();
-      inputMsg = fromChannel->get 
-        (&inputMsgLen, 
-         &readEvt,
-         1);
+      inputMsg = fromChannel->get (&inputMsgLen, evts, 2);
 
       if (inputMsg && inputMsgLen == 0) 
       {
@@ -141,11 +146,22 @@ void Shell::run ()
       }
       else 
       {
-        DWORD nBytesRed = 0;
-        stdoutPipe->CompleteRead (&nBytesRed);
-        if (nBytesRed > 0)
+        if (processExits)
+          return;
+
+        if (::WaitForSingleObject (evts[1], 0) == WAIT_OBJECT_0)
+        { // subprocess exits
+          processExits = true; // give read full output
+          // UT big output on process exit
+        }
+        else
         {
-          toChannel->put (ascendingBuf, nBytesRed);
+          DWORD nBytesRed = 0;
+          stdoutPipe->CompleteRead (&nBytesRed);
+          if (nBytesRed > 0)
+          {
+            toChannel->put (ascendingBuf, nBytesRed);
+          }
         }
       }
     }
@@ -217,9 +233,9 @@ void Shell::start ()
        &siStartInfo,  // STARTUPINFO pointer 
        &procInfo)  // receives PROCESS_INFORMATION 
      );
+  procHandle = procInfo.hProcess;
 
   // Close handles to the child process and its primary thread.
-  CloseHandle (procInfo.hProcess);
   CloseHandle (procInfo.hThread);
 
   Subsystem::start ();

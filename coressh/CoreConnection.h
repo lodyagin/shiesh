@@ -13,7 +13,6 @@
 #include "AuthDispatcher.h"
 #include "ServerMainDispatcher.h"
 #include "ChannelPars.h"
-//#include "SessionPars.h"
 #include "Subsystem.h"
 #include "SubsystemPars.h"
 #include "ThreadWithSubthreads.h"
@@ -83,7 +82,7 @@ public:
   /* end of packets interface */
 
   // TODO move somewhere
-  SEvent subsystemTerminated;
+  SEvent subprocTerminated;
 
   const Authctxt* get_authctxt () const
   {
@@ -99,7 +98,8 @@ protected:
   CoreConnection 
     (void* repo, 
      RConnectedSocket* cs,
-     const std::string& objId
+     const std::string& objId,
+     SEvent* connectionTerminated
      );
 
   void server_loop ();

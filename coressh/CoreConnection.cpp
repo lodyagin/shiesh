@@ -15,6 +15,7 @@
 #include "md-sha256.h"
 #include "match.h"
 #include "auth.h"
+#include "SessionChannel.h"
 
 #ifdef PACKET_DEBUG
 #define DBG(x) x
@@ -135,15 +136,17 @@ void KexDispatcher::unexpected_msg
 CoreConnection::CoreConnection 
   (void* repo, 
    RConnectedSocket* cs,
-   const std::string& objId
+   const std::string& objId,
+   SEvent* connectionTerminated
    )
    : RConnection 
       (repo, 
        cs, 
        objId, 
-       5// each connection can produce 
+       5,// each connection can produce 
        // no more than 5 subthreads
        // TODO check on all levels (SThread)
+       connectionTerminated
        ), 
 
    aDatafellows (0),
@@ -183,7 +186,7 @@ CoreConnection::CoreConnection
    srvDispatcher (0),
    xxx_kex (0),
    connection_closed (false),
-   subsystemTerminated (true), // manual reset
+   subprocTerminated (true), // manual reset
                      // (in wait_until_can_do_something)
    poll2_packet_length (0),
    send2_rekeying (0),
@@ -2393,7 +2396,8 @@ public:
     Subsystem *s = con.OverSubsystemThread::
       get_object_by_id (subsystemId);
     if (s) 
-      s->get_channel()->subproc_terminated_notify();
+     s->get_channel()->subproc_terminated_notify();
+    // FIXME no channel termination for not SessionChannel-s
   }
 protected:
   CoreConnection& con;
@@ -2418,7 +2422,7 @@ void CoreConnection::server_loop ()
   eventArray[SocketEvt] = socket->get_event_object ();
 
   // the subsystem termination event
-  eventArray[SubsystemTermEvt] = subsystemTerminated.evt ();
+  eventArray[SubsystemTermEvt] = subprocTerminated.evt ();
 
   if (!srvDispatcher)
   {

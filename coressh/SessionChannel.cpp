@@ -36,7 +36,7 @@ SessionChannel::SessionChannel
     (con->get_authctxt () -> pw, 
      &fromChannel, 
      &toChannel,
-     &con->subsystemTerminated,
+     &con->subprocTerminated,
      this
      ); // FIXME check alloc
 }

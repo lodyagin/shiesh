@@ -20,7 +20,7 @@ protected:
   MainThread (unsigned n) 
     : ThreadWithSubthreads
       <CoreConnection, CoreConnectionPars>
-      (n)
+      (NULL, n)
   {}
 
   // overrides

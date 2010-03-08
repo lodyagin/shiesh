@@ -633,32 +633,8 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Session.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\SessionChannel.cpp"
 				>
-			</File>
-			<File
-				RelativePath=".\SessionPars.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\sftp-common.cpp"
@@ -943,15 +919,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Session.h"
-				>
-			</File>
-			<File
 				RelativePath=".\SessionChannel.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SessionPars.h"
 				>
 			</File>
 			<File

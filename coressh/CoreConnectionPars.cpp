@@ -10,5 +10,6 @@ CoreConnectionPars::create_derivation
   return new CoreConnection 
     (info.repository, 
      socket,
-     info.objectId);
+     info.objectId,
+     connectionTerminated);
 }
