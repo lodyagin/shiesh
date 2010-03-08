@@ -13,7 +13,6 @@ CServer::CServer () : main (NULL)
 {
    static Logging AutoLogger("CServer()",m_Logging);
 
-   checkHR(CoInitializeEx(0, COINIT_MULTITHREADED));
    LOG4CXX_INFO 
      (AutoLogger.GetLogger(), 
      std::string ("Start ") 
@@ -27,7 +26,6 @@ CServer::~CServer()
     static Logging AutoLogger("~CServer()",m_Logging);
 
     LOG4CXX_INFO(AutoLogger.GetLogger(),"Stop");
-   CoUninitialize();
 }
 
 void CServer::run()
