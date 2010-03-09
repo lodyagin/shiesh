@@ -198,9 +198,13 @@ void Shell::start ()
       (childInWr, HANDLE_FLAG_INHERIT, 0) 
      );
 
+  std::wostringstream pipeNameStream;
+  pipeNameStream << L"coressh_"
+    << SThread::id ();
+    
   // Create the stdout pipe
   stdoutPipe = new NamedPipe // FIXME check alloc
-    (L"test", NamedPipe::Read);
+    (pipeNameStream.str (), NamedPipe::Read);
 
   // Create the child process. 
 
