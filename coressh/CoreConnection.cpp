@@ -2459,9 +2459,9 @@ void CoreConnection::server_loop ()
     if (!rekeying)
       // pre handlers are here
       fill_event_array 
-        (eventArray + FirstDescendingEvt, 
-         chanNums + FirstDescendingEvt,
-         WSA_MAXIMUM_WAIT_EVENTS - FirstDescendingEvt,
+        (eventArray + FirstAscendingEvt, 
+         chanNums + FirstAscendingEvt,
+         WSA_MAXIMUM_WAIT_EVENTS - FirstAscendingEvt,
          &nChannelEvents
          );
     else
@@ -2472,7 +2472,7 @@ void CoreConnection::server_loop ()
     //       (int) nChannelEvents + 1);
 		wait_until_can_do_something
       (eventArray, 
-       nChannelEvents + FirstDescendingEvt, 
+       nChannelEvents + FirstAscendingEvt, 
        0, signalled);
 
     if (signalled[StopEvt]) 
@@ -2554,7 +2554,7 @@ CoreConnection::channel_input_data
       ("Received data for nonexistent channel %d.", id);
 
 	/* Ignore any data for non-open channels (might happen on close) */
-	if (!c->channelStateIs ("open"))
+	if (!c->is_opened ())
 		return;
 
 	/* Get the data. */
@@ -2629,7 +2629,7 @@ CoreConnection::channel_input_oclose
        );
 
 	c->closeRcvd = true;
-  if (c->channelStateIs("larval")) 
+  if (!c->is_opened ()) 
   {
 		/* tear down larval channels immediately */
     c->currentOutputState = c->outputClosedState;

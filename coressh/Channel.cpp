@@ -40,24 +40,8 @@ const StateTransition Channel::allOutputTrans[] =
   {0, 0}
 };
 
-const State2Idx Channel::allChanStates[] =
-{
-  {1, "larval"}, // it is a session channel before a session
-  {2, "open"},  // data transfer is enabled
-  {3, "connecting"}, // it is a TCP forward channel while requested socket on a server side is connecting
-  {0, 0}
-};
-
-const StateTransition Channel::allChanTrans[] =
-{
-  {"larval", "open"},      
-  {"connecting", "open"}, // it can be created as "connecting" 
-  {0, 0}
-};
-
 StateMap* Channel::inputStateMap;
 StateMap* Channel::outputStateMap;
-StateMap* Channel::channelStateMap;
 
 UniversalState Channel::inputOpenState;
 UniversalState Channel::inputWaitDrainState;
@@ -66,9 +50,6 @@ UniversalState Channel::inputClosedState;
 UniversalState Channel::outputOpenState;
 UniversalState Channel::outputWaitDrainState;
 UniversalState Channel::outputClosedState;
-
-UniversalState Channel::larvalChanState;
-UniversalState Channel::openChanState;
 
 static int initStateMap = 
   (Channel::initializeStates(), 1);
@@ -79,8 +60,7 @@ Channel::Channel
   const std::string& channelId,
   u_int windowSize,
   u_int maxPacketSize,
-  CoreConnection* connection,
-  UniversalState channelStartState
+  CoreConnection* connection
   )
 : universal_object_id (channelId),
   self (fromString<int> (channelId)),
@@ -99,7 +79,8 @@ Channel::Channel
   closeSent (false),
   do_close (false),
   ascending (0), descending (0),
-  thisChannelUpgraded (false)
+  thisChannelUpgraded (false),
+  isOpened (false)
 {
   ascending = new Buffer;
   descending = new Buffer; // FIXME check alloc
@@ -108,7 +89,6 @@ Channel::Channel
 
   currentInputState = inputOpenState;
   currentOutputState = outputOpenState;
-  currentChanState = channelStartState;
 
 	debug("channel %d: new [%s]", self, ctype.c_str ());
 }
@@ -136,7 +116,6 @@ void Channel::initializeStates ()
   inputStateMap = new StateMap (allInputStates, allInputTrans);
   // the same state set as for input
   outputStateMap = new StateMap (allOutputStates, allOutputTrans);
-  channelStateMap = new StateMap (allChanStates, allChanTrans);
 
   inputOpenState = inputStateMap->create_state ("open");
   inputWaitDrainState = inputStateMap->create_state ("waitDrain");
@@ -145,17 +124,6 @@ void Channel::initializeStates ()
   outputOpenState = outputStateMap->create_state ("open");
   outputWaitDrainState = outputStateMap->create_state ("waitDrain");
   outputClosedState = outputStateMap->create_state ("closed");
-
-  larvalChanState = channelStateMap->create_state ("larval");
-  openChanState = channelStateMap->create_state ("open");
-}
-
-bool Channel::channelStateIs 
-  (const char* stateName)
-{
-  // TODO move to sets 
-  UniversalState state = channelStateMap->create_state (stateName);
-  return channelStateMap->is_equal (currentChanState, state);
 }
 
 bool Channel::outputStateIs 
@@ -178,22 +146,16 @@ bool Channel::inputStateIs
 
 void Channel::open (u_int window_max)
 {
-  chan_state_move_to (openChanState);
+  debug 
+    ("open channel %d, window max size = %u",
+     (int) self, (unsigned) window_max
+     );
+  isOpened = true;
 	local_window = local_window_max = window_max;
 	con->packet_start(SSH2_MSG_CHANNEL_WINDOW_ADJUST);
 	con->packet_put_int(remote_id);
 	con->packet_put_int(local_window);
 	con->packet_send();
-}
-
-void Channel::chan_state_move_to
-  (const UniversalState& to)
-{
-  LOG4STRM_TRACE (log.GetLogger (), 
-    oss_ << "from " << channelStateMap->get_state_name (currentChanState)
-    << " to " << channelStateMap->get_state_name (to));
-  channelStateMap->check_transition (currentChanState, to);
-  currentChanState = to;
 }
 
 /* If there is data to send to the connection, enqueue some of it now. */
@@ -216,7 +178,7 @@ void Channel::channel_output_poll ()
 
   //TODO should not be called for channel with state != open
   // from the repository loop
-  if (!channelStateIs ("open")) return;
+  if (!isOpened) return;
   
 #if 0
   if ((c->flags & (CHAN_CLOSE_SENT|CHAN_CLOSE_RCVD))) {
@@ -297,7 +259,7 @@ void Channel::channel_output_poll ()
 int 
 Channel::channel_check_window()
 {
-	if (channelStateIs ("open") && !(closeSent || closeRcvd)
+	if (isOpened && !(closeSent || closeRcvd)
       &&
 	    ((local_window_max - local_window >
 	    local_maxpacket*3) ||
@@ -415,54 +377,14 @@ void Channel::channel_request_start
 
 void Channel::channel_post ()
 {
-  if (channelStateIs ("open")) 
+  if (isOpened) 
   {
     subproc2ascending ();
     descending2subproc ();
     channel_check_window ();
   }
-  else if (channelStateIs ("connecting"))
-  {
-    // FIXME
-  }
 
   garbage_collect ();
-
-#if 0
-	//channel_handle_wfd(c, readset, writeset);
-  if (is_complete_packet_in_descending ())
-  {
-    u_int msg_len = 0;
-    if (sftpChannel) // TODO need generic schema
-    {
-      msg_len = buffer_get_int (descending);
-      // now point to sftp type field
-    }
-    else
-    {
-      msg_len = buffer_len (descending);
-    }
-
-    // it decrease c->local_consumed on data already
-    // on a "subsystem processor" part
-    // <NB> consume is regarded to another transactions
-    fromChannel.put 
-      (buffer_ptr (descending), 
-       msg_len, 
-       &local_consumed
-       );
-    assert (local_consumed >= 0);
-   
-    if (sftpChannel && local_consumed) 
-      local_consumed += 4; // for the buf_len field red above
-
-    /* discard the remaining bytes from the current packet */
-    buffer_consume(descending, msg_len);
-  }
-  else 
-    // get consumed only
-    fromChannel.put (0, 0, &local_consumed);
-#endif
 }
 
 bool Channel::check_ascending_chan_rbuf ()

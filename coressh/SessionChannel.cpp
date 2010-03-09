@@ -17,8 +17,7 @@ SessionChannel::SessionChannel
      channelId,
      windowSize,
      PacketDefaultSize,
-     connection,
-     Channel::larvalChanState
+     connection
      ),
     subsystem (0),
     subsParsFact (0),
@@ -129,14 +128,6 @@ void SessionChannel::input_channel_req
    int reply
    )
 {
-  if (! (channelStateIs ("larval") ||
-	    channelStateIs ("open"))
-      )
-    return;
-
-	int success = 0;
-
-  //void * p = repository;
 	debug("session_input_channel_req: session %d req %s", self, rtype);
 
 	/*
@@ -144,7 +135,7 @@ void SessionChannel::input_channel_req
 	 * or a subsystem is executed
 	 */
   bool processed = false;
-	if (channelStateIs ("larval")) 
+	if (!isOpened) 
   {
     ChannelRequestPars* pars = 0;
     try

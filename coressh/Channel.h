@@ -23,8 +23,6 @@ class Channel
   
 public:
 
-  // check currentChanState
-  bool channelStateIs (const char* stateName);
   bool outputStateIs (const char* stateName);
   bool inputStateIs (const char* stateName);
 
@@ -101,6 +99,12 @@ public:
     return buffer_len (descending);
   }
 
+  // <NB> is_opened means "was never opened" here !
+  bool is_opened () const
+  {
+    return isOpened; 
+  }
+
   static void initializeStates ();
 
   // It is a repository id
@@ -123,7 +127,6 @@ protected:
 
   static StateMap* inputStateMap;
   static StateMap* outputStateMap;
-  static StateMap* channelStateMap;
 
   static UniversalState inputOpenState;
   static UniversalState inputWaitDrainState;
@@ -133,25 +136,17 @@ protected:
   static UniversalState outputWaitDrainState;
   static UniversalState outputClosedState;
 
-  static UniversalState openChanState;
-  static UniversalState larvalChanState;
-  static UniversalState connectingState; //TODO only for ForwardChannel
-  //FIXME initializing
-
   static const State2Idx allInputStates[];
   static const State2Idx allOutputStates[];
   static const StateTransition allInputTrans[];
   static const StateTransition allOutputTrans[];
-  static const State2Idx allChanStates[];
-  static const StateTransition allChanTrans[];
 
   Channel
    (const std::string& channelType,
     const std::string& channelId,
     u_int windowSize,
     u_int maxPacketSize,
-    CoreConnection* connection,
-    UniversalState channelStartState
+    CoreConnection* connection
     );
 
   void sendEOF ();
@@ -168,10 +163,8 @@ protected:
   // notify session on subprocess termination
   virtual void subproc_terminated_notify () = 0;
 
-  void chan_state_move_to (const UniversalState& to);
-
   // [subproc] <-> {ascending, descending}
-  void channel_post ();
+  /*virtual*/ void channel_post ();
 
   void put_raw_data 
     (void* data, u_int data_len);
@@ -186,6 +179,9 @@ protected:
   Buffer* descending; // V
 
   // States & flags
+
+  bool isOpened;
+
   bool eofRcvd;
   bool eofSent;
   bool closeRcvd;
@@ -210,7 +206,6 @@ protected:
 
   UniversalState currentInputState;
   UniversalState currentOutputState;
-  UniversalState currentChanState;
 
   void dummy () const {}
 

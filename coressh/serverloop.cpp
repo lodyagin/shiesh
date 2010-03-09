@@ -42,6 +42,7 @@
 #include "packet.h"
 #include "ssh2.h"
 #include "compat.h"
+#include "SessionChannel.h"
 
 class DescendingProbe : public std::unary_function<void, Channel&>
 {
@@ -265,7 +266,7 @@ CoreConnection::server_input_channel_open
       ("server_input_channel_open: confirm %s", 
        chPars.ctype.c_str ()
        );
-		if (!c->channelStateIs ("connecting")) 
+		if (dynamic_cast<SessionChannel*> (c)) 
     { // For forward channel wait for remote socket
       // connection
 			packet_start

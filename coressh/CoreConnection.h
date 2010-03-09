@@ -248,7 +248,7 @@ private:
     StopEvt = 0,
     SocketEvt = 1,
     SubsystemTermEvt = 2,
-    FirstDescendingEvt = 3
+    FirstAscendingEvt = 3
   };
 
 
