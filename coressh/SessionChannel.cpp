@@ -4,6 +4,7 @@
 #include "CoreConnection.h"
 #include "ChannelPars.h"
 #include "ssh2.h"
+#include "PTYPars.h"
 
 SessionChannel::SessionChannel
  (const std::string& channelType,
@@ -20,10 +21,16 @@ SessionChannel::SessionChannel
      Channel::larvalChanState
      ),
     subsystem (0),
-    ptys (3), // no more than 3 pty request // TODO
-    subsParsFact (0)
+    subsParsFact (0),
+    ptys (0),
+    fromChannel (0), toChannel (0)
 {
   assert (con);
+
+  ptys = new PTYRepository (3); // no more than 3 pty request // TODO
+  fromChannel = new BusyThreadWriteBuffer<Buffer>;
+  toChannel = new BusyThreadReadBuffer<Buffer>;
+  // FIXME check alloc
 
   // check from OpenSSH
   if (con->get_authctxt () -> pw == NULL 
@@ -34,41 +41,28 @@ SessionChannel::SessionChannel
 
   subsParsFact = new SubsystemParsFactory 
     (con->get_authctxt () -> pw, 
-     &fromChannel, 
-     &toChannel,
+     fromChannel, 
+     toChannel,
      &con->subprocTerminated,
-     this
+     self,
+     con
      ); // FIXME check alloc
 }
 
-#if 0
-bool SessionChannel::is_complete_packet_in_descending ()
+SessionChannel::~SessionChannel ()
 {
-  u_int buf_len = buffer_len (&descending);
-
-  if (!sftpChannel && buf_len > 0) // TODO check other types
-    return true;
-
-  if (buf_len < 5) return false;
-
-  u_char* cp = (u_char*) buffer_ptr(&descending);
-  u_int msg_len = get_u32(cp); //sftp part length
-  if (msg_len > SFTP_MAX_MSG_LENGTH) {
-	  error("bad message from local user ?"/*,
-      pw->userName*/);
-	  //FIXME close the channel
+  if (!thisChannelUpgraded)
+  {
+    delete fromChannel;
+    delete toChannel;
+    delete ptys;
   }
-  if (buf_len < msg_len + 4) return false;
-
-  // there is complete sftp packet in the buffer
-  return true;
 }
-#endif
 
 bool SessionChannel::hasAscendingData () const
 {
-  if ( buffer_len (&ascending) != 0
-      || toChannel.n_msgs_in_the_buffer () > 0
+  if ( buffer_len (ascending) != 0
+      || toChannel->n_msgs_in_the_buffer () > 0
       )
       return true;
 
@@ -96,32 +90,33 @@ void SessionChannel::garbage_collect ()
 
 void SessionChannel::subproc2ascending ()
 {
-  toChannel.get (&ascending, false /* generic get - row */); 
+  toChannel->get (ascending, false /* generic get - row */); 
     // put full size message in ascending
 }
 
 void SessionChannel::descending2subproc ()
 {
-  const u_int msg_len = buffer_len (&descending);
+  const u_int msg_len = buffer_len (descending);
 
   // it decrease c->local_consumed on data already
   // on a "subsystem processor" part
   // <NB> consume is regarded to another transactions
-  fromChannel.put 
-    (buffer_ptr (&descending), 
+  fromChannel->put 
+    (buffer_ptr (descending), 
      msg_len, 
      &local_consumed
      );
   assert (local_consumed >= 0);
  
   /* discard the remaining bytes from the current packet */
-  buffer_consume(&descending, msg_len);
+  buffer_consume(descending, msg_len);
 }
 
 void SessionChannel::session_close_by_channel ()
 {
   if (subsystem)
   {
+    subsystem->terminate ();
     con->OverSubsystemThread::delete_object 
       (subsystem, true);
     subsystem = 0;
@@ -167,17 +162,33 @@ void SessionChannel::input_channel_req
         if (subsystem)
           fatal ("Subsystem already initialized");
 
-        subsystem = con->create_subthread 
+        ChannelPars chanPars (con);
+        chanPars.subsystemName = 
+          subsystemPars->subsystemName;
+
+        SessionChannel* newChannel = 
+          dynamic_cast<SessionChannel*>
+            (con->ChannelRepository::replace_object
+              (self,
+               chanPars,
+               false
+               )
+             );
+        // Don't use `this' after this point!
+
+        if (!newChannel)
+          THROW_EXCEPTION
+            (SException, L"Program error.");
+
+        newChannel->subsystem = con->create_subthread 
           (*subsystemPars);
-        /*if (subsystemPars->subsystemName == "sftp")
-          c->sftpChannel = true;*/
-        subsystem->start (); // TODO stop ()
-        open (); 
+        newChannel->subsystem->start (); 
+        newChannel->open (); 
         processed = true;
       }
       else if ((ptyPars = dynamic_cast<PTYPars*> (pars)))
       {
-          ptys.create_object (*ptyPars); // TODO several reqs?
+          ptys->create_object (*ptyPars); // TODO several reqs?
           processed = true;
       }
     }

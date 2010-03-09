@@ -30,28 +30,15 @@ protected:
     u_int windowSize,
     CoreConnection* connection
     );
-
-  Subsystem* subsystem;
   
-  SubsystemParsFactory* subsParsFact;
-
-  PTYRepository ptys;
-
-public:
-  // from channel to subsystem
-  BusyThreadWriteBuffer<Buffer> fromChannel; 
-
-  // from subsystem to channel
-  BusyThreadReadBuffer<Buffer> toChannel;   
-
-  //BusyThreadReadBuffer<Buffer> fromChannelExt;
+  ~SessionChannel ();
 
   HANDLE get_data_ready_event ()
   {
-    return toChannel.dataReady.evt ();
+    return toChannel->dataReady.evt ();
   }
 
-  void open ()
+  virtual void open ()
   {
     Channel::open (WindowDefaultSize);
   }
@@ -62,8 +49,6 @@ public:
      const char* rtype, 
      int reply
      );
-
-protected:
 
   // Overrides
   void garbage_collect ();
@@ -86,8 +71,23 @@ protected:
   // Overrides
   void put_eof ()
   {
-    fromChannel.put_eof ();
+    fromChannel->put_eof ();
   }
 
   void session_close_by_channel ();
+
+  Subsystem* subsystem;
+  
+  SubsystemParsFactory* subsParsFact;
+
+  PTYRepository* ptys;
+
+//public:
+  // from channel to subsystem
+  BusyThreadWriteBuffer<Buffer>* fromChannel; 
+
+  // from subsystem to channel
+  BusyThreadReadBuffer<Buffer>* toChannel;   
+
+  //BusyThreadReadBuffer<Buffer> fromChannelExt;
 };

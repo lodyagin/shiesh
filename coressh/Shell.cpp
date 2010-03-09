@@ -7,11 +7,11 @@ Shell::Shell
    BusyThreadWriteBuffer<Buffer>* in,
    BusyThreadReadBuffer<Buffer>* out,
    SEvent* terminatedSignal,
-   SessionChannel* _channel
+   int _channelId
    )
 : Subsystem 
     (objectId, _pw, in, out, 
-     terminatedSignal, _channel
+     terminatedSignal, _channelId
      ),
   procHandle (INVALID_HANDLE_VALUE),
   childInWr (INVALID_HANDLE_VALUE),

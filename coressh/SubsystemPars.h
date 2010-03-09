@@ -18,12 +18,13 @@ public:
   BusyThreadWriteBuffer<Buffer>* inBuffer;
   BusyThreadReadBuffer<Buffer>* outBuffer;
   SEvent* subsystemTerminated;
-  SessionChannel* channel;
+  int channelId;
 
   SubsystemPars ()
     : ChannelRequestPars ("subsystem"),
      pw (0), inBuffer (0), outBuffer (0),
-     subsystemTerminated (0), channel (0)
+     subsystemTerminated (0),
+     channelId (0)
   {}
 
   ~SubsystemPars () {}
@@ -32,6 +33,12 @@ public:
     (const Repository<Subsystem, SubsystemPars>::
      ObjectCreationInfo&
      ) const;
+
+  virtual Subsystem* transform_object
+    (Subsystem* from) const
+  {
+    return from; // no transformation
+  }
 
 protected:
   // Overrides

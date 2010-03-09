@@ -14,7 +14,14 @@ struct CoreConnectionPars
   {}
 
   // Overrides
-  CoreConnection* 
+  virtual CoreConnection* 
     create_derivation
-    (const Repository<CoreConnection, CoreConnectionPars>::ObjectCreationInfo&) const;
+      (const Repository<CoreConnection, CoreConnectionPars>::ObjectCreationInfo&) const;
+
+  virtual CoreConnection* transform_object
+    (CoreConnection* from) const
+  {
+    return from; // no transformation
+  }
+
 };

@@ -28,6 +28,12 @@ public:
      ObjectCreationInfo&
      ) const;
 
+  virtual PTY* transform_object
+    (PTY* from) const
+  {
+    return from; // no transformation
+  }
+
   // Overrides
   void outString (std::ostream& out) const;
 

@@ -645,6 +645,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SFTPChannel.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\sha2.cpp"
 				>
 			</File>
@@ -928,6 +932,10 @@
 			</File>
 			<File
 				RelativePath=".\sftp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SFTPChannel.h"
 				>
 			</File>
 			<File

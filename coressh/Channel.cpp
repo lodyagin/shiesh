@@ -97,10 +97,14 @@ Channel::Channel
   eofSent (false),
   closeRcvd (false),
   closeSent (false),
-  do_close (false)
+  do_close (false),
+  ascending (0), descending (0),
+  thisChannelUpgraded (false)
 {
-  buffer_init(&ascending);
-  buffer_init(&descending);
+  ascending = new Buffer;
+  descending = new Buffer; // FIXME check alloc
+  buffer_init(ascending);
+  buffer_init(descending);
 
   currentInputState = inputOpenState;
   currentOutputState = outputOpenState;
@@ -111,9 +115,20 @@ Channel::Channel
 
 Channel::~Channel ()
 {
-  buffer_free (&ascending);
-  buffer_free (&descending);
-  // FIXME if there is some data?
+  if (!thisChannelUpgraded)
+  {
+    if (ascending)
+    {
+      buffer_free (ascending);
+      delete ascending;
+    }
+    if (descending)
+    {
+      buffer_free (descending);
+      delete descending;
+    }
+    // FIXME if there is some data?
+  }
 }
 
 void Channel::initializeStates ()
@@ -192,8 +207,8 @@ void Channel::channel_output_poll ()
     "remote_maxpacket = %d, local_window = %d, "
     "local_maxpacket = %d", 
     self, 
-    (int) buffer_len (&ascending),
-    (int) buffer_len (&descending),
+    (int) buffer_len (ascending),
+    (int) buffer_len (descending),
     (int) remote_window, (int) remote_maxpacket,
     (int) local_window, (int) local_maxpacket
     ); 
@@ -214,7 +229,7 @@ void Channel::channel_output_poll ()
 	/* Get the amount of buffered data for this channel. */
 	if ((inputStateIs ("open")  ||
 	     inputStateIs ("waitDrain")) &&
-	    (len = buffer_len(&ascending)) > 0) 
+	    (len = buffer_len(ascending)) > 0) 
   {
 		/*
 		 * Not allowed to send more than min of these two
@@ -227,9 +242,9 @@ void Channel::channel_output_poll ()
     if (len > 0) {
 			con->packet_start(SSH2_MSG_CHANNEL_DATA);
 			con->packet_put_int(remote_id);
-			con->packet_put_string(buffer_ptr(&ascending), len);
+			con->packet_put_string(buffer_ptr(ascending), len);
 			con->packet_send();
-			buffer_consume(&ascending, len);
+			buffer_consume(ascending, len);
 			remote_window -= len;
 		}
 	} 
@@ -307,7 +322,7 @@ Channel::channel_check_window()
 
 void Channel::put_raw_data (void* data, u_int data_len)
 {
-  buffer_append (&descending, data, data_len);
+  buffer_append (descending, data, data_len);
 }
 
 void Channel::rcvd_ieof ()
@@ -321,7 +336,7 @@ void Channel::rcvd_ieof ()
     currentOutputState = outputWaitDrainState; 
     
     // CHANNEL STATES <1b>
-    if (buffer_len(&descending) == 0)
+    if (buffer_len(descending) == 0)
     {
       // FIXME need to check an extended data activity
       put_eof ();  
@@ -420,19 +435,19 @@ void Channel::channel_post ()
     u_int msg_len = 0;
     if (sftpChannel) // TODO need generic schema
     {
-      msg_len = buffer_get_int (&descending);
+      msg_len = buffer_get_int (descending);
       // now point to sftp type field
     }
     else
     {
-      msg_len = buffer_len (&descending);
+      msg_len = buffer_len (descending);
     }
 
     // it decrease c->local_consumed on data already
     // on a "subsystem processor" part
     // <NB> consume is regarded to another transactions
     fromChannel.put 
-      (buffer_ptr (&descending), 
+      (buffer_ptr (descending), 
        msg_len, 
        &local_consumed
        );
@@ -442,11 +457,16 @@ void Channel::channel_post ()
       local_consumed += 4; // for the buf_len field red above
 
     /* discard the remaining bytes from the current packet */
-    buffer_consume(&descending, msg_len);
+    buffer_consume(descending, msg_len);
   }
   else 
     // get consumed only
     fromChannel.put (0, 0, &local_consumed);
 #endif
+}
+
+bool Channel::check_ascending_chan_rbuf ()
+{
+  return buffer_check_alloc (ascending, 16 * 1024);
 }
 

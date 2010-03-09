@@ -66,5 +66,11 @@ struct ChannelPars
   virtual Channel* create_derivation 
     (const ChannelRepository::ObjectCreationInfo&) const;
 
+  // Parameters for transform
+  std::string subsystemName;
+
+  virtual Channel* transform_object
+    (Channel* from) const;
+
   virtual void read_from_packet ();
 };

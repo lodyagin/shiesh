@@ -10,6 +10,7 @@ The subsystem, as per RFC 4254
 #include "BusyThreadReadBuffer.h"
 #include "Repository.h"
 #include "ChannelRequest.h"
+#include "ChannelPars.h"
 
 using namespace coressh;
 
@@ -24,18 +25,10 @@ class Subsystem
 
 public:
 
-  void terminate ()
-  {
-    LOG4CXX_WARN
-      (Logging::Root (),
-       L"The subsystem ... is aborted, data loss!");
-    fromChannel->put_eof ();
-  }
+  void terminate ();
 
-  SessionChannel* get_channel ()
-  {
-    return channel;
-  }
+  SessionChannel* get_channel 
+    (const ChannelRepository& chaRep);
 
 protected:
   Subsystem 
@@ -44,21 +37,13 @@ protected:
      BusyThreadWriteBuffer<Buffer>* in,
      BusyThreadReadBuffer<Buffer>* out,
      SEvent* terminatedSignal,
-     SessionChannel* _channel
-     )
-    : SThread (terminatedSignal),
-      ChannelRequest (objectId),
-      pw (_pw), fromChannel (in), toChannel (out),
-      channel (_channel)
-  {
-    assert (pw);
-    assert (channel);
-  }
+     int _channelId
+     );
 
   ~Subsystem(void);
 
   User * const pw;
   BusyThreadWriteBuffer<Buffer>* fromChannel;
   BusyThreadReadBuffer<Buffer>* toChannel;
-  SessionChannel* channel;
+  const int channelId;
 };

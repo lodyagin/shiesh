@@ -56,7 +56,7 @@ public:
   {
     //sigs[c.self] = 
     bool sig =
-      buffer_len (&c.descending) > 0
+      c.get_descending_len () > 0
       && c.is_complete_packet_in_descending ();
 
     if (sig)

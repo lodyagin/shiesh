@@ -16,7 +16,7 @@ Subsystem* SubsystemPars::create_derivation
        inBuffer,
        outBuffer,
        subsystemTerminated,
-       channel
+       channelId
        );
 
   throw InvalidObjectParameters ();
@@ -25,15 +25,15 @@ Subsystem* SubsystemPars::create_derivation
 void SubsystemPars::read_from_packet 
   (CoreConnection* con)
 {
-    // read subsystem name from the packet
-  	u_int len = 0;
-	  const char* subsys2 = con->packet_get_string
-      (&len);
-    subsystemName = subsys2;
-    xfree ((void*) subsys2);
+  // read subsystem name from the packet
+	u_int len = 0;
+  const char* subsys2 = con->packet_get_string
+    (&len);
+  subsystemName = subsys2;
+  xfree ((void*) subsys2);
 
-	  packet_check_eom(con);
+  packet_check_eom(con);
 
-    logit("subsystem request for %.100s", 
-      subsystemName.c_str ());
+  logit("subsystem request for %.100s", 
+    subsystemName.c_str ());
 }

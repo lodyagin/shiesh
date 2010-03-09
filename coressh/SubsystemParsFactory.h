@@ -18,7 +18,8 @@ public:
      BusyThreadWriteBuffer<Buffer>* _in,
      BusyThreadReadBuffer<Buffer>* _out,
      SEvent* _terminatedSignal,
-     SessionChannel* _channel
+     int _channelId,
+     CoreConnection* _con
      );
 
   ChannelRequestPars* get_subsystem_by_name
@@ -29,5 +30,6 @@ protected:
   BusyThreadWriteBuffer<Buffer>* in;
   BusyThreadReadBuffer<Buffer>* out;
   SEvent* terminatedSignal;
-  SessionChannel* channel;
+  const int channelId;
+  CoreConnection* con;
 };

@@ -2389,7 +2389,7 @@ public:
     Subsystem *s = con.OverSubsystemThread::
       get_object_by_id (subsystemId);
     if (s) 
-     s->get_channel()->subproc_terminated_notify();
+     s->get_channel(con)->subproc_terminated_notify();
     // FIXME no channel termination for not SessionChannel-s
   }
 protected:

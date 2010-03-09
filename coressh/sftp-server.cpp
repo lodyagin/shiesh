@@ -566,11 +566,11 @@ SFTP::SFTP
    BusyThreadWriteBuffer<Buffer>* in,
    BusyThreadReadBuffer<Buffer>* out,
    SEvent* terminatedSignal,
-   SessionChannel* _channel
+   int _channelId
    )
 : Subsystem 
     (objectId, _pw, in, out, terminatedSignal,
-     channel),
+     _channelId),
   pathFact (_pw)
 {
   buffer_init (&iqueue);

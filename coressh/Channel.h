@@ -2,7 +2,6 @@
 
 #include "Buffer.h"
 #include "StateMap.h"
-#include "SNotCopyable.h"
 #include <string>
 #include "Logging.h"
 #include "BusyThreadReadBuffer.h"
@@ -15,12 +14,12 @@ class CoreConnection;
 struct ChannelPars;
 class ChannelRepository;
 
-class Channel : public SNotCopyable
+class Channel
 {
   friend CoreConnection; //TODO
   friend Repository<Channel, ChannelPars>;
   friend ChannelRepository;
-  friend ChannelPars;
+  friend ChannelPars; // TODOS
   
 public:
 
@@ -29,23 +28,13 @@ public:
   bool outputStateIs (const char* stateName);
   bool inputStateIs (const char* stateName);
 
-  // It is a repository id
-  const std::string universal_object_id;
-  // The same 
-  const int self;		
-
-  const std::string ctype;		/* type */
-
   virtual bool is_complete_packet_in_descending ()
   {
     return true;
   }
 
   // see CHAN_RBUF in OpenSSH
-  bool check_ascending_chan_rbuf ()
-  {
-    return buffer_check_alloc (&ascending, 16 * 1024);
-  }
+  bool check_ascending_chan_rbuf ();
 
   // The selectors
 
@@ -81,12 +70,12 @@ public:
 
   u_int get_ascending_size () const
   {
-    return buffer_len (&ascending);
+    return buffer_len (ascending);
   };
 
   u_int get_descending_size () const
   {
-    return buffer_len (&descending);
+    return buffer_len (descending);
   };
 
   void channel_output_poll ();
@@ -106,6 +95,22 @@ public:
     assert (con);
     return con;
   }
+
+  u_int get_descending_len () const
+  {
+    return buffer_len (descending);
+  }
+
+  static void initializeStates ();
+
+  // It is a repository id
+  const std::string universal_object_id;
+  // The same 
+  const int self;		
+
+  const std::string ctype;		/* type */
+
+  mutable bool thisChannelUpgraded; // TODO must be protected
 
 protected:
 
@@ -139,11 +144,6 @@ protected:
   static const StateTransition allOutputTrans[];
   static const State2Idx allChanStates[];
   static const StateTransition allChanTrans[];
-public:
-  static void initializeStates ();
-protected:
-
-  /* end States -- */
 
   Channel
    (const std::string& channelType,
@@ -154,14 +154,36 @@ protected:
     UniversalState channelStartState
     );
 
-public:
-  // it is public for access from functors
-  Buffer ascending;  // ^
-  Buffer descending; // V
-
-protected:
-
   void sendEOF ();
+
+  int channel_check_window();
+
+  void channel_request_start
+    (char *service, int wantconfirm);
+
+  void rcvd_ieof ();
+
+  virtual void garbage_collect () = 0;
+
+  // notify session on subprocess termination
+  virtual void subproc_terminated_notify () = 0;
+
+  void chan_state_move_to (const UniversalState& to);
+
+  // [subproc] <-> {ascending, descending}
+  void channel_post ();
+
+  void put_raw_data 
+    (void* data, u_int data_len);
+
+  virtual void subproc2ascending () = 0;
+  virtual void descending2subproc () = 0;
+
+  // Send EOF to a subprocess (or close a socket)
+  virtual void put_eof () = 0;
+
+  Buffer* ascending;  // ^
+  Buffer* descending; // V
 
   // States & flags
   bool eofRcvd;
@@ -170,8 +192,6 @@ protected:
   bool closeSent;
 
  	int     remote_id;	/* channel identifier for remote peer */
-
-  //? std::string remote_name;	/* remote hostname */
 
 	u_int	remote_window;
 	u_int	remote_maxpacket;
@@ -188,41 +208,13 @@ protected:
   // if true then our party will send CLOSE first
   bool do_close;
 
-  int channel_check_window();
-
-  void channel_request_start
-    (char *service, int wantconfirm);
-
-  void rcvd_ieof ();
-
-  virtual void garbage_collect () = 0;
-
-  // notify session on subprocess termination
-  virtual void subproc_terminated_notify () = 0;
-
-
-protected: // TODO need private
-
-  void chan_state_move_to (const UniversalState& to);
-
   UniversalState currentInputState;
   UniversalState currentOutputState;
   UniversalState currentChanState;
 
-  // [subproc] <-> {ascending, descending}
-  void channel_post ();
-
-  void put_raw_data 
-    (void* data, u_int data_len);
-
-  virtual void subproc2ascending () = 0;
-  virtual void descending2subproc () = 0;
-
-  // Send EOF to a subprocess (or close a socket)
-  virtual void put_eof () = 0;
+  void dummy () const {}
 
 private:
-
   static Logging log;
 };
 

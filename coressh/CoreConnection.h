@@ -31,7 +31,6 @@ class CoreConnection
       // produces Session threads
 
     public ChannelRepository //TODO (public)
-    //public SessionRepository
 {
   friend CoreConnectionPars;
   friend Dispatcher;

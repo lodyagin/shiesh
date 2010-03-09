@@ -14,7 +14,7 @@ protected:
      BusyThreadWriteBuffer<Buffer>* in,
      BusyThreadReadBuffer<Buffer>* out,
      SEvent* terminatedSignal,
-     SessionChannel* _channel
+     int _channelId
      );
 
   ~Shell ();

@@ -3,6 +3,7 @@
 #include "SessionChannel.h"
 #include "CoreConnection.h"
 #include "packet.h"
+#include "SFTPChannel.h"
 
 //#define CHAN_TCP_PACKET_DEFAULT	(32*1024)
 //#define CHAN_TCP_WINDOW_DEFAULT	(64*CHAN_TCP_PACKET_DEFAULT)
@@ -43,7 +44,7 @@ void ChannelRepository::fill_event_array
         // CHANNEL STATES <1>
         if (c->outputStateIs ("waitDrain"))
         {
-          if (buffer_len (&c->descending) == 0)
+          if (c->get_descending_len () == 0)
           {
             c->put_eof ();  
             c->currentOutputState = c->outputClosedState;
@@ -82,6 +83,25 @@ Channel* ChannelPars::create_derivation
   c->remote_maxpacket = rmaxpack;
 
   return c;
+}
+
+Channel* ChannelPars::transform_object
+  (Channel* from) const
+{
+  if (subsystemName == "sftp")
+  {
+    const SessionChannel* sc = 0;
+    if (sc = dynamic_cast<const SessionChannel*> (from))
+      return new SFTPChannel (*sc);
+    else
+      THROW_EXCEPTION
+        (SException,
+         L"Should be SessionChannel for transform "
+         L"to SFTPChannel"
+         );
+  }
+  else 
+    return from;
 }
 
 void ChannelPars::read_from_packet ()
