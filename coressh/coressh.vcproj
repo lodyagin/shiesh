@@ -107,7 +107,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;..\Concurrenc++&quot;;..\openssl\inc32;..\zlib;&quot;..\apache-log4cxx\src\main\include&quot;;..\utio"
-				PreprocessorDefinitions="UNICODE;_UNICODE"
+				PreprocessorDefinitions="UNICODE;_UNICODE;LOG4CXX_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"

@@ -147,7 +147,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..\SNTLib;&quot;..\Concurrenc++&quot;;..\coressh;&quot;..\apache-log4cxx\src\main\include&quot;;..\openssl\inc32;..\zlib"
-				PreprocessorDefinitions="WIN32,_DEBUG,_CONSOLE;UNICODE;_UNICODE"
+				PreprocessorDefinitions="WIN32,_DEBUG,_CONSOLE;UNICODE;_UNICODE;LOG4CXX_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -179,7 +179,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:X64 /VERBOSE:LIB"
-				AdditionalDependencies="NTServiceLib.lib &quot;Concurrenc++.lib&quot; log4cxx.lib ws2_32.lib libeay32.lib"
+				AdditionalDependencies="NTServiceLib.lib &quot;Concurrenc++.lib&quot; log4cxx.lib ws2_32.lib libeay32.lib Mswsock.lib"
 				ShowProgress="0"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
