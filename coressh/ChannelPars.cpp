@@ -5,9 +5,6 @@
 #include "packet.h"
 #include "SFTPChannel.h"
 
-//#define CHAN_TCP_PACKET_DEFAULT	(32*1024)
-//#define CHAN_TCP_WINDOW_DEFAULT	(64*CHAN_TCP_PACKET_DEFAULT)
-
 void ChannelRepository::fill_event_array 
   (HANDLE events[], 
    int chanNums[],

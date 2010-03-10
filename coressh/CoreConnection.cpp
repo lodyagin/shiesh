@@ -2757,5 +2757,31 @@ CoreConnection::server_input_global_request
 	xfree(rtype);
 }
 
+void
+CoreConnection::kex_input_kexinit
+  (int type, u_int32_t seq, void *ctxt)
+{
+	char *ptr;
+	u_int i, dlen;
+	Kex *kex = (Kex *)ctxt;
+
+	debug("SSH2_MSG_KEXINIT received");
+	if (kex == NULL)
+		fatal("kex_input_kexinit: no kex, cannot rekey");
+
+	ptr = (char*) packet_get_raw(&dlen);
+	buffer_append(&kex->peer, ptr, dlen);
+
+	/* discard packet */
+	for (i = 0; i < KEX_COOKIE_LEN; i++)
+		packet_get_char();
+	for (i = 0; i < PROPOSAL_MAX; i++)
+		xfree(packet_get_string(NULL));
+	(void) packet_get_char();
+	(void) packet_get_int();
+	packet_check_eom(this);
+
+	kex_kexinit_finish(kex);
+}
 
 

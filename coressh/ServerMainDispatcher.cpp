@@ -41,8 +41,11 @@ ServerMainDispatcher::ServerMainDispatcher(CoreConnection* con)
     = &Dispatcher::kexinit_msg;
 }
 
-void ServerMainDispatcher::kexinit_msg (int, u_int32_t, void *) 
-{ error ("ignored kexinit msg"); }
+void ServerMainDispatcher::kexinit_msg 
+  (int type, u_int32_t seq, void *ctxt) 
+{ 
+  connection->kex_input_kexinit (type, seq, ctxt);
+}
 
 void ServerMainDispatcher::channel_close_msg 
   (int type, u_int32_t seq, void *ctxt) 
