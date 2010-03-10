@@ -216,6 +216,8 @@ CoreConnection::process_input(long networkEvents)
 			packet_process_incoming(buf, len);
 		}
 	}
+  if (networkEvents & FD_CLOSE)
+    connection_closed = true;
 }
 
 /*
