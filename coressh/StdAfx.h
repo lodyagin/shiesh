@@ -6,6 +6,10 @@
 #include <Ws2tcpip.h>
 #include <Winsock2.h>
 
+#if (_WIN32_WINNT < 0x0600)
+#include "FileExtd.h"
+#endif
+
 #include "defines.h"
 #include "ssh.h"
 #include "xmalloc.h"

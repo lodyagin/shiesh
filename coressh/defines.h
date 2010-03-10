@@ -39,7 +39,11 @@ typedef _W64 int   ssize_t;
 #define _SSIZE_T_DEFINED
 #endif
 
+#if (_WIN32_WINNT >= 0x0600)
 #define SIZE_T_MAX MAXSIZE_T
+#else
+#define SIZE_T_MAX ((SIZE_T)~((SIZE_T)0))
+#endif
 
 #define snprintf   _snprintf
 #define strcasecmp _stricmp
