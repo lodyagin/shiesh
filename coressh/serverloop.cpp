@@ -43,6 +43,7 @@
 #include "ssh2.h"
 #include "compat.h"
 #include "SessionChannel.h"
+#include "TCPClientChannel.h" // temporary
 
 class DescendingProbe : public std::unary_function<void, Channel&>
 {
@@ -236,7 +237,7 @@ CoreConnection::server_input_channel_open
   (int type, u_int32_t seq, void *ctxt)
 {
 	Channel *c = NULL;
-  ChannelPars chPars (this);
+  ChannelPars chPars (this); // for creation
   chPars.read_from_packet ();
   //chPars.authctxt = (Authctxt*) ctxt;
 
@@ -268,7 +269,7 @@ CoreConnection::server_input_channel_open
       ("server_input_channel_open: confirm %s", 
        chPars.ctype.c_str ()
        );
-		if (dynamic_cast<SessionChannel*> (c)) 
+		if (!dynamic_cast<TCPClientChannel*> (c)) // FIXME
     { // For forward channel wait for remote socket
       // connection
 			packet_start

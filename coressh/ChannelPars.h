@@ -63,6 +63,15 @@ struct ChannelPars
   CoreConnection* connection;
   //Authctxt* authctxt;
 
+  // direct-tcpip channel pars
+  std::string    host_to_connect;
+  u_int          port_to_connect;
+  std::string    originator_ip_address;
+  u_int          originator_port;
+
+
+
+
   virtual Channel* create_derivation 
     (const ChannelRepository::ObjectCreationInfo&) const;
 

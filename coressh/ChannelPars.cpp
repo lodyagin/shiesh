@@ -4,6 +4,7 @@
 #include "CoreConnection.h"
 #include "packet.h"
 #include "SFTPChannel.h"
+#include "TCPClientChannel.h"
 
 void ChannelRepository::fill_event_array 
   (HANDLE events[], 
@@ -62,15 +63,39 @@ void ChannelRepository::fill_event_array
 Channel* ChannelPars::create_derivation
   (const ChannelRepository::ObjectCreationInfo& info) const
 {
-  Channel* c = 0;
+  SessionChannel* c = 0;
 
   if (ctype == "session")
     c = new SessionChannel
-      ("session",
+      (ctype.c_str (),
        info.objectId,
        /*window size*/0,
        connection
        );
+  else if (ctype == "direct-tcpip")
+  {
+    c = new TCPClientChannel
+      (ctype.c_str (),
+       info.objectId,
+       connection,
+       host_to_connect,
+       port_to_connect
+       ); // FIXME check alloc
+
+    TCPClientPars tcpPars; 
+    tcpPars.hostToConnect = host_to_connect;
+    tcpPars.portToConnect = port_to_connect;
+    tcpPars.inBuffer = c->fromChannel;
+    tcpPars.outBuffer = c->toChannel;
+    tcpPars.pw = connection->get_authctxt () -> pw;
+    tcpPars.subsystemTerminated = 
+      &connection->subprocTerminated;
+    tcpPars.channelId = c->self;
+    tcpPars.channel = dynamic_cast<TCPClientChannel*> (c);
+    c->subsystem = connection->
+      create_subthread (tcpPars);
+    c->subsystem->start ();
+  }
 
   if (!c) 
     throw UnknownChannelType (ctype, remote_id);
@@ -114,4 +139,16 @@ void ChannelPars::read_from_packet ()
 
   if (ctype == "session")
     packet_check_eom (connection);
+  else if (ctype == "direct-tcpip")
+  {
+    char* str = connection->packet_get_string (&len);
+    host_to_connect = str; //TODO check memleaks (if exception)
+    coressh::xfree (str); 
+    port_to_connect = connection->packet_get_int();
+    str = connection->packet_get_string (&len);
+    originator_ip_address = str;
+    coressh::xfree (str); 
+    originator_port = connection->packet_get_int();
+    packet_check_eom (connection);
+  }
 }

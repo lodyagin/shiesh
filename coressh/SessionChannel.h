@@ -82,7 +82,6 @@ protected:
 
   PTYRepository* ptys;
 
-//public:
   // from channel to subsystem
   BusyThreadWriteBuffer<Buffer>* fromChannel; 
 

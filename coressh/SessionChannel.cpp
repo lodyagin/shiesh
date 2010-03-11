@@ -153,7 +153,7 @@ void SessionChannel::input_channel_req
         if (subsystem)
           fatal ("Subsystem already initialized");
 
-        ChannelPars chanPars (con);
+        ChannelPars chanPars (con); // for transformation
         chanPars.subsystemName = 
           subsystemPars->subsystemName;
 

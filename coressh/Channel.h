@@ -82,7 +82,7 @@ public:
 
   // Return the handle to the event
   // of data appearence in the subproc. 
-  // to chaneel stream
+  // to channel stream
   virtual HANDLE get_data_ready_event () = 0;
 
   virtual void input_channel_req 
@@ -164,7 +164,7 @@ protected:
   virtual void subproc_terminated_notify () = 0;
 
   // [subproc] <-> {ascending, descending}
-  /*virtual*/ void channel_post ();
+  virtual void channel_post ();
 
   void put_raw_data 
     (void* data, u_int data_len);
@@ -206,8 +206,6 @@ protected:
 
   UniversalState currentInputState;
   UniversalState currentOutputState;
-
-  void dummy () const {}
 
 private:
   static Logging log;

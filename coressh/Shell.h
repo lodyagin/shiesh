@@ -26,7 +26,7 @@ protected:
   // disable thread stopping, 
   // should flush all buffers.
   // Use BusyThreadWriteBuffer::put_eof ()
-  // for flushing buffers and terminating SFTP thread.
+  // for flushing buffers and terminating the thread.
   void stop ();
 
   void start ();
