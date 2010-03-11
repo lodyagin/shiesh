@@ -741,6 +741,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TCPClientChannel.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ttymodes.cpp"
 				>
 				<FileConfiguration
@@ -980,6 +984,10 @@
 			</File>
 			<File
 				RelativePath=".\targetver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TCPClientChannel.h"
 				>
 			</File>
 			<File
