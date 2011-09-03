@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Options.h"
 
-const std::string Options::version ("1.4d1");
+const std::string Options::version ("1.4d2");
 const std::string Options::progName ("CoreSSH");
 
 const std::string 
@@ -23,5 +23,9 @@ Options::get_terminfo_db_path () const
   return L"C:\\coressh\\data\\terminfoDB";
 }
 
+const std::wstring
+Options::get_config_db_path () const
+{
+  return L"C:\\coressh\\data\\coressh.dat";
+}
 
-static Options options;

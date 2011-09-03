@@ -216,7 +216,7 @@ void	 auth_debug_add(const char *fmt,...);
 void	 auth_debug_send(void);
 void	 auth_debug_reset(void);
 
-User *fakepw(void); 
+//User *fakepw(void); 
 
 int	 sys_auth_passwd(Authctxt *, const char *);
 

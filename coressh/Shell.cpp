@@ -233,7 +233,7 @@ void Shell::start ()
        TRUE,          // handles are inherited 
        0,             // creation flags 
        NULL,          // the environment 
-       pw->home_dir ().c_str (),// the current directory 
+       fromUTF8 (pw->home_dir ()).c_str (),// the current directory 
        &siStartInfo,  // STARTUPINFO pointer 
        &procInfo)  // receives PROCESS_INFORMATION 
      );

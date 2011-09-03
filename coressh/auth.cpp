@@ -608,10 +608,12 @@ auth_debug_reset(void)
 }
 #endif
 
+#if 0
 User *
 fakepw(void)
 {
   return User::fake_user ();
 }
+#endif
 
 }

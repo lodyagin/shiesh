@@ -11,37 +11,46 @@
 class User
 {
 public:
-  typedef std::string EncryptedPasswd;
+  //typedef std::string EncryptedPasswd;
 
-  class NoSuchUser {};
+  //class NoSuchUser {};
 
-  virtual ~User(void);
+  //virtual ~User(void);
 
   // Return a special user which never can login
-  static User* fake_user ();
+  //static User* fake_user ();
 
-  // Return user info if the user is allowed
+  // Return user info if the user is exists
+  // and passwd is correct
   // otherwise return NULL
-  static User* find_allowed (const std::wstring& user);
+  static User* auth_passwd 
+    (const std::string& login, 
+     const std::string& passwd
+     );
 
-  static void init ();
+  static User* find_allowed (const std::string& user);
 
-  const EncryptedPasswd encrypted_passwd () const;
+  //const EncryptedPasswd encrypted_passwd () const;
 
-  const std::wstring home_dir () const;
+  const std::string home_dir () const
+  {
+    return homeDir;
+  }
 
-  const std::wstring userName;
+  const std::string login () const
+  {
+    return userName;
+  }
 
 protected:
-  User () : isFake (true) {}
-  User(const std::wstring& name);
+  //User () : isFake (true) {}
+  //User (const std::string& name);
+
+  std::string homeDir;
+  std::string userName;
 
 private:
-  typedef std::map<std::wstring, EncryptedPasswd> UserMap; 
+  //static User* fakeUser;
 
-  static UserMap userList;
-  static User* fakeUser;
-  static EncryptedPasswd fakeEncPasswd;
-
-  bool isFake;
+  //bool isFake;
 };

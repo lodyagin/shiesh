@@ -21,6 +21,11 @@
 #include "zlib.h"
 #include "port.h"
 
+#include "soci.h"
+#include "soci-sqlite3.h"
+
 #include <string>
 #include <openssl/ossl_typ.h>
 #include <assert.h>
+
+#include "sqlite3.h"

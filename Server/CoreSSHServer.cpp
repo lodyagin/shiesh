@@ -3,7 +3,6 @@
 #include <direct.h>
 #include <time.h>
 #include <string>
-#include "Options.h"
 
 Logging CServer::m_Logging("CServer");
 
@@ -13,6 +12,8 @@ CServer::CServer () : main (NULL)
 {
    static Logging AutoLogger("CServer()",m_Logging);
 
+   options = new Options ();
+   dbAdapter = new DbAdapter ();
    LOG4CXX_INFO 
      (AutoLogger.GetLogger(), 
      std::string ("Start ") 

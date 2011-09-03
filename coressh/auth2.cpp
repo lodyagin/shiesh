@@ -221,14 +221,14 @@ CoreConnection::input_userauth_request(int type, u_int32_t seq, void *ctxt)
 
 	if (authctxt->attempt++ == 0) {
 		/* setup auth context */
-    authctxt->pw = PRIVSEP(User::find_allowed(fromUTF8 (user)));
+      authctxt->pw = User::find_allowed(user);
 		authctxt->user = xstrdup(user);
 		if (authctxt->pw && strcmp(service, "ssh-connection")==0) {
 			authctxt->valid = 1;
 			debug2("input_userauth_request: setting up authctxt for %s", user);
 		} else {
 			logit("input_userauth_request: invalid user %s", user);
-			authctxt->pw = fakepw(); 
+			//authctxt->pw = fakepw(); 
 #ifdef SSH_AUDIT_EVENTS
 			PRIVSEP(audit_event(SSH_INVALID_USER));
 #endif

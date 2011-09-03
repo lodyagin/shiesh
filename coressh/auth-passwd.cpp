@@ -81,14 +81,7 @@ auth_password(Authctxt *authctxt, const char *password)
 {
 	User * pw = authctxt->pw;
 	int result, ok = authctxt->valid;
-#if defined(USE_SHADOW) && defined(HAS_SHADOW_EXPIRE)
-	static int expire_checked = 0;
-#endif
 
-#ifndef HAVE_CYGWIN
-	/*if (pw->pw_uid == 0 && options.permit_root_login != PERMIT_YES)
-		ok = 0;*/ //TODO
-#endif
 	if (*password == '\0' /*&& options.permit_empty_passwd == 0*/)
 		return 0; //TODO to reqs
 
@@ -100,119 +93,28 @@ auth_password(Authctxt *authctxt, const char *password)
 		/* Fall back to ordinary passwd authentication. */
 	}
 #endif
-#ifdef HAVE_CYGWIN
-	if (is_winnt) {
-		HANDLE hToken = cygwin_logon_user(pw, password);
 
-		if (hToken == INVALID_HANDLE_VALUE)
-			return 0;
-		cygwin_set_impersonation_token(hToken);
-		return ok;
-	}
-#endif
 #ifdef USE_PAM
 	if (options.use_pam)
 		return (sshpam_auth_passwd(authctxt, password) && ok);
 #endif
-#if defined(USE_SHADOW) && defined(HAS_SHADOW_EXPIRE)
-	if (!expire_checked) {
-		expire_checked = 1;
-		if (auth_shadow_pwexpired(authctxt))
-			authctxt->force_pwchange = 1;
-	}
-#endif
+
 	result = sys_auth_passwd(authctxt, password);
 	if (authctxt->force_pwchange)
 		; //FIXME disable_forwarding();
 	return (result && ok);
 }
 
-#ifdef BSD_AUTH
-static void
-warn_expiry(Authctxt *authctxt, auth_session_t *as)
-{
-	char buf[256];
-	quad_t pwtimeleft, actimeleft, daysleft, pwwarntime, acwarntime;
-
-	pwwarntime = acwarntime = TWO_WEEKS;
-
-	pwtimeleft = auth_check_change(as);
-	actimeleft = auth_check_expire(as);
-#ifdef HAVE_LOGIN_CAP
-	if (authctxt->valid) {
-		pwwarntime = login_getcaptime(lc, "password-warn", TWO_WEEKS,
-		    TWO_WEEKS);
-		acwarntime = login_getcaptime(lc, "expire-warn", TWO_WEEKS,
-		    TWO_WEEKS);
-	}
-#endif
-	if (pwtimeleft != 0 && pwtimeleft < pwwarntime) {
-		daysleft = pwtimeleft / DAY + 1;
-		snprintf(buf, sizeof(buf),
-		    "Your password will expire in %lld day%s.\n",
-		    daysleft, daysleft == 1 ? "" : "s");
-		buffer_append(&loginmsg, buf, strlen(buf));
-	}
-	if (actimeleft != 0 && actimeleft < acwarntime) {
-		daysleft = actimeleft / DAY + 1;
-		snprintf(buf, sizeof(buf),
-		    "Your account will expire in %lld day%s.\n",
-		    daysleft, daysleft == 1 ? "" : "s");
-		buffer_append(&loginmsg, buf, strlen(buf));
-	}
-}
-
+#if !defined(CUSTOM_SYS_AUTH_PASSWD)
 int
 sys_auth_passwd(Authctxt *authctxt, const char *password)
 {
-	struct passwd *pw = authctxt->pw;
-	auth_session_t *as;
-	static int expire_checked = 0;
+   User* user = User::auth_passwd (authctxt->user, password);
 
-	as = auth_usercheck(pw->pw_name, authctxt->style, "auth-ssh",
-	    (char *)password);
-	if (as == NULL)
-		return (0);
-	if (auth_getstate(as) & AUTH_PWEXPIRED) {
-		auth_close(as);
-		disable_forwarding();
-		authctxt->force_pwchange = 1;
-		return (1);
-	} else {
-		if (!expire_checked) {
-			expire_checked = 1;
-			warn_expiry(authctxt, as);
-		}
-		return (auth_close(as));
-	}
-}
-#elif !defined(CUSTOM_SYS_AUTH_PASSWD)
-int
-sys_auth_passwd(Authctxt *authctxt, const char *password)
-{
-	User *pw = authctxt->pw;
-  std::string encrypted_password;
+   if (user == 0)
+      return 0;
 
-	/* Just use the supplied fake password if authctxt is invalid */
-  std::string pw_password = pw->encrypted_passwd ();
-
-	/* Check for users with no password. */
-  if (strcmp(pw_password.c_str (), "") == 0 && strcmp(password, "") == 0)
-		return (1);
-
-#if 0 //FIXME
-	/* Encrypt the candidate password using the proper salt. */
-	encrypted_password = xcrypt(password,
-    (pw_password[0] && pw_password[1]) ? pw_password.c_str () : "xx");
-
-	/*
-	 * Authentication is accepted if the encrypted passwords
-	 * are identical.
-	 */
-  return (strcmp(encrypted_password.c_str (), pw_password.c_str ()) == 0);
-#else //no encryption
-  return (strcmp(password, pw_password.c_str ()) == 0);
-#endif
+   delete user;
 }
 #endif
 

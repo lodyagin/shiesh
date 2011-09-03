@@ -1,71 +1,73 @@
 #include "StdAfx.h"
 #include "User.h"
+#include "DbAdapter.h"
 
-User::UserMap User::userList;
+using namespace soci;
 
-User* User::fakeUser = 0;
+//User* User::fakeUser = 0;
 
-void User::init ()
-{
-  userList[L"serg"] = "s4";
-  userList[L"matt"] = "m4";
-  userList[L"mary"] = "m5";
-}
-
-static int inited = (User::init (), true);
-
-User::User(const std::wstring& name)
+/*User::User(const std::wstring& name)
 : isFake (false), userName (name)
 {
+
 }
 
 User::~User(void)
 {
-}
+}*/
 
-User* User::fake_user ()
+User* User::find_allowed (const std::string& user)
 {
-  if (!fakeUser)
+  try 
   {
-    fakeUser = new User ();
-    // FIXME check alloc
-    //fakeUser->isFake = true;
+    session sql 
+      (DbAdapter::instance ().get_soci_connection_string ());
+    indicator ind;
+
+    User* u = new User;
+
+    sql << "select login, pwd from users "
+           "where login = :login",
+           into (u->userName), into (u->homeDir, ind),
+           use (user);
+
+    if (sql.got_data ()) {
+      if (u->homeDir == "") 
+        u->homeDir = "c:\\"; // Fixme
+      return u;
+    }
+    else
+    {
+      delete u;
+      return 0;
+    }
   }
-  return fakeUser;
+  catch (soci_error& err) {
+    return 0;
+  }
 }
 
-
-User* User::find_allowed (const std::wstring& user)
+User* User::auth_passwd 
+  (const std::string& login, 
+   const std::string& passwd
+   )
 {
-  UserMap::const_iterator cit = userList.find (user);
-  if (cit != userList.end ())
-  {
-    return new User (cit->first.c_str ());
-  }
-  else return 0;
-}
+  session sql 
+    (DbAdapter::instance ().get_soci_connection_string ());
+  indicator ind;
 
-const User::EncryptedPasswd User::encrypted_passwd () const
-{
-  if (isFake)
-    return fakeEncPasswd;
+  User* u = new User;
+
+  sql << "select pwd from users "
+         "where login = :login and password = :password",
+    into (u->homeDir, ind), use (login), use (passwd);
+
+  if (sql.got_data ())
+    return u;
   else
   {
-    UserMap::const_iterator cit = userList.find (userName);
-    if (cit == userList.end ())
-      throw NoSuchUser ();
-    else 
-      return cit->second;
+    delete u;
+    return 0;
   }
 }
-//FIXME reenterable
 
-const std::wstring User::home_dir () const
-{
-  return std::wstring (L"c:\\coressh\\home\\") 
-    + userName;
-  //FIXME
-}
-
-
-std::string User::fakeEncPasswd ("!");

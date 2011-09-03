@@ -1,0 +1,10 @@
+*.dll
+*.lib
+*.ncb
+*.suo
+*.user
+Debug/
+openssl-vc32/
+Release/
+Win32_LIB_Debug/
+

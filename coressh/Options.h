@@ -22,5 +22,8 @@ public:
 
   const std::wstring
   get_terminfo_db_path () const;
+
+  const std::wstring
+  get_config_db_path () const;
 };
 

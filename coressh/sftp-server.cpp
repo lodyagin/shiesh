@@ -281,7 +281,7 @@ SFTPFilePathFactory::SFTPFilePathFactory (const User * pw)
 : userHomeDir (0)
 {
   assert (pw);
-  Path home (pw->home_dir ());
+  Path home (fromUTF8 (pw->home_dir ()));
 
   if (home.is_relative ())
     throw Path::InvalidPath 
@@ -1983,7 +1983,7 @@ SFTP::sftp_server_cleanup_exit(int i)
 	if (pw != NULL) {
 		//handle_log_exit();
 		logit("session closed for local user %s",
-		    pw->userName);
+		    pw->login ());
 	}  
   std::wostringstream strm;
   strm << L"thread's exit code: " << i;

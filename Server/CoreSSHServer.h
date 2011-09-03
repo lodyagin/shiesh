@@ -4,6 +4,8 @@
 #include "SNTService.h"
 #include "MainThread.h"
 #include "Logging.h"
+#include "DbAdapter.h"
+#include "Options.h"
 
 class CServer : public SNTService
 {
@@ -23,8 +25,8 @@ protected:
 
    virtual void error( const std::exception & );
 
-   //SExtMain	*ppm;
-   //MCCommandStack *mcRateStack;
+   DbAdapter* dbAdapter;
+   Options* options;
 };
 
 #endif  // __CSERVER_H
