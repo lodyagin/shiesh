@@ -54,7 +54,7 @@
 #  include "md5crypt.h"
 # endif 
 
-namespace coressh {
+namespace ssh {
 
 std::string
 xcrypt(const char *password, const char *salt)
@@ -62,8 +62,8 @@ xcrypt(const char *password, const char *salt)
   std::string crypted;
 
 # ifdef HAVE_MD5_PASSWORDS
-        if (coressh::is_md5_salt(salt))
-                crypted = coressh::md5_crypt(password, salt);
+        if (ssh::is_md5_salt(salt))
+                crypted = ssh::md5_crypt(password, salt);
         else
                 //crypted = crypt(password, salt);
                 fatal ("unknown password crypt method");

@@ -50,7 +50,7 @@
 #include "CoreConnection.h"
 #include "Options.h" //FIXME
 
-namespace coressh {
+namespace ssh {
 
 void
 sshd_exchange_identification

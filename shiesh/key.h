@@ -28,7 +28,7 @@
 #include <openssl/rsa.h>
 #include <openssl/dsa.h>
 
-namespace coressh {
+namespace ssh {
 
 enum types {
 	KEY_RSA1,

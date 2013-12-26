@@ -27,7 +27,7 @@
 
 #include "kex.h"
 
-namespace coressh {
+namespace ssh {
 
 int	 mac_valid(const char *);
 int	 mac_setup(Mac *, char *);

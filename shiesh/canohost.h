@@ -14,7 +14,7 @@
 
 #pragma once
 
-namespace coressh {
+namespace ssh {
 
 //const char	*get_canonical_hostname(int);
 const char	*get_remote_ipaddr(void);

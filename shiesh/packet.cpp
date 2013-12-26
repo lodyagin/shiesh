@@ -48,7 +48,7 @@
 #include "misc.h"
 #include "queue.h"
 
-namespace coressh {
+namespace ssh {
 
 #if 0
 /* Set to true if the connection is interactive. */

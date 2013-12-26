@@ -36,7 +36,7 @@
 #define INTBLOB_LEN	20
 #define SIGBLOB_LEN	(2*INTBLOB_LEN)
 
-namespace coressh {
+namespace ssh {
 
 int
 ssh_dss_sign(const Key *key, u_char **sigp, u_int *lenp,

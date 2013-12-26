@@ -44,7 +44,7 @@
 #include "CoreConnection.h"
 #include "AuthDispatcher.h"
 
-namespace coressh {
+namespace ssh {
 
 /* import */
 //extern ServerOptions options;
@@ -129,7 +129,7 @@ userauth_banner(void)
 
 	/*if ((banner = PRIVSEP(auth2_read_banner())) == NULL)
 		goto done;*/
-	userauth_send_banner("CoreSSH\n\n"); //TODO
+	userauth_send_banner("ShieSSH\n\n"); //TODO
 
 /*done:
 	if (banner)

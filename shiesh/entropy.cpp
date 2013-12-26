@@ -33,7 +33,7 @@
 #include "atomicio.h"
 #include "buffer.h"
 
-namespace coressh {
+namespace ssh {
 
 /*
  * Portable OpenSSH PRNG seeding:

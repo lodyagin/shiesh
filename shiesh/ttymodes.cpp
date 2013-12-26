@@ -60,7 +60,7 @@
 #define TTY_OP_ISPEED_PROTO2	128
 #define TTY_OP_OSPEED_PROTO2	129
 
-namespace coressh {
+namespace ssh {
 
 /*
  * Converts POSIX speed_t to a baud rate.  The values of the
@@ -342,7 +342,7 @@ end:
 }
 #endif
 
-} // end of the coressh namescpace
+} // end of the ssh namescpace
 
 /*
  * Decodes terminal modes for the terminal referenced by fd in a portable

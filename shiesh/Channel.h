@@ -8,7 +8,7 @@
 #include "BusyThreadWriteBuffer.h"
 #include "Repository.h"
 
-using namespace coressh;
+using namespace ssh;
 
 class CoreConnection;
 struct ChannelPars;

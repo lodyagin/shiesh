@@ -40,7 +40,7 @@
 
 /* XXX mode should be mode_t */
 
-namespace coressh {
+namespace ssh {
 
 void
 strmode(int mode, wchar_t *p)

@@ -83,7 +83,7 @@ void Logging::Init()
 	   p.setProperty(L"log4j.rootLogger", L"INFO, A1");
 	   p.setProperty(L"log4j.appender.A1", L"org.apache.log4j.RollingFileAppender");
 	   p.setProperty(L"log4j.appender.A1.Append", L"True");
-	   p.setProperty(L"log4j.appender.A1.File", L"coressh.log");
+	   p.setProperty(L"log4j.appender.A1.File", L"ssh.log");
 	   p.setProperty(L"log4j.appender.A1.MaxFileSize", L"1048576");
 	   p.setProperty(L"log4j.appender.A1.MaxBackupIndex", L"12");
 	   p.setProperty(L"log4j.appender.A1.layout", L"org.apache.log4j.PatternLayout");

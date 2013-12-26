@@ -12,7 +12,7 @@
 /* Number of bytes to reseed after */
 #define REKEY_BYTES	(1 << 24)
 
-namespace coressh {
+namespace ssh {
 
 Arc4Random::Arc4Random(void)
 : rc4_ready (0)

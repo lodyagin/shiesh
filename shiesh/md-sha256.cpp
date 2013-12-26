@@ -27,7 +27,7 @@
 #include <openssl/evp.h>
 #include "sha2.h"
 
-namespace coressh {
+namespace ssh {
 
 const EVP_MD *evp_ssh_sha256(void);
 

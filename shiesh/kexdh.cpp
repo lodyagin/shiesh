@@ -32,7 +32,7 @@
 #include "key.h"
 #include "cipher.h"
 
-namespace coressh {
+namespace ssh {
 
 void
 kex_dh_hash(

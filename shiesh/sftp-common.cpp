@@ -33,7 +33,7 @@
 #include "time_wce.h"
 #include "SCommon.h"
 
-namespace coressh {
+namespace ssh {
 
 // extern
 void strmode(int mode, wchar_t *p);

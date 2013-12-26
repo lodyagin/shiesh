@@ -3,7 +3,7 @@
 #include <string>
 #include "RInOutSocket.h"
 
-namespace coressh {
+namespace ssh {
 
 void
 sshd_exchange_identification

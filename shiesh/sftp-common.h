@@ -35,7 +35,7 @@
 /* Maximum packet that we are willing to send/accept */
 #define SFTP_MAX_MSG_LENGTH	(256 * 1024)
 
-namespace coressh {
+namespace ssh {
 
 //typedef struct Attrib Attrib;
 

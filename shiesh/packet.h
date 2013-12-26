@@ -17,7 +17,7 @@
 
 #include <openssl/bn.h>
 
-namespace coressh {
+namespace ssh {
 
 
 //void	 tty_make_modes(int, struct termios *);

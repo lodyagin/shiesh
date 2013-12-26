@@ -2,7 +2,7 @@
 #include "Options.h"
 
 const std::string Options::version ("1.4d2");
-const std::string Options::progName ("CoreSSH");
+const std::string Options::progName ("ShieSSH");
 
 const std::string 
 Options::get_protocol_version_exchange_string () const
@@ -20,12 +20,12 @@ int Options::get_max_login_attempts () const
 const std::wstring
 Options::get_terminfo_db_path () const
 {
-  return L"C:\\coressh\\data\\terminfoDB";
+  return L"C:\\ssh\\data\\terminfoDB";
 }
 
 const std::wstring
 Options::get_config_db_path () const
 {
-  return L"C:\\coressh\\data\\coressh.dat";
+  return L"C:\\ssh\\data\\ssh.dat";
 }
 

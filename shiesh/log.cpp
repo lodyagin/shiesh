@@ -37,7 +37,7 @@
 #include "StdAfx.h"
 #include "log.h"
 
-namespace coressh {
+namespace ssh {
 
 /* Error messages that should be logged. */
 

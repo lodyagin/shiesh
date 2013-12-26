@@ -54,7 +54,7 @@
 #define SHA512_DIGEST_LENGTH		64
 #define SHA512_DIGEST_STRING_LENGTH	(SHA512_DIGEST_LENGTH * 2 + 1)
 
-namespace coressh {
+namespace ssh {
 
 /*** SHA-256/384/512 Context Structures *******************************/
 typedef struct _SHA256_CTX {

@@ -43,7 +43,7 @@
 //#include "monitor_wrap.h"
 #include "User.h"
 
-namespace coressh {
+namespace ssh {
 
 /* import */
 //extern ServerOptions options;

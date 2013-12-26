@@ -30,7 +30,7 @@
 #include <openssl/crypto.h>
 
 
-namespace coressh {
+namespace ssh {
 
 #if OPENSSL_VERSION_NUMBER >= 0x00907000L
 # if defined(HAVE_EVP_SHA256)

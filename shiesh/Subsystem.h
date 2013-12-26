@@ -12,7 +12,7 @@ The subsystem, as per RFC 4254
 #include "ChannelRequest.h"
 #include "ChannelPars.h"
 
-using namespace coressh;
+using namespace ssh;
 
 class SubsystemPars;
 class SessionChannel;

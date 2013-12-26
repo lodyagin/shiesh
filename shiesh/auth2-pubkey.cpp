@@ -167,7 +167,7 @@ done:
 	return authenticated;
 }
 
-namespace coressh {
+namespace ssh {
 
 /* return 1 if user allows given key */
 static int

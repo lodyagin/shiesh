@@ -13,7 +13,7 @@
  */
 #pragma once
 
-namespace coressh {
+namespace ssh {
 
 int	 match_pattern(const char *, const char *);
 int	 match_pattern_list(const char *, const char *, u_int, int);

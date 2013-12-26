@@ -39,7 +39,7 @@
 #include "cipher.h"
 #include <openssl/md5.h>
 
-namespace coressh {
+namespace ssh {
 
 //extern const EVP_CIPHER *evp_ssh1_bf(void);
 //extern const EVP_CIPHER *evp_ssh1_3des(void);

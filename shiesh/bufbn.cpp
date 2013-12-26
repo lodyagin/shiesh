@@ -44,7 +44,7 @@
 
 #include "misc.h"
 
-namespace coressh {
+namespace ssh {
 
 /*
  * Stores an BIGNUM in the buffer with a 2-byte msb first bit count, followed

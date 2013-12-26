@@ -56,7 +56,7 @@ void Shell::run ()
 
       if (inputMsg && inputMsgLen == 0) 
       {
-        coressh::xfree (inputMsg); inputMsg = 0;
+        ssh::xfree (inputMsg); inputMsg = 0;
         assert (fromChannel->n_msgs_in_the_buffer () == 0);
 
         if (fromChannel->n_msgs_in_the_buffer () != 0)
@@ -127,7 +127,7 @@ void Shell::run ()
           toChannel->put ((char*) inputMsg + i, 1);
         }
 
-        coressh::xfree (inputMsg); inputMsg = 0;
+        ssh::xfree (inputMsg); inputMsg = 0;
 
         DWORD nBytesWritten = 0;
         sWinCheck 
@@ -169,7 +169,7 @@ void Shell::run ()
   catch (...)
   {
     if (inputMsg) 
-      coressh::xfree (inputMsg);
+      ssh::xfree (inputMsg);
     throw;
   }
 }
@@ -199,7 +199,7 @@ void Shell::start ()
      );
 
   std::wostringstream pipeNameStream;
-  pipeNameStream << L"coressh_"
+  pipeNameStream << L"ssh_"
     << SThread::id ();
     
   // Create the stdout pipe

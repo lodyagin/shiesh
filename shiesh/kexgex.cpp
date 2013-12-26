@@ -34,7 +34,7 @@
 #include "cipher.h"
 #include "ssh2.h"
 
-namespace coressh {
+namespace ssh {
 
 void
 kexgex_hash(

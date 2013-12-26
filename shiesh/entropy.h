@@ -28,7 +28,7 @@
 
 #include "buffer.h"
 
-namespace coressh {
+namespace ssh {
 
 void seed_rng(void);
 void init_rng(void);

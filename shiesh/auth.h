@@ -46,7 +46,7 @@
 
 class CoreConnection;
 
-namespace coressh {
+namespace ssh {
 
 typedef struct Authctxt Authctxt;
 typedef struct Authmethod Authmethod;

@@ -44,7 +44,7 @@
 
 #include "misc.h"
 
-namespace coressh {
+namespace ssh {
 
 /*
  * Returns integers from the buffer (msb first).

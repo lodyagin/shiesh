@@ -28,7 +28,7 @@
 
 #pragma once
 
-namespace coressh {
+namespace ssh {
 
 /*
  * Ensure all of data on socket comes through. f==::recv

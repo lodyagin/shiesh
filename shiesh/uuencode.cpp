@@ -27,7 +27,7 @@
 #include "uuencode.h"
 #include "base64.h"
 
-namespace coressh {
+namespace ssh {
 
 int
 uuencode

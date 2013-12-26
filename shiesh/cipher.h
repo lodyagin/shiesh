@@ -37,7 +37,7 @@
 #pragma once
 #include <openssl/evp.h>
 
-namespace coressh {
+namespace ssh {
 
 /*
  * Cipher types for SSH-1.  New types can be added, but old types should not

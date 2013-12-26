@@ -49,7 +49,7 @@
 #include <string>
 #include "xcrypt.h"
 
-namespace coressh {
+namespace ssh {
 
 //extern Buffer loginmsg;
 //extern ServerOptions options;

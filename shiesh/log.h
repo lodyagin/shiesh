@@ -14,7 +14,7 @@
 
 #pragma once
 
-namespace coressh {
+namespace ssh {
 
 #if 0
 /* Supported syslog facilities and levels. */

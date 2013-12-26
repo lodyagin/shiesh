@@ -2,7 +2,7 @@
 
 #include <openssl/rc4.h>
 
-namespace coressh {
+namespace ssh {
 
 class Arc4Random
 {

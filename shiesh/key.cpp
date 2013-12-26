@@ -41,7 +41,7 @@
 #include "Buffer.h"
 #include "key.h"
 
-namespace coressh {
+namespace ssh {
 
 Key *
 key_new(int type)

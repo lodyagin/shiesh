@@ -368,7 +368,7 @@ CoreConnection::server_input_channel_req
 		    "unknown channel %d", id);
 	
   c->input_channel_req (seq, rtype, reply);
-  coressh::xfree(rtype);
+  ssh::xfree(rtype);
 
 #if 0
   if (

@@ -25,7 +25,7 @@
  */
 #pragma once
 
-namespace coressh {
+namespace ssh {
 
 struct dhgroup {
 	int size;

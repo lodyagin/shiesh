@@ -54,7 +54,7 @@
 #include <io.h>
 #include <fcntl.h>
 
-namespace coressh {
+namespace ssh {
 
 /* Version identification string for SSH v1 identity files. */
 /*static const char authfile_id_string[] =

@@ -14,7 +14,7 @@
 #if defined(HAVE_MD5_PASSWORDS) && !defined(HAVE_MD5_CRYPT)
 #include <openssl/md5.h>
 
-namespace coressh {
+namespace ssh {
 
 /* 0 ... 63 => ascii - 64 */
 static const unsigned char itoa64[] =

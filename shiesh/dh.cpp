@@ -30,7 +30,7 @@
 ///#include "pathnames.h"
 #include "misc.h"
 
-namespace coressh {
+namespace ssh {
 
 static int
 parse_prime(int linenum, char *line, struct dhgroup *dhg)

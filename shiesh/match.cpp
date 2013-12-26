@@ -38,7 +38,7 @@
 #include "StdAfx.h"
 #include "match.h"
 
-namespace coressh {
+namespace ssh {
 
 /*
  * Returns true if the given string matches the pattern (which may contain ?

@@ -16,7 +16,7 @@
 
 #include "key.h"
 
-namespace coressh {
+namespace ssh {
 
 int	 key_save_private(Key *, const char *, const char *, const char *);
 Key	*key_load_public(const char *, char **);

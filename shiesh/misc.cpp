@@ -28,7 +28,7 @@
 #include "misc.h"
 #include <sys/timeb.h>
 
-namespace coressh {
+namespace ssh {
 
 /* remove newline at end of string */
 char *
@@ -819,7 +819,7 @@ ms_subtract_diff(struct timeval *start, int *ms)
 {
 	struct timeval diff, finish;
 
-  coressh::gettimeofday(&finish);
+  ssh::gettimeofday(&finish);
 	timersub(&finish, start, &diff);	
 	*ms -= (diff.tv_sec * 1000) + (diff.tv_usec / 1000);
 }

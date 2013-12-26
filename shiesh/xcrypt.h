@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace coressh {
+namespace ssh {
 
 std::string xcrypt(const char *password, const char *salt);
 

@@ -132,7 +132,7 @@ void ChannelPars::read_from_packet ()
 
   char* str = connection->packet_get_string(&len);
 	ctype = str;
-  coressh::xfree (str);
+  ssh::xfree (str);
   remote_id = connection->packet_get_int();
 	rwindow = connection->packet_get_int();
 	rmaxpack = connection->packet_get_int();
@@ -143,11 +143,11 @@ void ChannelPars::read_from_packet ()
   {
     char* str = connection->packet_get_string (&len);
     host_to_connect = str; //TODO check memleaks (if exception)
-    coressh::xfree (str); 
+    ssh::xfree (str); 
     port_to_connect = connection->packet_get_int();
     str = connection->packet_get_string (&len);
     originator_ip_address = str;
-    coressh::xfree (str); 
+    ssh::xfree (str); 
     originator_port = connection->packet_get_int();
     packet_check_eom (connection);
   }

@@ -117,7 +117,7 @@ void TCPClient::run ()
              L"by a socket server"
             );
           if (inputMsg) 
-            coressh::xfree (inputMsg);
+            ssh::xfree (inputMsg);
           return; // FIXME check inputMsg free
         }
         else if (len < 0)
@@ -144,7 +144,7 @@ void TCPClient::run ()
              L"by a socket server"
             );
           if (inputMsg) 
-            coressh::xfree (inputMsg);
+            ssh::xfree (inputMsg);
           return; // FIXME check inputMsg free
       }
 
@@ -153,7 +153,7 @@ void TCPClient::run ()
 
       if (inputMsg && inputMsgLen == 0) 
       {
-        coressh::xfree (inputMsg); inputMsg = 0;
+        ssh::xfree (inputMsg); inputMsg = 0;
         assert (fromChannel->n_msgs_in_the_buffer () == 0);
 
         if (fromChannel->n_msgs_in_the_buffer () != 0)
@@ -173,14 +173,14 @@ void TCPClient::run ()
       if (inputMsg)
       {
         socket->atomicio_send (inputMsg, inputMsgLen); // FIXME!!! (blocking)
-        coressh::xfree (inputMsg); inputMsg = 0;
+        ssh::xfree (inputMsg); inputMsg = 0;
       }
     }
   }
   catch (...)
   {
     if (inputMsg) 
-      coressh::xfree (inputMsg);
+      ssh::xfree (inputMsg);
     throw;
   }
 

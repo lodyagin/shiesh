@@ -26,7 +26,7 @@
 
 #pragma once
 
-namespace coressh {
+namespace ssh {
 
 int	 uuencode(const u_char *, u_int, char *, size_t);
 int	 uudecode(const char *, u_char *, size_t);

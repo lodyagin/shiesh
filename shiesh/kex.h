@@ -34,7 +34,7 @@
 
 class CoreConnection;
 
-namespace coressh {
+namespace ssh {
 
 #define	KEX_DH1			"diffie-hellman-group1-sha1"
 #define	KEX_DH14		"diffie-hellman-group14-sha1"

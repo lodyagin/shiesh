@@ -58,7 +58,7 @@
 #define SSH_BUG_RFWD_ADDR	0x02000000
 #define SSH_NEW_OPENSSH		0x04000000
 
-namespace coressh {
+namespace ssh {
 
 //void     enable_compat13(void);
 //void     enable_compat20(void);

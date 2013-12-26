@@ -29,7 +29,7 @@
 #include "buffer.h"
 #include "CoreConnection.h"
 
-namespace coressh {
+namespace ssh {
 
 const int compat13 = 0;
 const int compat20 = 1;

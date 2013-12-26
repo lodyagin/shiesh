@@ -18,7 +18,7 @@
 #include "log.h"
 #include "SShutdown.h"
 
-namespace coressh {
+namespace ssh {
 
 
 /* default implementation */

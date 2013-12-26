@@ -18,7 +18,7 @@
 #include "ThreadWithSubthreads.h"
 #include "zlib.h"
 
-using namespace coressh;
+using namespace ssh;
 
 struct CoreConnectionPars;
 

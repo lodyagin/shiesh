@@ -51,7 +51,7 @@
     extern "C" {
 #endif*/
 
-namespace coressh {
+namespace ssh {
 
 struct umac_ctx *umac_new(u_char key[]);
 /* Dynamically allocate a umac_ctx struct, initialize variables, 

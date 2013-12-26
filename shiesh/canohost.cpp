@@ -16,7 +16,7 @@
 #include "CoreConnection.h"
 #include "canohost.h"
 
-namespace coressh {
+namespace ssh {
 
 #if 0
 

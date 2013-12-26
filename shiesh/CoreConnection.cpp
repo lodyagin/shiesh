@@ -64,7 +64,7 @@ const static char *const def_proposal[PROPOSAL_MAX] = {
 	KEX_DEFAULT_LANG
 };
 
-//namespace coressh {
+//namespace ssh {
 
 class KexDispatcher : public Dispatcher
 {
@@ -111,7 +111,7 @@ void KexDispatcher::kexinit_msg
 		fatal("kex_input_kexinit: no kex, cannot rekey");
 
 	ptr = (char*) connection->packet_get_raw(&dlen);
-  coressh::buffer_append(&kex->peer, ptr, dlen);
+  ssh::buffer_append(&kex->peer, ptr, dlen);
 
 	/* discard packet */
 	for (i = 0; i < KEX_COOKIE_LEN; i++)
@@ -230,7 +230,7 @@ void CoreConnection::run ()
   try
   {
     // FIXME stop thread processing
-    coressh::sshd_exchange_identification 
+    ssh::sshd_exchange_identification 
       (*get_socket (),
        server_version_string,
        client_version_string);
@@ -476,7 +476,7 @@ CoreConnection::packet_set_timeout(int timeout, int count)
 int
 CoreConnection::packet_connection_is_on_socket(void)
 {
-  return 1; // always true for CoreSSH
+  return 1; // always true for ShieSSH
 }
 
 /*
@@ -591,7 +591,7 @@ CoreConnection::packet_set_state(int mode, u_int32_t seqnr, u_int64_t blocks, u_
 int
 CoreConnection::packet_connection_is_ipv4(void)
 {
-  return 1; // always true for CoreSSH
+  return 1; // always true for ShieSSH
 }
 
 /* Start constructing a packet to send. */
@@ -1151,7 +1151,7 @@ CoreConnection::packet_read_seqnr(u_int32_t *seqnr_p)
 		for (;;) {
 			if (packet_timeout_ms != -1) {
 				ms_to_timeval(&timeout, ms_remain);
-        coressh::gettimeofday(&start);
+        ssh::gettimeofday(&start);
         //TODO check daylight saving change
 			}
 			if ((ret = select(0 /*ignored*/, setp, NULL,
@@ -1374,9 +1374,9 @@ CoreConnection::buffer_compress_init_send(int level)
 	if (compress_init_send_called == 1)
 		deflateEnd(&outgoing_stream);
 	compress_init_send_called = 1;
-  coressh::debug("Enabling compression at level %d.", level);
+  ssh::debug("Enabling compression at level %d.", level);
 	if (level < 1 || level > 9)
-		coressh::fatal("Bad compression level %d.", level);
+		ssh::fatal("Bad compression level %d.", level);
 	deflateInit(&outgoing_stream, level);
 }
 void
@@ -1393,12 +1393,12 @@ CoreConnection::buffer_compress_init_recv(void)
 void
 CoreConnection::buffer_compress_uninit(void)
 {
-  coressh::debug("compress outgoing: raw data %llu, compressed %llu, factor %.2f",
+  ssh::debug("compress outgoing: raw data %llu, compressed %llu, factor %.2f",
 	    (unsigned long long)outgoing_stream.total_in,
 	    (unsigned long long)outgoing_stream.total_out,
 	    outgoing_stream.total_in == 0 ? 0.0 :
 	    (double) outgoing_stream.total_out / outgoing_stream.total_in);
-	coressh::debug("compress incoming: raw data %llu, compressed %llu, factor %.2f",
+	ssh::debug("compress incoming: raw data %llu, compressed %llu, factor %.2f",
 	    (unsigned long long)incoming_stream.total_out,
 	    (unsigned long long)incoming_stream.total_in,
 	    incoming_stream.total_out == 0 ? 0.0 :
@@ -2187,7 +2187,7 @@ CoreConnection::choose_kex(Kex *k, char *client, char *server)
 #if OPENSSL_VERSION_NUMBER >= 0x00907000L
 	} else if (strcmp(k->name, KEX_DHGEX_SHA256) == 0) {
 		k->kex_type = KEX_DH_GEX_SHA256;
-    k->evp_md = coressh::evp_ssh_sha256();
+    k->evp_md = ssh::evp_ssh_sha256();
 #endif
 #ifdef GSSAPI
 	} else if (strncmp(k->name, KEX_GSS_GEX_SHA1_ID,
@@ -2320,7 +2320,7 @@ CoreConnection::packet_write_wait(void)
 		for (;;) {
 			if (packet_timeout_ms != -1) {
 				ms_to_timeval(&timeout, ms_remain);
-        coressh::gettimeofday(&start);
+        ssh::gettimeofday(&start);
 			}
 			if ((ret = select(0 /*ignored*/, NULL, setp,
 			    NULL, timeoutp)) >= 0)

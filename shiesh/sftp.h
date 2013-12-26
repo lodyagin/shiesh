@@ -192,14 +192,14 @@ protected:
 // absolute path
 // 3. If the first element isn't a drive letter the whole path
 // is relative and first '\' means the root folder
-class CoreSSHPath : public Path
+class ShieSSHPath : public Path
 {
 public:
-  CoreSSHPath (const std::wstring& _path);
+  ShieSSHPath (const std::wstring& _path);
 
   // Form for a Path constructor
   static std::wstring get_standard_form 
-    (const std::wstring& coresshPath);
+    (const std::wstring& sshPath);
 };
 
 // The suffix mast be relative path

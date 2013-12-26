@@ -19,7 +19,7 @@
 #define	BUFFER_MAX_LEN		0xa00000
 #define	BUFFER_ALLOCSZ		0x008000
 
-namespace coressh {
+namespace ssh {
 
 /* Initializes the buffer structure. */
 

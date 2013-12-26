@@ -20,7 +20,7 @@
 #include <openssl/bn.h>
 
 
-namespace coressh {
+namespace ssh {
 
 typedef struct {
 	u_char	*buf;		/* Buffer for data. */

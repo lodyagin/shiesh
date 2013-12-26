@@ -26,7 +26,7 @@
 #include "ssh.h"
 #include "CoreConnection.h"
 
-namespace coressh {
+namespace ssh {
 
 static int openssh_RSA_verify(int, u_char *, u_int, u_char *, u_int, RSA *);
 

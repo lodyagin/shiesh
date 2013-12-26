@@ -6,7 +6,7 @@
 #include "BusyThreadReadBuffer.h"
 #include "buffer.h"
 
-using namespace coressh;
+using namespace ssh;
 
 class SessionChannel;
 

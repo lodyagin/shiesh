@@ -14,7 +14,7 @@
 
 #pragma once
 
-namespace coressh {
+namespace ssh {
 
 /* misc.c */
 

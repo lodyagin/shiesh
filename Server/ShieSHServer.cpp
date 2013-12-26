@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "CoreSSHServer.h"
+#include "ShieSHServer.h"
 #include <direct.h>
 #include <time.h>
 #include <string>
@@ -57,4 +57,4 @@ void CServer::error( const std::exception & x )
 }
 
 
-SDEFINE_SERVICE(CServer, L"CoreSSHServer")
+SDEFINE_SERVICE(CServer, L"ShieSSHServer")

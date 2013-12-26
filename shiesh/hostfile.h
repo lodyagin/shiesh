@@ -13,7 +13,7 @@
  */
 #pragma once
 
-namespace coressh {
+namespace ssh {
 
 typedef enum {
 	HOST_OK, HOST_NEW, HOST_CHANGED, HOST_FOUND

@@ -339,7 +339,7 @@ SFTPFilePath SFTPFilePathFactory::create_path
     (pathStrRem.length () == 0 || pathStrRem[0] != L'\\')
      ? L'\\' + pathStrRem : pathStrRem;
 
-  CoreSSHPath path (pathStr2);
+  ShieSHPath path (pathStr2);
 #else
   Path path (pathStrRem);
 #endif
@@ -375,20 +375,20 @@ SFTPFilePath SFTPFilePathFactory::create_path
   }
 }
 
-CoreSSHPath::CoreSSHPath (const std::wstring& _path)
+ShieSSHPath::ShieSSHPath (const std::wstring& _path)
 : Path (get_standard_form (_path))
 {
   isRelative = !has_drive_letter ();
 }
 
-std::wstring CoreSSHPath::get_standard_form 
-   (const std::wstring& coresshPath)
+std::wstring ShieSSHPath::get_standard_form 
+   (const std::wstring& sshPath)
 {
-  if (coresshPath.length () < 1 || coresshPath[0] != L'\\')
+  if (sshPath.length () < 1 || sshPath[0] != L'\\')
       throw Path::InvalidPath
-        (coresshPath, L" coressh path must starts with '\\'");
+        (sshPath, L" ssh path must starts with '\\'");
 
-  return coresshPath.substr (1, coresshPath.length () - 1);
+  return sshPath.substr (1, sshPath.length () - 1);
 }
 
 Path operator+ (const Path& prefix, const Path& suffix)
@@ -2004,7 +2004,7 @@ void SFTP::run ()
         (&inputMsgLen, 0, 0);
 
       if (inputMsgLen == 0) {
-        coressh::xfree (inputMsg); inputMsg = 0;
+        ssh::xfree (inputMsg); inputMsg = 0;
         assert (fromChannel->n_msgs_in_the_buffer () == 0);
 
         if (fromChannel->n_msgs_in_the_buffer () != 0)
@@ -2025,7 +2025,7 @@ void SFTP::run ()
       {
         // copy to SFTP::iqueue
 			  buffer_put_string(&iqueue, inputMsg, inputMsgLen);
-        coressh::xfree (inputMsg); inputMsg = 0;
+        ssh::xfree (inputMsg); inputMsg = 0;
 		  }
 
       /*
@@ -2042,7 +2042,7 @@ void SFTP::run ()
   catch (...)
   {
     if (inputMsg) 
-      coressh::xfree (inputMsg);
+      ssh::xfree (inputMsg);
     throw;
   }
 }

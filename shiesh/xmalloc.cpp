@@ -18,7 +18,7 @@
 #include "xmalloc.h"
 #include "log.h"
 
-namespace coressh {
+namespace ssh {
 
 void *
 xmalloc(size_t size)

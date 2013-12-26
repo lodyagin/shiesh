@@ -1,4 +1,4 @@
-/* CoreSSH add.. */
+/* ShieSSH add.. */
 
 /* $OpenBSD: atomicio.c,v 1.25 2007/06/25 12:02:27 dtucker Exp $ */
 /*
@@ -31,7 +31,7 @@
 #include "StdAfx.h"
 #include "atomicio.h"
 
-namespace coressh {
+namespace ssh {
 
 /*
  * ensure all of data on socket comes through. f==recv 

@@ -24,7 +24,7 @@
 
 #include <openssl/aes.h>
 
-namespace coressh {
+namespace ssh {
 
 const EVP_CIPHER *evp_aes_128_ctr(void);
 void ssh_aes_ctr_iv(EVP_CIPHER_CTX *, int, u_char *, u_int);

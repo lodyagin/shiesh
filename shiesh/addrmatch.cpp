@@ -19,7 +19,7 @@
 #include "StdAfx.h"
 #include "match.h"
 
-namespace coressh {
+namespace ssh {
 
 struct xaddr {
 	sa_family_t	af;

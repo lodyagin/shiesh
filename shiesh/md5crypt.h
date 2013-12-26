@@ -13,7 +13,7 @@
 
 #include "defines.h"
 
-namespace coressh {
+namespace ssh {
 
 #if defined(HAVE_MD5_PASSWORDS) && !defined(HAVE_MD5_CRYPT)
 

@@ -3,12 +3,12 @@
 #include "buffer.h"
 #include "authfile.h"
 
-using namespace coressh;
+using namespace ssh;
 
 char* SensitiveData::host_key_files[num_host_key_files] =
 {
-  "c:\\coressh\\data\\host_key_dsa",
-  "c:\\coressh\\data\\host_key_rsa" //FIXME
+  "c:\\ssh\\data\\host_key_dsa",
+  "c:\\ssh\\data\\host_key_rsa" //FIXME
 };
 
 SensitiveData::SensitiveData(void)
