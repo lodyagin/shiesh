@@ -1,35 +1,36 @@
-ShieSH (the Shielded Shell)
-===========================
+ShieSH (the Shielded Shell) server
+==================================
 
-The Cohors Concurro library is a C++ library for
-concurrent/socket programming.
+The Shielded Shell is a port of Open SSH to
+Windows operating system.
 
-It designed with several patterns in mind:
-1) a pattern for explicitly expressing states of objects;
-2) a pattern for combining different "state axis" in one
-"state space";
-2) a pattern for expressing events as object state changes;
-3) a pattern of concurrent accessible storage of class
-descendants with a (possible) virtual constructor;
-4) a pattern of a singleton which allows both construction
-and clear destruction;
-5) a socket class property decomposition / mixing
-(ClientSocket, ListeningSocket, TCPSocket, [UDPSocket], InSocket,
-OutSocket, IPv4/IPv6 can be mixed in different
-combinations to get different socket classes by a multiple
-inheritance)
-6) a never-copy-a-buffer pattern for fast data
-transmission through sockets;
-7) advanced threads;
-8) a connection abstraction (based or not based on
-sockets).
+It contains sftp, shell (windows cmd) and port forwarding.
 
-The version 1.2 is tested only on Linux.
-The version 1.1. is tested on Windows. There is a port of
-Open SSH servr based on the 1.1 version of the library.
+Why you may need it? Why not just use cygwin?
 
-The library is freely distributed under the conditions of
-the Lesser GPL v3.
+There are 2 reason that matters:
+1. Security (cygwin has known conceptual holes)
+2. Speed (cygwin doesn't use a windows native API but Open
+SSH uses Unix fork extensively).
 
+ShieSH use a dual license scheme. You may use it under the
+terms of GPL. You also can contact me or Cohors LLC to get
+a proprietary license.
+
+ShieSH sftp is very fast and well-tested.
+Shell has some glitches (windows specific) but usable. 
+Port forwarding may need some optimization. 
+
+Ulike other windows SSH implementations ShieSH use the
+original Open SSH code but all unix-specific system calls
+(like fork) are changed to use the Cohors Concurro C++
+library (https://github.com/lodyagin/concurro). It brings
+the same quality/strength as the original Open BSD SSH
+server to ShieSH.
+
+The latest versions of Concurro also works on Linux. So it
+is possible to "port back" ShieSH to Linux and ever to
+other systems that are not POSIX-based if write Concurro
+port to that systems (e.g., realtime or exokernel).
 
 
